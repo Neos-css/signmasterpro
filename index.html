@@ -82,14 +82,19 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .hero h1 .hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p.lead{font-size:1.2rem;color:#c7ccd6;margin:22px 0 30px;max-width:540px}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
-.hero-stats{display:flex;gap:30px;margin-top:40px;flex-wrap:wrap}
-.hero-stats .s b{font-family:'Anton';font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;line-height:1}
-.hero-stats .s span{font-size:.85rem;color:#9aa1ad}
+.hero-stats{display:grid;grid-template-columns:repeat(4,auto);gap:20px 32px;margin-top:38px}
+.hero-stats .s b{font-family:'IBM Plex Sans Thai',sans-serif;font-weight:700;font-size:2.1rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;line-height:1}
+.hero-stats .s span{font-size:1rem;font-weight:500;color:#b3bac6}
 .hero-card{background:linear-gradient(160deg,#222936,#161b24);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:8px;box-shadow:var(--shadow-lg)}
 .hero-card .photo{border-radius:18px;height:380px;object-fit:cover;width:100%}
-.hero-badge{position:absolute;bottom:24px;left:-14px;background:#fff;color:var(--ink);padding:14px 18px;border-radius:14px;box-shadow:var(--shadow-lg);font-weight:600;font-size:.92rem;display:flex;gap:10px;align-items:center}
+.hero-badge{position:absolute;bottom:24px;left:-14px;background:#fff;color:var(--ink);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow-lg);font-weight:600;font-size:.82rem;display:inline-flex;gap:8px;align-items:center}
 .hero-badge .dot{width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(22,163,74,.2)}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:34px}.hero-card{display:none}}
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .hero-card{display:none}
+  .hero-stats{grid-template-columns:1fr 1fr;gap:22px 18px;max-width:380px}
+  .hero-badge{position:static;left:auto;bottom:auto;margin-top:22px}
+}
 
 /* SERVICES */
 .svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:46px}
@@ -196,13 +201,14 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 .note-banner{background:#fff7e6;border-bottom:1px solid #fde68a;color:#92600c;text-align:center;font-size:.85rem;padding:8px 14px;font-weight:500}
 
 /* น้องอิงค์ — AI Sale flagship chat widget */
-.ink-fab{position:fixed;bottom:22px;right:22px;z-index:120;display:flex;align-items:center;gap:9px;border:0;cursor:pointer;
-  font-family:inherit;font-weight:700;font-size:.98rem;color:#fff;padding:12px 20px 12px 13px;border-radius:999px;
-  background:var(--grad);box-shadow:0 10px 26px rgba(230,57,0,.45);animation:inkBob 3s ease-in-out infinite;transition:.2s}
+.ink-fab{position:fixed;bottom:18px;right:18px;z-index:120;display:flex;align-items:center;gap:7px;border:0;cursor:pointer;
+  font-family:inherit;font-weight:700;font-size:.88rem;color:#fff;padding:8px 15px 8px 9px;border-radius:999px;
+  background:var(--grad);box-shadow:0 8px 20px rgba(230,57,0,.42);animation:inkBob 3s ease-in-out infinite;transition:.2s}
 .ink-fab:hover{transform:translateY(-3px) scale(1.03)}
 .ink-fab.hide{transform:scale(0);opacity:0;pointer-events:none}
-.ink-fab .ink-ava{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15rem;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
-.ink-fab:after{content:"";position:absolute;top:9px;right:16px;width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.3)}
+.ink-fab .ink-ava{width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:.95rem;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
+.ink-fab:after{content:"";position:absolute;top:6px;right:12px;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.3)}
+@media(max-width:560px){.ink-fab{font-size:.8rem;padding:7px 13px 7px 8px;bottom:14px;right:14px}.ink-fab .ink-ava{width:23px;height:23px;font-size:.85rem}}
 @keyframes inkBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .ink-chat{position:fixed;bottom:22px;right:22px;z-index:121;width:min(360px,calc(100vw - 32px));height:min(540px,calc(100vh - 90px));
   background:#fff;border-radius:20px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;
@@ -265,7 +271,6 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
         พร้อมระบบสั่งทำงาน <b>ออกแบบด้วย AI</b> และ <b>ประเมินราคาทันที</b></p>
       <div class="hero-cta">
         <a href="#order" class="btn btn-primary btn-lg">🛒 เริ่มสั่งทำงาน</a>
-        <button onclick="toggleInk()" class="btn btn-ghost btn-lg">💬 ปรึกษาน้องอิงค์</button>
         <a href="#gallery" class="btn btn-ghost btn-lg">ดูผลงาน</a>
       </div>
       <div class="hero-stats">
