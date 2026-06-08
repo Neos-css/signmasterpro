@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signmaster Pro — ศูนย์ป้ายโฆษณาครบวงจร | สั่งทำงานป้ายด้วย AI</title>
+<meta name="description" content="บริษัท ซายน์ มาสเตอร์โปร จำกัด — รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งทำงาน + ประเมินราคาด้วย AI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1116; --ink2:#1a1f29; --paper:#f6f7f9; --white:#fff;
+  --accent:#ff5a1f; --accent2:#ff8a00; --accent-deep:#e63900;
+  --line:#e7e9ee; --muted:#6b7280; --good:#16a34a;
+  --grad:linear-gradient(135deg,#ff8a00,#ff5a1f 55%,#e63900);
+  --shadow:0 10px 30px rgba(14,17,22,.10); --shadow-lg:0 24px 60px rgba(14,17,22,.20);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+.display{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.5px;line-height:1.02}
+section{padding:84px 0}
+.eyebrow{display:inline-block;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent-deep);background:#fff2eb;padding:6px 14px;border-radius:999px;margin-bottom:16px}
+.sec-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.5px}
+.sec-sub{color:var(--muted);max-width:640px;margin-top:10px;font-size:1.05rem}
+.center{text-align:center}.center .sec-sub{margin-left:auto;margin-right:auto}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:600;font-size:1rem;padding:14px 26px;border-radius:999px;border:0;cursor:pointer;transition:.2s;text-align:center}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 22px rgba(230,57,0,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(230,57,0,.45)}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.35)}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{background:#000}
+.btn-lg{padding:17px 34px;font-size:1.08rem}
+
+/* NAV */
+header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:13px;text-decoration:none}
+.brand .mark{position:relative;width:50px;height:50px;border-radius:15px;flex:none;overflow:visible;display:grid;place-items:center;
+  background:linear-gradient(150deg,#ffa64d 0%,#ff5a1f 52%,#d62f00 100%);
+  box-shadow:0 9px 20px rgba(230,57,0,.4),inset 0 1.5px 0 rgba(255,255,255,.55),inset 0 -7px 14px rgba(150,28,0,.4),inset 0 0 0 1px rgba(255,255,255,.22);
+  animation:markPulse 3.6s ease-in-out infinite}
+.brand .mark .s{position:relative;z-index:2;font-family:'IBM Plex Sans Thai',sans-serif;font-weight:500;font-size:2rem;line-height:1;
+  color:transparent;-webkit-text-stroke:1.4px #fff;text-shadow:0 0 9px rgba(255,255,255,.9),0 0 20px rgba(255,228,195,.6)}
+.brand .mark .sheen{position:absolute;inset:0;border-radius:15px;overflow:hidden;z-index:1}
+.brand .mark .sheen:before{content:"";position:absolute;inset:-20%;
+  background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.65) 50%,transparent 64%);
+  background-size:250% 100%;animation:sheen 3.4s linear infinite}
+.brand .mark .spark{position:absolute;top:-5px;right:-5px;z-index:3;font-size:.78rem;color:#fff;
+  filter:drop-shadow(0 0 5px #ffcf8f);animation:twinkle 2s ease-in-out infinite}
+.brand .wm{display:flex;flex-direction:column;line-height:1.05}
+.brand .wm-main{font-weight:700;font-size:1.02rem;letter-spacing:1.8px;color:var(--ink)}
+.brand small{display:block;font-size:.84rem;font-weight:600;letter-spacing:.2px;color:var(--accent-deep);margin-top:2px}
+.brand.on-dark .wm-main{color:#fff}
+.brand.on-dark small{color:var(--accent2)}
+@keyframes markPulse{0%,100%{box-shadow:0 9px 20px rgba(230,57,0,.4),inset 0 1.5px 0 rgba(255,255,255,.55),inset 0 -7px 14px rgba(150,28,0,.4),inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 0 rgba(255,90,31,.4)}50%{box-shadow:0 9px 24px rgba(230,57,0,.48),inset 0 1.5px 0 rgba(255,255,255,.55),inset 0 -7px 14px rgba(150,28,0,.4),inset 0 0 0 1px rgba(255,255,255,.22),0 0 0 7px rgba(255,90,31,0)}}
+@keyframes sheen{0%{background-position:210% 0}100%{background-position:-70% 0}}
+@keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8) rotate(0deg)}50%{opacity:1;transform:scale(1.16) rotate(20deg)}}
+@media(prefers-reduced-motion:reduce){.brand .mark,.brand .mark .sheen:before,.brand .spark{animation:none}}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-weight:500;color:#374151;font-size:.97rem;transition:.15s}
+.nav-links a:hover{color:var(--accent-deep)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.burger{display:none;background:none;border:0;cursor:pointer;font-size:1.6rem;color:var(--ink)}
+@media(max-width:900px){
+  .nav-links{position:fixed;inset:68px 0 auto 0;background:#fff;flex-direction:column;padding:18px 22px;gap:4px;border-bottom:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(-130%);transition:.3s;align-items:flex-start}
+  .nav-links.open{transform:translateY(0)}
+  .nav-links a{padding:11px 0;width:100%;border-bottom:1px solid var(--line)}
+  .burger{display:block}.nav-cta .btn:not(.burger){display:none}
+}
+
+/* HERO */
+.hero{position:relative;background:radial-gradient(1200px 500px at 80% -10%,rgba(255,138,0,.25),transparent),var(--ink);color:#fff;padding:96px 0 84px;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 2px,transparent 2px 22px);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:50px;align-items:center;position:relative}
+.hero h1{font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:700;letter-spacing:-1px;line-height:1.05}
+.hero h1 .hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:1.2rem;color:#c7ccd6;margin:22px 0 30px;max-width:540px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:30px;margin-top:40px;flex-wrap:wrap}
+.hero-stats .s b{font-family:'Anton';font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;line-height:1}
+.hero-stats .s span{font-size:.85rem;color:#9aa1ad}
+.hero-card{background:linear-gradient(160deg,#222936,#161b24);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:8px;box-shadow:var(--shadow-lg)}
+.hero-card .photo{border-radius:18px;height:380px;object-fit:cover;width:100%}
+.hero-badge{position:absolute;bottom:24px;left:-14px;background:#fff;color:var(--ink);padding:14px 18px;border-radius:14px;box-shadow:var(--shadow-lg);font-weight:600;font-size:.92rem;display:flex;gap:10px;align-items:center}
+.hero-badge .dot{width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(22,163,74,.2)}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:34px}.hero-card{display:none}}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:46px}
+.svc{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.25s;cursor:pointer}
+.svc:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:#fff}
+.svc .ic{height:172px;background:var(--ink2);position:relative;overflow:hidden}
+.svc .ic img{height:100%;width:100%;object-fit:cover;object-position:center;display:block;transition:.5s}
+.svc .ic:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,17,22,.15),rgba(14,17,22,.04) 40%,rgba(14,17,22,.28));pointer-events:none}
+.svc:hover .ic img{transform:scale(1.07)}
+.svc .body{padding:20px}
+.svc h3{font-size:1.2rem;font-weight:700}
+.svc p{color:var(--muted);font-size:.92rem;margin-top:6px}
+.svc .tag{font-size:.78rem;font-weight:700;color:var(--accent-deep);margin-top:12px;display:inline-flex;align-items:center;gap:5px}
+@media(max-width:900px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.svc-grid{grid-template-columns:1fr}}
+
+/* GALLERY */
+.gallery{background:var(--white)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:30px 0 28px}
+.filters button{font-family:inherit;font-weight:600;font-size:.92rem;padding:9px 20px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:#374151;cursor:pointer;transition:.18s}
+.filters button.active,.filters button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid-masonry{columns:4;column-gap:14px}
+@media(max-width:1000px){.grid-masonry{columns:3}}
+@media(max-width:700px){.grid-masonry{columns:2}}
+.gitem{break-inside:avoid;margin-bottom:14px;border-radius:12px;overflow:hidden;position:relative;cursor:pointer;background:#eee}
+.gitem img{width:100%;transition:.4s}
+.gitem:hover img{transform:scale(1.05)}
+.gitem .cap{position:absolute;inset:auto 0 0 0;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;padding:24px 12px 10px;font-size:.82rem;font-weight:600;opacity:0;transition:.25s}
+.gitem:hover .cap{opacity:1}
+
+/* WIZARD */
+.wizard-sec{background:linear-gradient(180deg,var(--paper),#eef0f4)}
+.wizard{background:#fff;border-radius:24px;box-shadow:var(--shadow-lg);max-width:860px;margin:40px auto 0;overflow:hidden}
+.wz-head{background:var(--ink);color:#fff;padding:22px 30px}
+.steps{display:flex;gap:6px;margin-top:16px}
+.steps .st{flex:1;text-align:center;font-size:.72rem;color:#8b93a1;font-weight:600;position:relative;padding-top:20px}
+.steps .st:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#2c3340;border:2px solid #3a4250;transition:.2s}
+.steps .st.done:before{background:var(--good);border-color:var(--good);content:"✓";color:#fff;font-size:.7rem;line-height:14px}
+.steps .st.active:before{background:var(--accent);border-color:var(--accent)}
+.steps .st.active{color:#fff}
+.steps .bar{position:absolute;top:8px;left:-50%;width:100%;height:2px;background:#3a4250;z-index:0}
+.steps .st:first-child .bar{display:none}
+.steps .st.done .bar{background:var(--good)}
+.wz-body{padding:34px 30px;min-height:300px}
+.wz-step{display:none;animation:fade .35s}
+.wz-step.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.wz-step h3{font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.wz-step .hint{color:var(--muted);margin-bottom:22px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.choice .opt{border:2px solid var(--line);border-radius:16px;padding:28px 22px;text-align:center;cursor:pointer;transition:.2s}
+.choice .opt:hover{border-color:var(--accent);background:#fff7f3}
+.choice .opt.sel{border-color:var(--accent);background:#fff2eb;box-shadow:0 0 0 4px rgba(255,90,31,.12)}
+.choice .opt .em{font-size:2.6rem}
+.choice .opt b{display:block;margin:10px 0 4px;font-size:1.1rem}
+.choice .opt small{color:var(--muted)}
+@media(max-width:560px){.choice{grid-template-columns:1fr}}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+.field input,.field select{width:100%;font-family:inherit;font-size:1rem;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;transition:.15s}
+.field input:focus,.field select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,90,31,.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.preview-box{border:2px dashed var(--line);border-radius:16px;min-height:230px;display:grid;place-items:center;text-align:center;color:var(--muted);overflow:hidden;background:#fafbfc;padding:14px}
+.preview-box img{max-height:300px;border-radius:10px}
+.areainfo{background:#fff7f3;border:1px solid #ffd9c7;border-radius:12px;padding:12px 16px;margin-top:10px;font-weight:600;color:var(--accent-deep)}
+.wz-foot{display:flex;justify-content:space-between;gap:12px;padding:20px 30px;border-top:1px solid var(--line);background:#fcfcfd}
+.draft-badge{display:inline-flex;align-items:center;gap:7px;background:#fff7e6;color:#b45309;border:1px solid #fde68a;font-weight:600;font-size:.82rem;padding:7px 13px;border-radius:999px}
+/* quote result */
+.quote{background:linear-gradient(160deg,#fff,#fff7f3);border:1px solid #ffd9c7;border-radius:18px;padding:26px}
+.quote .ln{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #f0d9cd;font-size:.98rem}
+.quote .ln.total{border:0;margin-top:8px;padding-top:16px;font-size:1.5rem;font-weight:700}
+.quote .ln.total b{font-family:'Anton';color:var(--accent-deep)}
+.quote .muted{color:var(--muted)}
+
+/* ABOUT */
+.about{background:var(--ink);color:#fff}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.vals{display:grid;gap:16px;margin-top:24px}
+.val{display:flex;gap:14px;align-items:flex-start}
+.val .n{flex:none;width:42px;height:42px;border-radius:12px;background:var(--grad);display:grid;place-items:center;font-family:'Anton';font-size:1.1rem}
+.val b{font-size:1.05rem}.val p{color:#aab0bc;font-size:.92rem}
+.about-photo{border-radius:20px;height:420px;object-fit:cover;width:100%;box-shadow:var(--shadow-lg)}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:30px}.about-photo{height:280px}}
+
+/* CONTACT / FOOTER */
+footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px}
+.foot h4{color:#fff;font-size:1.05rem;margin-bottom:16px}
+.foot-grid a,.foot-grid p{color:#9aa1ad;font-size:.94rem;padding:5px 0;display:block}
+.foot-grid a:hover{color:var(--accent2)}
+.copy{border-top:1px solid #1c2230;margin-top:40px;padding-top:22px;text-align:center;color:#6b7280;font-size:.86rem}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:26px}}
+
+/* LIGHTBOX MODAL */
+.lb{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:100;display:none;place-items:center;padding:30px}
+.lb.open{display:grid}
+.lb img{max-width:92vw;max-height:86vh;border-radius:10px;box-shadow:var(--shadow-lg)}
+.lb .x{position:absolute;top:20px;right:26px;color:#fff;font-size:2.4rem;cursor:pointer;line-height:1}
+.lb .nav-a{position:absolute;top:50%;transform:translateY(-50%);font-size:3rem;color:#fff;cursor:pointer;user-select:none;padding:0 18px;opacity:.7}
+.lb .nav-a:hover{opacity:1}.lb .prev{left:6px}.lb .next{right:6px}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:200;transition:.35s;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.note-banner{background:#fff7e6;border-bottom:1px solid #fde68a;color:#92600c;text-align:center;font-size:.85rem;padding:8px 14px;font-weight:500}
+
+/* น้องอิงค์ — AI Sale flagship chat widget */
+.ink-fab{position:fixed;bottom:22px;right:22px;z-index:120;display:flex;align-items:center;gap:9px;border:0;cursor:pointer;
+  font-family:inherit;font-weight:700;font-size:.98rem;color:#fff;padding:12px 20px 12px 13px;border-radius:999px;
+  background:var(--grad);box-shadow:0 10px 26px rgba(230,57,0,.45);animation:inkBob 3s ease-in-out infinite;transition:.2s}
+.ink-fab:hover{transform:translateY(-3px) scale(1.03)}
+.ink-fab.hide{transform:scale(0);opacity:0;pointer-events:none}
+.ink-fab .ink-ava{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15rem;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
+.ink-fab:after{content:"";position:absolute;top:9px;right:16px;width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.3)}
+@keyframes inkBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.ink-chat{position:fixed;bottom:22px;right:22px;z-index:121;width:min(360px,calc(100vw - 32px));height:min(540px,calc(100vh - 90px));
+  background:#fff;border-radius:20px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(20px) scale(.9);opacity:0;pointer-events:none;transform-origin:bottom right;transition:.25s}
+.ink-chat.open{transform:none;opacity:1;pointer-events:auto}
+.ink-head{display:flex;align-items:center;gap:11px;padding:15px 16px;background:var(--grad);color:#fff}
+.ink-head .ink-ava{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.4rem;flex:none}
+.ink-head b{font-size:1.05rem;display:block;line-height:1.2}
+.ink-head small{font-size:.74rem;opacity:.9;display:flex;align-items:center;gap:5px}
+.ink-head small:before{content:"";width:7px;height:7px;border-radius:50%;background:#22ff88;box-shadow:0 0 6px #22ff88}
+.ink-head .ink-x{margin-left:auto;font-size:1.7rem;cursor:pointer;line-height:1;opacity:.85}
+.ink-head .ink-x:hover{opacity:1}
+.ink-body{flex:1;overflow-y:auto;padding:16px;background:#f6f7f9;display:flex;flex-direction:column;gap:10px}
+.ink-msg{max-width:82%;padding:10px 14px;border-radius:15px;font-size:.92rem;line-height:1.5;animation:fade .3s}
+.ink-msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.ink-msg.me{background:var(--ink);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.ink-quick{display:flex;gap:7px;flex-wrap:wrap;padding:10px 14px;background:#f6f7f9;border-top:1px solid var(--line)}
+.ink-quick button{font-family:inherit;font-size:.82rem;font-weight:600;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:#374151;cursor:pointer;transition:.15s}
+.ink-quick button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ink-input{display:flex;gap:8px;padding:12px 14px;background:#fff;border-top:1px solid var(--line)}
+.ink-input input{flex:1;font-family:inherit;font-size:.92rem;padding:11px 14px;border:1.5px solid var(--line);border-radius:999px;outline:0}
+.ink-input input:focus{border-color:var(--accent)}
+.ink-input button{flex:none;width:42px;border:0;border-radius:50%;background:var(--grad);color:#fff;font-size:1.1rem;cursor:pointer}
+@media(prefers-reduced-motion:reduce){.ink-fab{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- DEMO banner -->
+<div class="note-banner">🚧 เว็บตัวอย่าง (Demo) · ราคาที่แสดงเป็น “ประมาณการ” รอยืนยันราคาจริง · พัฒนาโดยทีม Neo-S AI</div>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a href="#top" class="brand">
+      <span class="mark"><span class="sheen"></span><span class="s">S</span><span class="spark">✦</span></span>
+      <span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#services" onclick="closeNav()">บริการ</a>
+      <a href="#gallery" onclick="closeNav()">ผลงาน</a>
+      <a href="#order" onclick="closeNav()">สั่งทำงาน</a>
+      <a href="#about" onclick="closeNav()">เกี่ยวกับเรา</a>
+      <a href="#contact" onclick="closeNav()">ติดต่อ</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#order" class="btn btn-primary">เริ่มสั่งทำงาน</a>
+      <button class="burger" onclick="toggleNav()" aria-label="menu">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a">ก่อตั้งปี 2550 · ประสบการณ์กว่า 17 ปี</span>
+      <h1>ป้ายโฆษณา<br><span class="hl">ครบทุกบริการ</span><br>ในที่เดียว</h1>
+      <p class="lead">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ
+        พร้อมระบบสั่งทำงาน <b>ออกแบบด้วย AI</b> และ <b>ประเมินราคาทันที</b></p>
+      <div class="hero-cta">
+        <a href="#order" class="btn btn-primary btn-lg">🛒 เริ่มสั่งทำงาน</a>
+        <button onclick="toggleInk()" class="btn btn-ghost btn-lg">💬 ปรึกษาน้องอิงค์</button>
+        <a href="#gallery" class="btn btn-ghost btn-lg">ดูผลงาน</a>
+      </div>
+      <div class="hero-stats">
+        <div class="s"><b>17+</b><span>ปีประสบการณ์</span></div>
+        <div class="s"><b>4</b><span>กลุ่มบริการหลัก</span></div>
+        <div class="s"><b>30+</b><span>ชนิดงานป้าย</span></div>
+        <div class="s"><b>100%</b><span>ผลิต+ติดตั้งเอง</span></div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <div class="hero-card">
+        <img class="photo" src="media/assets/img/service/gallery/lightbox-neon/lightbox-neon1.jpg" alt="ผลงานป้ายตู้ไฟนีออน" onerror="this.src='media/assets/img/header.png'">
+      </div>
+      <div class="hero-badge"><span class="dot"></span> ตรงต่อเวลา · ใส่ใจทุกรายละเอียด</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap center">
+    <span class="eyebrow">บริการของเรา</span>
+    <h2 class="sec-title">งานป้ายครบวงจร 4 กลุ่มหลัก</h2>
+    <p class="sec-sub">ตั้งแต่ออกแบบ ผลิต จนถึงติดตั้งหน้างาน — จบในที่เดียว</p>
+    <div class="svc-grid">
+      <div class="svc" onclick="filterTo('booth')">
+        <div class="ic"><img loading="lazy" style="object-position:center 42%" src="media/assets/img/service/gallery/booth/booth1.jpg" alt="บูธ & อีเวนต์" onerror="this.parentNode.innerHTML='🎪'"></div>
+        <div class="body"><h3>🎪 บูธ & อีเวนต์</h3><p>ออกบูธ ทำบูธ อุปกรณ์ออกบูธ Roll Up Backdrop งาน Event ครบชุด</p><span class="tag">ดูผลงาน →</span></div>
+      </div>
+      <div class="svc" onclick="filterTo('inkjet')">
+        <div class="ic"><img loading="lazy" style="object-position:center 38%" src="media/assets/img/service/gallery/inkjet-vinyl/inkjet-vinyl3.jpg" alt="งานอิงค์เจท" onerror="this.parentNode.innerHTML='🖨️'"></div>
+        <div class="body"><h3>🖨️ งานอิงค์เจท</h3><p>ไวนิล สติกเกอร์ คมชัด 720–1440 DPI ทั้งงานกลางแจ้งและในร่ม</p><span class="tag">ดูผลงาน →</span></div>
+      </div>
+      <div class="svc" onclick="filterTo('sign')">
+        <div class="ic"><img loading="lazy" style="object-position:center 78%" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="ป้ายทุกชนิด" onerror="this.parentNode.innerHTML='🪧'"></div>
+        <div class="body"><h3>🪧 ป้ายทุกชนิด</h3><p>ป้ายสตีล ซิงค์ โลหะ คอมโพสิท ตัวอักษรโลหะ บิลบอร์ด หน้าอาคาร</p><span class="tag">ดูผลงาน →</span></div>
+      </div>
+      <div class="svc" onclick="filterTo('lightbox')">
+        <div class="ic"><img loading="lazy" style="object-position:center 45%" src="media/assets/img/service/gallery/lightbox-front-light/lightbox-front-light1.jpg" alt="ตู้ไฟ" onerror="this.parentNode.innerHTML='💡'"></div>
+        <div class="body"><h3>💡 ตู้ไฟ (Lightbox)</h3><p>ตู้ไฟ นีออน ไฟออกหน้า-หลัง ตัวอักษรซ่อนไฟ LED Moving</p><span class="tag">ดูผลงาน →</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery" id="gallery">
+  <div class="wrap center">
+    <span class="eyebrow">ผลงานจริง</span>
+    <h2 class="sec-title">ผลงานที่เราภูมิใจ</h2>
+    <p class="sec-sub">คัดผลงานจริงจากลูกค้าหลากหลายแบรนด์ — คลิกที่รูปเพื่อดูเต็ม</p>
+    <div class="filters" id="filters"></div>
+    <div class="grid-masonry" id="galleryGrid"></div>
+    <button class="btn btn-dark btn-lg" id="moreBtn" style="margin-top:26px" onclick="moreGallery()">ดูผลงานเพิ่ม</button>
+  </div>
+</section>
+
+<!-- WIZARD / ORDER -->
+<section class="wizard-sec" id="order">
+  <div class="wrap center">
+    <span class="eyebrow">สั่งทำงาน</span>
+    <h2 class="sec-title">สั่งทำงานป้าย + ประเมินราคาทันที</h2>
+    <p class="sec-sub">เพียง 6 ขั้นตอน — มีแบบอยู่แล้วก็อัปโหลด ไม่มีแบบให้ AI ช่วยออกแบบ</p>
+  </div>
+
+  <div class="wizard">
+    <div class="wz-head">
+      <b>🛒 ระบบสั่งทำงาน Signmaster Pro</b>
+      <div class="steps" id="steps">
+        <div class="st" data-s="1"><span class="bar"></span>ที่มาของแบบ</div>
+        <div class="st" data-s="2"><span class="bar"></span>ดูแบบ</div>
+        <div class="st" data-s="3"><span class="bar"></span>วัสดุ</div>
+        <div class="st" data-s="4"><span class="bar"></span>ขนาด</div>
+        <div class="st" data-s="5"><span class="bar"></span>ข้อมูล</div>
+        <div class="st" data-s="6"><span class="bar"></span>ราคา</div>
+      </div>
+    </div>
+
+    <div class="wz-body">
+      <!-- STEP 1 -->
+      <div class="wz-step show" data-step="1">
+        <h3>1 · เลือกที่มาของแบบ</h3>
+        <p class="hint">คุณมีไฟล์แบบป้ายอยู่แล้ว หรือให้เราออกแบบให้?</p>
+        <div class="choice">
+          <div class="opt" data-src="import" onclick="pickSource('import')">
+            <div class="em">📁</div><b>อัปโหลดไฟล์แบบ</b><small>มีแบบอยู่แล้ว (JPG/PNG/PDF)</small>
+          </div>
+          <div class="opt" data-src="ai" onclick="pickSource('ai')">
+            <div class="em">🤖</div><b>ให้น้องอิงค์ (AI) ออกแบบ</b><small>ยังไม่มีแบบ? พิมพ์ไอเดียให้น้องอิงค์สร้างให้</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="wz-step" data-step="2">
+        <h3>2 · ดูแบบ / พรีวิว</h3>
+        <p class="hint" id="step2hint">อัปโหลดไฟล์แบบของคุณ</p>
+        <div id="importPane">
+          <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="onFile(event)">
+          <div class="preview-box" id="previewBox" onclick="document.getElementById('fileInput').click()">
+            <div>📤<br><b>คลิกเพื่อเลือกไฟล์รูปแบบป้าย</b><br><small>รองรับ JPG, PNG · พรีวิวทันที</small></div>
+          </div>
+        </div>
+        <div id="aiPane" style="display:none">
+          <div class="field"><label>อธิบายแบบที่ต้องการ (บรีฟให้ AI)</label>
+            <input id="aiPrompt" placeholder="เช่น ป้ายร้านกาแฟ โทนน้ำตาล มินิมอล มีโลโก้แก้วกาแฟ"></div>
+          <div class="preview-box" id="aiPreview">
+            <div>🤖<br><b>ตัวอย่างแบบจากน้องอิงค์จะแสดงตรงนี้</b><br><small>* เดโม: น้องอิงค์จะ Gen ภาพจริงด้วย AI เมื่อต่อ backend (Gemini)</small></div>
+          </div>
+          <button class="btn btn-dark" style="margin-top:14px" onclick="mockGen()">✨ ลองให้ AI สร้างตัวอย่าง</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="wz-step" data-step="3">
+        <h3>3 · เลือกชนิดวัสดุ</h3>
+        <p class="hint">เลือกวัสดุที่ต้องการ — ราคาคิดตามตารางจริงของร้าน</p>
+        <div class="field"><label>กลุ่มงาน</label>
+          <select id="matGroup" onchange="buildMaterials()">
+            <option value="inkjet">🖨️ งานอิงค์เจท (คิดตาม ตร.ม.)</option>
+            <option value="sign">🪧 ป้ายทุกชนิด (ประเมินหน้างาน)</option>
+            <option value="lightbox">💡 ตู้ไฟ (ประเมินหน้างาน)</option>
+          </select>
+        </div>
+        <div class="field"><label>ชนิดวัสดุ</label>
+          <select id="material" onchange="updateArea()"></select>
+        </div>
+        <div class="field" id="extraOpts">
+          <label><input type="checkbox" id="optDesign" style="width:auto" onchange="updateArea()"> ให้เราออกแบบให้ (+ค่าออกแบบ)</label>
+          <label style="margin-top:8px"><input type="checkbox" id="optInstall" style="width:auto" onchange="updateArea()"> ต้องการบริการติดตั้งหน้างาน</label>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="wz-step" data-step="4">
+        <h3>4 · ระบุขนาด & จำนวน</h3>
+        <p class="hint">กรอกขนาดป้าย (หน่วยเมตร) และจำนวนที่ต้องการ</p>
+        <div class="row2">
+          <div class="field"><label>กว้าง (เมตร)</label><input type="number" id="w" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
+          <div class="field"><label>สูง/ยาว (เมตร)</label><input type="number" id="h" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
+        </div>
+        <div class="field"><label>จำนวน (ชิ้น)</label><input type="number" id="qty" min="1" step="1" value="1" oninput="updateArea()"></div>
+        <div class="areainfo" id="areaInfo">พื้นที่รวม: 1.00 ตร.ม.</div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="wz-step" data-step="5">
+        <h3>5 · ข้อมูลลูกค้า</h3>
+        <p class="hint">กรอกข้อมูลเพื่อรับใบประเมินราคาและให้ทีมงานติดต่อกลับ</p>
+        <div class="field"><label>ชื่อ-นามสกุล *</label><input id="cName" placeholder="ชื่อของคุณ"></div>
+        <div class="row2">
+          <div class="field"><label>เบอร์โทร *</label><input id="cPhone" placeholder="08x-xxx-xxxx"></div>
+          <div class="field"><label>อีเมล</label><input id="cEmail" placeholder="you@email.com"></div>
+        </div>
+        <div class="field"><label>สถานที่ติดตั้ง / หมายเหตุ</label><input id="cNote" placeholder="เช่น หน้าร้าน ถ.สุขุมวิท / ต้องการด่วน"></div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="wz-step" data-step="6">
+        <h3>6 · สรุป & ประเมินราคา</h3>
+        <p class="hint">ราคาประเมินเบื้องต้นจากข้อมูลที่กรอก</p>
+        <div id="quoteOut"></div>
+      </div>
+    </div>
+
+    <div class="wz-foot">
+      <button class="btn btn-dark" id="btnBack" onclick="goStep(cur-1)" style="visibility:hidden">← ย้อนกลับ</button>
+      <button class="btn btn-primary" id="btnNext" onclick="next()">ถัดไป →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="wrap about-grid">
+    <div>
+      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a">เกี่ยวกับเรา</span>
+      <h2 class="sec-title" style="color:#fff;font-size:clamp(1.45rem,3.2vw,2.2rem);text-wrap:balance">บริษัท ซายน์ มาสเตอร์โปร จำกัด</h2>
+      <p style="color:#aab0bc;margin-top:14px">เริ่มจากการผลิตสื่อโฆษณางานซิลค์สกรีน สติกเกอร์ นามบัตร และงานพิมพ์ทั่วไป
+        จนเติบโตเป็นศูนย์ป้ายโฆษณาครบวงจร ก่อตั้งปี 2550 — ผลิตด้วยเทคโนโลยีการพิมพ์คุณภาพสูง พร้อมทีมติดตั้งมืออาชีพ</p>
+      <div class="vals">
+        <div class="val"><span class="n">1</span><div><b>ใส่ใจทุกรายละเอียด</b><p>ทุกรายละเอียดถึงแม้เล็กน้อย เราก็ไม่พลาด</p></div></div>
+        <div class="val"><span class="n">2</span><div><b>ตรงต่อเวลา</b><p>การส่งงานตรงเวลาคือสิ่งที่เราให้ความสำคัญเป็นอันดับแรก</p></div></div>
+        <div class="val"><span class="n">3</span><div><b>ครบ + ราคายุติธรรม</b><p>มีครบทุกบริการ พร้อมไอเดียดีๆ ในราคาที่ยุติธรรม</p></div></div>
+      </div>
+    </div>
+    <img class="about-photo" src="office.jpg" alt="สำนักงาน Signmaster Pro" onerror="this.onerror=null;this.src='media/assets/img/service/gallery/sign-background/sign-background1.jpg'">
+  </div>
+</section>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand on-dark" style="margin-bottom:14px"><span class="mark"><span class="sheen"></span><span class="s">S</span><span class="spark">✦</span></span><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
+        <p>รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
+      </div>
+      <div>
+        <h4>ติดต่อเรา</h4>
+        <a href="tel:024737050">📞 0-2373-7050-2</a>
+        <a href="tel:0865915313">📱 08-6591-5313 (คุณนก)</a>
+        <a href="tel:0958871222">📱 09-5887-1222 (คุณกิ๊ฟ)</a>
+        <a href="http://line.me/ti/p/sign_masterpro" target="_blank">💬 LINE: sign_masterpro</a>
+        <a href="https://www.facebook.com/signmasterpro/" target="_blank">📘 Facebook: signmasterpro</a>
+      </div>
+      <div>
+        <h4>ที่อยู่</h4>
+        <p>188/7 ถ.กาญจนาภิเษก<br>แขวงสะพานสูง เขตสะพานสูง<br>กรุงเทพฯ 10250</p>
+        <p>จ–ส 08:00–17:00 น.</p>
+      </div>
+    </div>
+    <div class="copy">© 2550–2569 บริษัท ซายน์ มาสเตอร์โปร จำกัด · เว็บตัวอย่างพัฒนาโดยทีม Neo-S AI</div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <span class="x" onclick="closeLB()">×</span>
+  <span class="nav-a prev" onclick="lbNav(-1)">‹</span>
+  <img id="lbImg" src="" alt="">
+  <span class="nav-a next" onclick="lbNav(1)">›</span>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- น้องอิงค์ — AI Sale flagship -->
+<button class="ink-fab" id="inkFab" onclick="toggleInk()" aria-label="ปรึกษาน้องอิงค์">
+  <span class="ink-ava">🤖</span><span>ปรึกษาน้องอิงค์</span>
+</button>
+<div class="ink-chat" id="inkChat">
+  <div class="ink-head">
+    <span class="ink-ava">🤖</span>
+    <div><b>น้องอิงค์</b><small>ผู้ช่วย AI งานป้าย · ออนไลน์ 24 ชม.</small></div>
+    <span class="ink-x" onclick="toggleInk()">×</span>
+  </div>
+  <div class="ink-body" id="inkBody">
+    <div class="ink-msg bot">สวัสดีค่ะ 👋 <b>น้องอิงค์</b>เองค่ะ ผู้ช่วย AI ของ Signmaster Pro<br>อยากทำป้ายแบบไหนดีคะ? สอบถามบริการ ขอดูผลงาน หรือประเมินราคาได้เลยค่ะ 🙂</div>
+  </div>
+  <div class="ink-quick">
+    <button onclick="inkAsk('ขอประเมินราคางานป้าย')">💰 ประเมินราคา</button>
+    <button onclick="inkAsk('มีบริการอะไรบ้าง')">🧱 บริการ</button>
+    <button onclick="inkAsk('ขอดูผลงาน')">🖼️ ผลงาน</button>
+  </div>
+  <div class="ink-input">
+    <input id="inkText" placeholder="พิมพ์ถึงน้องอิงค์..." onkeydown="if(event.key==='Enter')inkSend()">
+    <button onclick="inkSend()" aria-label="ส่ง">➤</button>
+  </div>
+</div>
+
+<script src="price-config.js"></script>
+<script src="gallery-data.js"></script>
+<script>
+/* ---------- NAV ---------- */
+function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
+function closeNav(){document.getElementById('navLinks').classList.remove('open')}
+
+/* ---------- GALLERY ---------- */
+const GROUPS={all:'ทั้งหมด',booth:'🎪 บูธ',sign:'🪧 ป้าย',inkjet:'🖨️ อิงค์เจท',lightbox:'💡 ตู้ไฟ'};
+let flatImgs=[],lbList=[],lbIdx=0;
+function buildGallery(){
+  const fwrap=document.getElementById('filters');
+  Object.entries(GROUPS).forEach(([k,v])=>{
+    const b=document.createElement('button');b.textContent=v;b.dataset.g=k;
+    if(k==='all')b.classList.add('active');
+    b.onclick=()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderGallery(k)};
+    fwrap.appendChild(b);
+  });
+  // flatten
+  Object.values(window.GALLERY||{}).forEach(cat=>{
+    cat.imgs.forEach(src=>flatImgs.push({src,group:cat.group,label:cat.label}));
+  });
+  renderGallery('all');
+}
+const PAGE=18;let shown=0,curG='all';
+function renderGallery(g){
+  curG=g;shown=0;
+  const grid=document.getElementById('galleryGrid');grid.innerHTML='';
+  lbList=flatImgs.filter(i=>g==='all'||i.group===g);
+  moreGallery();
+}
+function moreGallery(){
+  const grid=document.getElementById('galleryGrid');
+  const end=Math.min(shown+PAGE,lbList.length);
+  for(let i=shown;i<end;i++){
+    const it=lbList[i];
+    const d=document.createElement('div');d.className='gitem';
+    d.innerHTML=`<img loading="lazy" src="${it.src}" alt="${it.label}"><div class="cap">${it.label}</div>`;
+    d.onclick=()=>openLB(i);
+    grid.appendChild(d);
+  }
+  shown=end;
+  const btn=document.getElementById('moreBtn');
+  if(btn)btn.style.display=shown<lbList.length?'inline-flex':'none';
+  if(btn)btn.textContent=`ดูผลงานเพิ่ม (${lbList.length-shown} รูป)`;
+}
+function filterTo(g){location.hash='#gallery';setTimeout(()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x.dataset.g===g));renderGallery(g)},250)}
+function openLB(i){lbIdx=i;document.getElementById('lbImg').src=lbList[i].src;document.getElementById('lb').classList.add('open')}
+function closeLB(){document.getElementById('lb').classList.remove('open')}
+function lbNav(d){lbIdx=(lbIdx+d+lbList.length)%lbList.length;document.getElementById('lbImg').src=lbList[lbIdx].src}
+document.addEventListener('keydown',e=>{if(!document.getElementById('lb').classList.contains('open'))return;if(e.key==='Escape')closeLB();if(e.key==='ArrowRight')lbNav(1);if(e.key==='ArrowLeft')lbNav(-1)});
+
+/* ---------- WIZARD ---------- */
+const PC=window.PRICE_CONFIG;
+let cur=1;
+const state={source:null,img:null,group:'inkjet',matId:null,w:1,h:1,qty:1};
+
+function pickSource(s){
+  state.source=s;
+  document.querySelectorAll('.choice .opt').forEach(o=>o.classList.toggle('sel',o.dataset.src===s));
+  document.getElementById('importPane').style.display=s==='import'?'block':'none';
+  document.getElementById('aiPane').style.display=s==='ai'?'block':'none';
+  document.getElementById('step2hint').textContent=s==='import'?'อัปโหลดไฟล์แบบของคุณ':'อธิบายไอเดีย แล้วให้ AI สร้างตัวอย่าง';
+}
+function onFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{state.img=ev.target.result;document.getElementById('previewBox').innerHTML=`<img src="${ev.target.result}">`};
+  r.readAsDataURL(f);
+}
+function mockGen(){
+  const p=(document.getElementById('aiPrompt').value||'').trim();
+  if(!p){toast('พิมพ์บรีฟให้ AI ก่อนนะคะ');return}
+  const box=document.getElementById('aiPreview');
+  box.innerHTML='<div>⏳ กำลังจินตนาการแบบ...</div>';
+  setTimeout(()=>{box.innerHTML='<div>🤖<br><b>ตัวอย่าง (เดโม)</b><br><small>บรีฟ: “'+p+'”<br>ระบบ Gen ภาพจริงด้วย Gemini จะเชื่อมตอนต่อ backend</small></div>'},900);
+}
+
+function buildMaterials(){
+  state.group=document.getElementById('matGroup').value;
+  const sel=document.getElementById('material');sel.innerHTML='';
+  const mats=PC.materials.filter(m=>m.group===state.group);
+  // group by line via optgroup
+  const lines=[...new Set(mats.map(m=>m.line))];
+  lines.forEach(ln=>{
+    const og=document.createElement('optgroup');og.label=ln;
+    mats.filter(m=>m.line===ln).forEach(m=>{
+      const o=document.createElement('option');o.value=m.id;
+      o.textContent=m.quote?m.name+' — ประเมินหน้างาน':`${m.name} — ${m.price_1_9}฿/ตร.ม.`;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  document.getElementById('extraOpts').style.display=state.group==='inkjet'?'block':'none';
+  updateArea();
+}
+function curMat(){return PC.materials.find(m=>m.id===document.getElementById('material').value)}
+function area(){return (parseFloat(document.getElementById('w').value)||0)*(parseFloat(document.getElementById('h').value)||0)*(parseInt(document.getElementById('qty').value)||1)}
+function updateArea(){
+  const a=area();
+  document.getElementById('areaInfo').textContent='พื้นที่รวม: '+a.toFixed(2)+' ตร.ม.';
+}
+
+function calcQuote(){
+  const m=curMat(),a=area();
+  const lines=[];let total=0;
+  const fmt=n=>n.toLocaleString('th-TH');
+  if(!m||m.quote){
+    return {quote:true,html:`<div class="quote">
+      <p style="font-size:1.1rem;font-weight:600">งานกลุ่มนี้ต้องประเมินราคาหน้างาน</p>
+      <p class="muted" style="margin-top:8px">ป้าย/ตู้ไฟ มีรายละเอียดวัสดุ โครงสร้าง และการติดตั้งที่หลากหลาย ทีมงานจะติดต่อกลับเพื่อเสนอราคาที่แม่นยำที่สุดค่ะ</p>
+    </div>`};
+  }
+  const unit=a>=10?m.price_10:m.price_1_9;
+  const sub=unit*a;total+=sub;
+  lines.push([`${m.name} (${m.line})`,`${a.toFixed(2)} ตร.ม. × ${unit}฿`,sub]);
+  if(a>=10)lines.push([`ส่วนลดปริมาณ (≥10 ตร.ม.)`,'ใช้เรตพิเศษแล้ว',0]);
+  if(document.getElementById('optDesign').checked){const d=PC.options.design_fee.price;total+=d;lines.push([PC.options.design_fee.label,'',d])}
+  if(document.getElementById('optInstall').checked){const ins=PC.options.install_fee.price*a;total+=ins;lines.push([`${PC.options.install_fee.label}`,`${a.toFixed(2)} ตร.ม. × ${PC.options.install_fee.price}฿`,ins])}
+  let html='<div class="quote">';
+  if(PC.draft)html+='<div class="draft-badge" style="margin-bottom:14px">⚠️ ราคาประมาณการ — รอยืนยันราคาจริง</div>';
+  lines.forEach(l=>{html+=`<div class="ln"><span>${l[0]}<br><small class="muted">${l[1]}</small></span><span>${l[2]?fmt(l[2])+' ฿':'—'}</span></div>`});
+  html+=`<div class="ln total"><span>ราคาประเมินรวม</span><b>${fmt(Math.round(total))} ฿</b></div>`;
+  html+='<p class="muted" style="margin-top:10px;font-size:.85rem">* ราคายังไม่รวม VAT · เป็นราคาประเมินเบื้องต้น ทีมงานจะยืนยันอีกครั้ง</p></div>';
+  return {quote:false,html};
+}
+
+function renderQuote(){
+  const c=state.customer={
+    name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,
+    email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value
+  };
+  const q=calcQuote();
+  let head=`<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:.92rem">
+    <b>${c.name||'-'}</b> · ${c.phone||'-'} ${c.email?'· '+c.email:''}<br>
+    <span class="muted">ที่มาแบบ: ${state.source==='ai'?'🤖 AI ออกแบบ':state.source==='import'?'📁 อัปโหลดเอง':'-'} ${c.note?'· '+c.note:''}</span></div>`;
+  document.getElementById('quoteOut').innerHTML=head+q.html+
+    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">📩 ส่งคำขอใบเสนอราคา</button>`;
+}
+function submitOrder(){toast('✅ ส่งคำขอแล้ว! (เดโม) — ระบบจริงจะบันทึกเข้าฐานข้อมูล + แจ้งทีมงาน')}
+
+/* ---------- STEP NAV ---------- */
+function setSteps(){
+  document.querySelectorAll('#steps .st').forEach(s=>{
+    const n=+s.dataset.s;s.classList.toggle('active',n===cur);s.classList.toggle('done',n<cur);
+  });
+  document.querySelectorAll('.wz-step').forEach(s=>s.classList.toggle('show',+s.dataset.step===cur));
+  document.getElementById('btnBack').style.visibility=cur>1?'visible':'hidden';
+  document.getElementById('btnNext').textContent=cur===6?'✓ เสร็จสิ้น':'ถัดไป →';
+  document.getElementById('btnNext').style.display=cur===6?'none':'inline-flex';
+}
+function validate(){
+  if(cur===1&&!state.source){toast('เลือกที่มาของแบบก่อนนะคะ');return false}
+  if(cur===5){
+    if(!document.getElementById('cName').value.trim()){toast('กรอกชื่อก่อนนะคะ');return false}
+    if(!document.getElementById('cPhone').value.trim()){toast('กรอกเบอร์โทรก่อนนะคะ');return false}
+  }
+  return true;
+}
+function goStep(n){cur=Math.max(1,Math.min(6,n));if(cur===3&&!document.getElementById('material').options.length)buildMaterials();if(cur===4)updateArea();if(cur===6)renderQuote();setSteps()}
+function next(){if(!validate())return;if(cur===3)state.matId=document.getElementById('material').value;goStep(cur+1)}
+
+/* ---------- TOAST ---------- */
+let tT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600)}
+
+/* ---------- น้องอิงค์ (AI Sale) ---------- */
+function toggleInk(){document.getElementById('inkChat').classList.toggle('open');document.getElementById('inkFab').classList.toggle('hide')}
+function inkPush(t,who){const b=document.getElementById('inkBody');const d=document.createElement('div');d.className='ink-msg '+who;d.innerHTML=t;b.appendChild(d);b.scrollTop=b.scrollHeight}
+function inkReply(q){
+  let r,go=null;
+  if(/ราคา|ประเมิน|เท่าไ[หร]|กี่บาท/.test(q)){r='ได้เลยค่ะ! น้องอิงค์พาไปประเมินราคาในระบบสั่งทำงานได้เลย — เลือกวัสดุ + ใส่ขนาด แล้วรู้ราคาทันทีค่ะ 💰';go='order'}
+  else if(/บริการ|ทำอะไร|รับงาน/.test(q)){r='เรารับครบวงจรเลยค่ะ 🧱 บูธ·อิงค์เจท·ป้ายทุกชนิด·ตู้ไฟ — น้องอิงค์พาไปดูหัวข้อบริการนะคะ';go='services'}
+  else if(/ผลงาน|ตัวอย่าง|รูป/.test(q)){r='มีผลงานจริงเยอะเลยค่ะ 🖼️ น้องอิงค์พาไปชมแกลเลอรีเลยนะคะ';go='gallery'}
+  else if(/ติดต่อ|เบอร์|line|ไลน์|โทร/i.test(q)){r='ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ';go='contact'}
+  else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว — เดโมนี้ยังไม่ได้ต่อ AI เต็มระบบ พอเชื่อมแล้วน้องอิงค์จะตอบ + เสนอราคา + ออกแบบให้ได้ทันทีค่ะ ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
+  setTimeout(()=>{inkPush(r,'bot');if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},450);
+}
+function inkAsk(q){inkPush(q,'me');inkReply(q)}
+function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');i.value='';inkReply(v)}
+
+/* ---------- INIT ---------- */
+buildGallery();buildMaterials();setSteps();
+</script>
+</body>
+</html>

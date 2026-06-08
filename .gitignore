@@ -1,0 +1,12 @@
+# ===== ไฟล์ภายในทีม — ❌ ห้าม publish ขึ้นเว็บสาธารณะ =====
+_*.md
+ข้อมูลลูกค้า_*.md
+_devserver.ps1
+secrets.local.ps1
+*.local.ps1
+
+# ===== OS / junk =====
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
