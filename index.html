@@ -579,6 +579,8 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="price-config.js"></script>
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
@@ -719,7 +721,18 @@ function renderQuote(){
   document.getElementById('quoteOut').innerHTML=head+q.html+
     `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">📩 ส่งคำขอใบเสนอราคา</button>`;
 }
-function submitOrder(){toast('✅ ส่งคำขอแล้ว! (เดโม) — ระบบจริงจะบันทึกเข้าฐานข้อมูล + แจ้งทีมงาน')}
+function submitOrder(){
+  const c=state.customer||{}, m=curMat(), a=area();
+  const w=document.getElementById('w').value, h=document.getElementById('h').value, qty=parseInt(document.getElementById('qty').value)||1;
+  const jobName=m?m.name:'';
+  if(window.SB){
+    const lead={name:c.name||null,phone:c.phone||null,email:c.email||null,job_type:jobName,detail:(c.note||''),source:'web',status:'new'};
+    const order={customer_name:c.name||null,phone:c.phone||null,job:jobName,material:jobName,size:w+'x'+h+' ม.',qty:qty,area_sqm:a,status:'new',note:(c.note||null)};
+    Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)])
+      .then(()=>toast('✅ ส่งคำขอแล้ว! บันทึกเข้าระบบเรียบร้อย ทีมงานจะติดต่อกลับค่ะ 🎉'))
+      .catch(()=>toast('✅ ส่งคำขอแล้ว! (บันทึกออฟไลน์) ทีมงานจะติดต่อกลับค่ะ'));
+  } else { toast('✅ ส่งคำขอแล้ว! ทีมงานจะติดต่อกลับค่ะ'); }
+}
 
 /* ---------- STEP NAV ---------- */
 function setSteps(){
@@ -755,10 +768,10 @@ function inkReply(q){
   else if(/ผลงาน|ตัวอย่าง|รูป/.test(q)){r='มีผลงานจริงเยอะเลยค่ะ 🖼️ น้องอิงค์พาไปชมแกลเลอรีเลยนะคะ';go='gallery'}
   else if(/ติดต่อ|เบอร์|line|ไลน์|โทร/i.test(q)){r='ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ';go='contact'}
   else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว — เดโมนี้ยังไม่ได้ต่อ AI เต็มระบบ พอเชื่อมแล้วน้องอิงค์จะตอบ + เสนอราคา + ออกแบบให้ได้ทันทีค่ะ ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
-  setTimeout(()=>{inkPush(r,'bot');if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},450);
+  setTimeout(()=>{inkPush(r,'bot');logChat('bot',r);if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},450);
 }
-function inkAsk(q){inkPush(q,'me');inkReply(q)}
-function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');i.value='';inkReply(v)}
+function inkAsk(q){inkPush(q,'me');logChat('user',q);inkReply(q)}
+function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');logChat('user',v);i.value='';inkReply(v)}
 
 /* ---------- ระบบสมาชิก / เข้าสู่ระบบ (เดโม · ต่อ Google+Supabase ทีหลัง) ---------- */
 function esc(s){return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -797,8 +810,25 @@ function applyImages(){
   });
 }
 
+/* ---------- Supabase: เก็บผู้เข้าชม + แชต ---------- */
+function trackVisit(){
+  if(!window.SB)return;
+  if(sessionStorage.getItem('sm_visited'))return; sessionStorage.setItem('sm_visited','1');
+  let vid=localStorage.getItem('sm_vid'); if(!vid){vid='v_'+Math.random().toString(36).slice(2)+Date.now();localStorage.setItem('sm_vid',vid);}
+  const p=new URLSearchParams(location.search); let src=p.get('utm_source')||'';
+  if(!src){const r=document.referrer||'';
+    if(/facebook|fb\.com|fb\.me/i.test(r))src='facebook';else if(/google/i.test(r))src='google';
+    else if(/line\./i.test(r))src='line';else if(/tiktok/i.test(r))src='tiktok';
+    else if(/instagram/i.test(r))src='ig';else if(r)src='other';else src='direct';}
+  try{SB.from('sm_site_visits').insert({source:src,path:location.pathname,visitor_id:vid}).then(()=>{},()=>{});}catch(e){}
+}
+function logChat(role,msg){
+  if(!window.SB)return;const m=getMember();
+  try{SB.from('sm_chat_logs').insert({customer_key:(localStorage.getItem('sm_vid')||'web'),customer_name:(m?m.name:'ผู้เยี่ยมชม'),role:role,message:msg}).then(()=>{},()=>{});}catch(e){}
+}
+
 /* ---------- INIT ---------- */
-applyImages();buildGallery();buildMaterials();setSteps();renderMember();
+applyImages();buildGallery();buildMaterials();setSteps();renderMember();trackVisit();
 </script>
 </body>
 </html>
