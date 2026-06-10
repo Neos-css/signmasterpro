@@ -7,6 +7,7 @@
    - ต่อจริง: ย้ายไป Supabase table `sm_site_images` (เห็นทุกคน)
    ============================================================ */
 window.SITE_IMAGES_DEFAULT = {
+  hero:     { label:'🌟 ภาพปก (Hero)',   group:'lightbox', pos:'center',     src:'media/assets/img/service/gallery/lightbox-neon/lightbox-neon1.jpg' },
   booth:    { label:'🎪 บูธ & อีเวนต์',  group:'booth',    pos:'center 42%', src:'media/assets/img/service/gallery/booth/booth1.jpg' },
   inkjet:   { label:'🖨️ งานอิงค์เจท',    group:'inkjet',   pos:'center 38%', src:'media/assets/img/service/gallery/inkjet-vinyl/inkjet-vinyl3.jpg' },
   sign:     { label:'🪧 ป้ายทุกชนิด',     group:'sign',     pos:'center 78%', src:'media/assets/img/service/gallery/sign-background/sign-background1.jpg' },

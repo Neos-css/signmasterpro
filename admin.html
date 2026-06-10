@@ -544,7 +544,7 @@ function addUser(){const u=document.getElementById('uName').value.trim(),d=docum
 function delUser(i){if(USERS[i].r==='admin'){toast('ลบ Admin ไม่ได้ค่ะ');return;}const n=USERS[i].d;USERS.splice(i,1);renderUsers();toast(`ลบผู้ใช้ "${esc(n)}" แล้วค่ะ`);}
 
 /* ===== IMAGE MANAGER ===== */
-let STAGED=null,imgCurSlot=null;const IMG_ORDER=['booth','inkjet','sign','lightbox','about'];
+let STAGED=null,imgCurSlot=null;const IMG_ORDER=['hero','booth','inkjet','sign','lightbox','about'];
 function ensureStaged(){if(!STAGED)STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES));}
 function imgPool(group){const out=[],G=window.GALLERY||{};for(const k in G){if(G[k].group===group)G[k].imgs.forEach(s=>out.push(s));}return out;}
 function renderImages(){
