@@ -198,6 +198,19 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 .imgslot .ia .b-ai{background:linear-gradient(120deg,#171c26,#23120a);color:#fff;border-color:transparent}
 @media(max-width:760px){.imgslots{grid-template-columns:1fr}}
 .demo-note{text-align:center;color:#9aa1ad;font-size:.82rem;margin-top:14px}
+.imgtabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.imgtab{font-family:inherit;font-size:.92rem;font-weight:600;padding:9px 16px;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--muted);cursor:pointer}
+.imgtab.on{background:var(--grad);color:#fff;border-color:transparent}
+.galgrp{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.galgrp-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.galgrp-h b{font-size:1.02rem}.galgrp-h .cnt{color:var(--muted);font-size:.85rem}
+.galgrp-h .btn{margin-left:auto;padding:7px 14px;font-size:.85rem}
+.galgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.galcell{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line)}
+.galcell img{width:100%;height:100%;object-fit:cover;display:block}
+.galdel{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(220,38,38,.92);color:#fff;font-size:.9rem;cursor:pointer;display:grid;place-items:center;line-height:1}
+.galdel:hover{background:#b91c1c}
+.galnew{position:absolute;bottom:5px;left:5px;background:var(--good);color:#fff;font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:6px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:170;transition:.35s;font-weight:500;max-width:92vw}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
@@ -308,12 +321,23 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
     <!-- ===== IMAGE MANAGER ===== -->
     <section class="view" id="view-images">
-      <div class="lailin" style="margin-bottom:16px"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน</b><span class="role">ผู้ช่วยจัดการภาพ</span><p>เปลี่ยนรูปหน้าเว็บได้เองเลยค่ะ 🖼️ — กด <b>อัปโหลดรูปเอง</b> หรือให้ <b>ลายลินสลับรูป</b>จากคลังผลงาน แล้วกด <b>บันทึก</b> · หน้าเว็บจะเปลี่ยนตามทันที (ไม่ต้องแก้โค้ด!)</p></div></div>
-      <div class="savebar">
-        <span>💡 แก้รูปแล้วอย่าลืมกด "บันทึก" · ตอนนี้บันทึกในเครื่องนี้ (เดโม) — ต่อ Supabase Storage แล้วจะเปลี่ยนให้ทุกคนเห็น</span>
-        <div class="sp"><button class="btn btn-ghost" onclick="resetAllImg()">↩️ คืนค่าเริ่มต้นทั้งหมด</button><button class="btn btn-pri" onclick="saveImages()">💾 บันทึกทั้งหมด</button></div>
+      <div class="imgtabs">
+        <button class="imgtab on" onclick="imgTab('web',this)">🌐 ภาพหน้าเว็บหลัก</button>
+        <button class="imgtab" onclick="imgTab('gallery',this)">🖼️ รูปผลงาน (แกลเลอรี)</button>
       </div>
-      <div class="imgslots" id="imgSlots"></div>
+      <div id="imgtab-web">
+        <div class="lailin" style="margin-bottom:16px"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน</b><span class="role">ผู้ช่วยจัดการภาพ</span><p>เปลี่ยนรูปหน้าเว็บได้เองเลยค่ะ 🖼️ — กด <b>อัปโหลดรูปเอง</b> หรือให้ <b>ลายลินสลับรูป</b>จากคลังผลงาน แล้วกด <b>บันทึก</b> · หน้าเว็บจะเปลี่ยนตามทันที (ไม่ต้องแก้โค้ด!)</p></div></div>
+        <div class="savebar">
+          <span>💡 แก้รูปแล้วอย่าลืมกด "บันทึก" · ตอนนี้บันทึกในเครื่องนี้ (เดโม) — ต่อ Supabase Storage แล้วจะเปลี่ยนให้ทุกคนเห็น</span>
+          <div class="sp"><button class="btn btn-ghost" onclick="resetAllImg()">↩️ คืนค่าเริ่มต้นทั้งหมด</button><button class="btn btn-pri" onclick="saveImages()">💾 บันทึกทั้งหมด</button></div>
+        </div>
+        <div class="imgslots" id="imgSlots"></div>
+      </div>
+      <div id="imgtab-gallery" style="display:none">
+        <div class="lailin" style="margin-bottom:16px"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน</b><span class="role">จัดการรูปผลงาน</span><p>เพิ่ม/ลบรูปผลงานได้เองเลยค่ะ 🖼️ แยกตาม 4 หมวดงาน — กด <b>เพิ่มรูป</b> เพื่ออัปโหลด (รูปย่ออัตโนมัติ) · กด <b>✕</b> ที่มุมรูปเพื่อลบ · <b>เว็บหน้าร้านเปลี่ยนทันที</b> (เก็บใน Supabase จริง)</p></div></div>
+        <input type="file" id="galFile" accept="image/*" style="display:none">
+        <div id="galMgr"><div class="empty">กำลังโหลด...</div></div>
+      </div>
     </section>
 
     <!-- ===== POWER (พลัง AI) ===== -->
@@ -654,6 +678,67 @@ function imgUpload(k){imgCurSlot=k;const inp=document.getElementById('imgFile');
 function imgReset(k){ensureStaged();STAGED[k].src=window.SITE_IMAGES_DEFAULT[k].src;STAGED[k].pos=window.SITE_IMAGES_DEFAULT[k].pos;renderImages();toast('คืนค่ารูปเริ่มต้นแล้วค่ะ');}
 function resetAllImg(){STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES_DEFAULT));renderImages();toast('คืนค่ารูปทั้งหมดแล้วค่ะ — กด 💾 บันทึกเพื่อยืนยัน');}
 function saveImages(){ensureStaged();try{const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAGED[k].src,pos:STAGED[k].pos};});localStorage.setItem('sm_site_images',JSON.stringify(out));IMG_ORDER.forEach(k=>{window.SITE_IMAGES[k].src=STAGED[k].src;window.SITE_IMAGES[k].pos=STAGED[k].pos;});renderImages();toast('💾 บันทึกแล้วค่ะ! เปิดหน้าเว็บ (รีเฟรช) จะเห็นรูปใหม่ทันที 🎉');}catch(e){toast('⚠️ บันทึกไม่สำเร็จ (รูปอาจใหญ่เกิน) — ลองรูปเล็กลงนะคะ');}}
+
+/* ===== GALLERY MANAGER (รูปผลงาน · Supabase Storage + sm_gallery overlay) ===== */
+const GAL_GROUPS=[['booth','🎪 บูธ & อีเวนต์'],['inkjet','🖨️ งานอิงค์เจท'],['sign','🪧 ป้าย'],['lightbox','💡 ตู้ไฟ']];
+let GAL_ROWS=[];
+function galBase(grp){const out=[],G=window.GALLERY||{};for(const k in G){if(G[k].group===grp)G[k].imgs.forEach(s=>out.push(s));}return out;}
+function imgTab(t,btn){
+  document.querySelectorAll('.imgtab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+  document.getElementById('imgtab-web').style.display=t==='web'?'':'none';
+  document.getElementById('imgtab-gallery').style.display=t==='gallery'?'':'none';
+  if(t==='gallery'){document.getElementById('galMgr').innerHTML='<div class="empty">กำลังโหลด...</div>';loadGalleryRows().then(renderGalleryMgr);}
+}
+async function loadGalleryRows(){if(!window.SB)return;const {data,error}=await SB.from('sm_gallery').select('*').order('created_at',{ascending:true});if(!error)GAL_ROWS=data||[];else console.warn('gallery',error);}
+function renderGalleryMgr(){
+  const hide=new Set(GAL_ROWS.filter(r=>r.action==='hide').map(r=>r.src));
+  const adds=GAL_ROWS.filter(r=>r.action==='add');
+  document.getElementById('galMgr').innerHTML=GAL_GROUPS.map(([g,label])=>{
+    const baseList=galBase(g).filter(s=>!hide.has(s)).map(s=>({src:s,base:true}));
+    const addList=adds.filter(r=>r.grp===g).map(r=>({src:r.src,base:false,id:r.id}));
+    const imgs=baseList.concat(addList);
+    const cells=imgs.map(im=>`<div class="galcell"><img src="${esc(im.src)}" loading="lazy"><button class="galdel" title="ลบรูปนี้" onclick="galDelete('${im.base?'hide':'del'}','${im.base?encodeURIComponent(im.src):im.id}','${g}')">✕</button>${im.base?'':'<span class="galnew">ใหม่</span>'}</div>`).join('');
+    return `<div class="galgrp"><div class="galgrp-h"><b>${label}</b><span class="cnt">${imgs.length} รูป</span><button class="btn btn-pri" onclick="galUpload('${g}')">📤 เพิ่มรูป</button></div><div class="galgrid">${cells||'<div class="empty">ยังไม่มีรูปในหมวดนี้</div>'}</div></div>`;
+  }).join('');
+}
+function galUpload(grp){
+  if(!window.SB){toast('ยังไม่ได้เชื่อม Supabase ค่ะ');return;}
+  const inp=document.getElementById('galFile');inp.value='';
+  inp.onchange=function(){const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=function(ev){const im=new Image();im.onload=function(){
+      const max=1400;let w=im.width,h=im.height;if(w>max||h>max){const sc=max/Math.max(w,h);w=Math.round(w*sc);h=Math.round(h*sc);}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);
+      cv.toBlob(async function(blob){
+        if(!blob){toast('แปลงรูปไม่สำเร็จค่ะ');return;}
+        toast('⏳ กำลังอัปโหลดรูป...');
+        const path=grp+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
+        const up=await SB.storage.from('gallery').upload(path,blob,{contentType:'image/jpeg'});
+        if(up.error){toast('อัปโหลดไม่สำเร็จ: '+up.error.message);return;}
+        const pub=SB.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+        const ins=await SB.from('sm_gallery').insert({action:'add',grp:grp,src:pub});
+        if(ins.error){toast('บันทึกไม่สำเร็จ: '+ins.error.message);return;}
+        await loadGalleryRows();renderGalleryMgr();toast('✅ เพิ่มรูปแล้วค่ะ! เว็บหน้าร้านเห็นทันที 🎉');
+      },'image/jpeg',0.85);
+    };im.onerror=function(){toast('ไฟล์รูปไม่ถูกต้องค่ะ');};im.src=ev.target.result;};
+    r.readAsDataURL(f);};
+  inp.click();
+}
+async function galDelete(mode,key,grp){
+  if(!confirm('ลบรูปนี้ออกจากแกลเลอรีหน้าเว็บ?'))return;
+  try{
+    if(mode==='hide'){
+      const src=decodeURIComponent(key);
+      const ins=await SB.from('sm_gallery').insert({action:'hide',grp:grp,src:src});
+      if(ins.error){toast('ลบไม่สำเร็จ: '+ins.error.message);return;}
+    }else{
+      const row=GAL_ROWS.find(r=>r.id===key);
+      if(row){const m=row.src.match(/\/gallery\/(.+)$/);if(m){try{await SB.storage.from('gallery').remove([m[1]]);}catch(e){}}}
+      const del=await SB.from('sm_gallery').delete().eq('id',key);
+      if(del.error){toast('ลบไม่สำเร็จ: '+del.error.message);return;}
+    }
+    await loadGalleryRows();renderGalleryMgr();toast('🗑️ ลบแล้วค่ะ · เว็บหน้าร้านอัปเดตทันที');
+  }catch(e){toast('เกิดข้อผิดพลาด: '+e.message);}
+}
 
 /* ===== init ===== */
 let _inited=false;

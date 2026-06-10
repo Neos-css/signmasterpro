@@ -591,7 +591,8 @@ function closeNav(){document.getElementById('navLinks').classList.remove('open')
 
 /* ---------- GALLERY ---------- */
 const GROUPS={all:'ทั้งหมด',booth:'🎪 บูธ',sign:'🪧 ป้าย',inkjet:'🖨️ อิงค์เจท',lightbox:'💡 ตู้ไฟ'};
-let flatImgs=[],lbList=[],lbIdx=0;
+let baseImgs=[],flatImgs=[],lbList=[],lbIdx=0;
+const GRP_LABEL={booth:'บูธ & อีเวนต์',sign:'ป้าย',inkjet:'งานอิงค์เจท',lightbox:'ตู้ไฟ'};
 function buildGallery(){
   const fwrap=document.getElementById('filters');
   Object.entries(GROUPS).forEach(([k,v])=>{
@@ -600,11 +601,25 @@ function buildGallery(){
     b.onclick=()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderGallery(k)};
     fwrap.appendChild(b);
   });
-  // flatten
+  // flatten (base จาก gallery-data.js · เร็ว/ไม่ล่ม)
+  baseImgs=[];
   Object.values(window.GALLERY||{}).forEach(cat=>{
-    cat.imgs.forEach(src=>flatImgs.push({src,group:cat.group,label:cat.label}));
+    cat.imgs.forEach(src=>baseImgs.push({src,group:cat.group,label:cat.label}));
   });
+  flatImgs=baseImgs.slice();
   renderGallery('all');
+  applyGalleryOverlay();   // ดึงส่วนต่างจาก Supabase (async · ไม่ block)
+}
+async function applyGalleryOverlay(){
+  if(!window.SB)return;
+  try{
+    const {data,error}=await SB.from('sm_gallery').select('*').order('sort',{ascending:true}).order('created_at',{ascending:true});
+    if(error||!data)return;
+    const hide=new Set(data.filter(r=>r.action==='hide').map(r=>r.src));
+    const adds=data.filter(r=>r.action==='add').map(r=>({src:r.src,group:r.grp,label:r.title||GRP_LABEL[r.grp]||'ผลงาน'}));
+    flatImgs=baseImgs.filter(i=>!hide.has(i.src)).concat(adds);
+    renderGallery(curG||'all');
+  }catch(e){}
 }
 const PAGE=18;let shown=0,curG='all';
 function renderGallery(g){
