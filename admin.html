@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ลายลิน · หลังบ้าน Signmaster Pro</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1116; --ink2:#171c26; --ink3:#1f2632; --paper:#f4f6f9; --white:#fff;
+  --accent:#ff5a1f; --accent2:#ff8a00; --accent-deep:#e63900;
+  --line:#e7e9ee; --muted:#6b7280; --good:#16a34a; --warn:#f59e0b; --info:#3b82f6;
+  --grad:linear-gradient(135deg,#ff8a00,#ff5a1f 55%,#e63900);
+  --shadow:0 10px 30px rgba(14,17,22,.08); --shadow-lg:0 24px 60px rgba(14,17,22,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+.anton{font-family:'Anton',sans-serif;font-weight:400}
+
+/* ===== LOGIN GATE ===== */
+.gate{position:fixed;inset:0;z-index:200;background:radial-gradient(900px 400px at 70% -10%,rgba(255,138,0,.25),transparent),var(--ink);display:grid;place-items:center;padding:24px}
+.gate.hide{display:none}
+.gate-card{background:#fff;border-radius:22px;box-shadow:var(--shadow-lg);width:min(380px,100%);padding:34px 30px;text-align:center}
+.gate .ava{width:70px;height:70px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:2.1rem;margin:0 auto 14px;box-shadow:0 10px 24px rgba(230,57,0,.4)}
+.gate h1{font-size:1.4rem}.gate p{color:var(--muted);margin:6px 0 20px;font-size:.95rem}
+.gate input{width:100%;font-family:inherit;font-size:1.1rem;text-align:center;letter-spacing:6px;padding:13px;border:1.5px solid var(--line);border-radius:12px;outline:0}
+.gate input:focus{border-color:var(--accent)}
+.gate button{width:100%;margin-top:14px;font-family:inherit;font-weight:700;font-size:1rem;color:#fff;background:var(--grad);border:0;padding:14px;border-radius:12px;cursor:pointer}
+.gate .hint{font-size:.8rem;color:#9aa1ad;margin-top:14px}
+
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#cbd2dc;padding:20px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 18px}
+.brand .mk{width:40px;height:40px;border-radius:11px;background:var(--grad);display:grid;place-items:center;flex:none;box-shadow:0 6px 14px rgba(230,57,0,.4)}
+.brand .mk span{font-family:'IBM Plex Sans Thai';font-weight:500;font-size:1.5rem;color:transparent;-webkit-text-stroke:1.3px #fff}
+.brand b{color:#fff;font-size:1.02rem;letter-spacing:1px;display:block;line-height:1.1}
+.brand small{font-size:.66rem;color:#8b93a1}
+.side .lbl{font-size:.68rem;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;padding:14px 10px 6px}
+.nav a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;color:#cbd2dc;text-decoration:none;font-size:.94rem;font-weight:500;cursor:pointer;transition:.15s;margin-bottom:2px}
+.nav a:hover{background:var(--ink3);color:#fff}
+.nav a.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(230,57,0,.35)}
+.nav a .em{font-size:1.15rem}
+.nav a .soon{margin-left:auto;font-size:.62rem;background:#2c3340;color:#9aa1ad;padding:2px 7px;border-radius:999px}
+.side .foot{margin-top:auto;font-size:.74rem;color:#6b7280;padding:12px 10px;border-top:1px solid #232a36}
+
+.main{padding:24px 30px 50px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.top h2{font-size:1.5rem}.top .sub{color:var(--muted);font-size:.92rem}
+.top .acts{display:flex;gap:10px;align-items:center}
+.btn{font-family:inherit;font-weight:600;font-size:.92rem;padding:11px 18px;border-radius:11px;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.18s}
+.btn-line{background:#06c755;color:#fff;box-shadow:0 6px 16px rgba(6,199,85,.3)}
+.btn-line:hover{filter:brightness(1.05)}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);color:#374151}
+
+/* ลายลิน summary */
+.lailin{background:linear-gradient(120deg,#171c26,#23120a 130%);border:1px solid #2a323f;border-radius:20px;padding:22px 24px;display:flex;gap:18px;align-items:flex-start;margin-bottom:22px;position:relative;overflow:hidden}
+.lailin:before{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,138,0,.22),transparent 70%)}
+.lailin .ava{width:54px;height:54px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:1.7rem;flex:none;box-shadow:0 8px 20px rgba(230,57,0,.45);position:relative}
+.lailin .ava:after{content:"";position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#22ff88;border:2px solid #171c26}
+.lailin .tx{color:#e7eaf0;position:relative}
+.lailin .tx b{color:#fff;font-size:1.05rem}
+.lailin .tx .role{color:var(--accent2);font-size:.8rem;font-weight:600;margin-left:6px}
+.lailin .tx p{color:#aeb6c2;font-size:.95rem;line-height:1.6;margin-top:7px}
+.lailin .tx .hl{color:#fff;font-weight:600}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
+.kpi .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:1.3rem;margin-bottom:12px}
+.kpi .v{font-size:1.7rem;font-weight:700;line-height:1}
+.kpi .k{color:var(--muted);font-size:.86rem;margin-top:5px}
+.kpi .d{font-size:.78rem;font-weight:600;margin-top:8px}
+.up{color:var(--good)}.down{color:#ef4444}
+
+/* grid cards */
+.row{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h3{font-size:1.05rem;margin-bottom:4px}
+.card .csub{color:var(--muted);font-size:.84rem;margin-bottom:16px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:160px;padding-top:10px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.bars .b .bar{width:100%;max-width:38px;background:var(--grad);border-radius:8px 8px 4px 4px;transition:.4s}
+.bars .b small{font-size:.76rem;color:var(--muted)}
+.bars .b .val{font-size:.74rem;font-weight:700;color:var(--accent-deep)}
+
+.queue .q{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.queue .q:last-child{border:0}
+.queue .q .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.queue .q .nm{font-weight:600;font-size:.92rem}
+.queue .q .meta{font-size:.78rem;color:var(--muted)}
+.queue .q .st{margin-left:auto;font-size:.74rem;font-weight:600;padding:4px 10px;border-radius:999px}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:12px 10px;border-bottom:1px solid #f1f3f6;font-size:.92rem}
+tr:last-child td{border:0}
+.tag{font-size:.74rem;font-weight:600;padding:4px 10px;border-radius:999px;display:inline-block}
+.t-new{background:#eff6ff;color:#2563eb}.t-prod{background:#fff7e6;color:#b45309}
+.t-done{background:#ecfdf5;color:#059669}.t-wait{background:#fef2f2;color:#dc2626}
+.src{font-size:.72rem;color:var(--accent-deep);font-weight:600}
+
+.demo-note{text-align:center;color:#9aa1ad;font-size:.82rem;margin-top:10px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:120;transition:.35s;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:980px){.kpis{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}}
+@media(max-width:760px){.app{grid-template-columns:1fr}.side{position:fixed;left:-260px;transition:.3s;z-index:90}.side.open{left:0}.main{padding:18px}.burger{display:inline-flex!important}}
+.burger{display:none;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:1.2rem;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE (demo) -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="ava">👩‍💼</div>
+    <h1>หลังบ้าน Signmaster Pro</h1>
+    <p>ลายลิน (AI Manager) รอรายงานคุณอยู่ค่ะ</p>
+    <input id="pin" type="password" maxlength="4" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">เข้าสู่ระบบ</button>
+    <div class="hint">🔑 เดโม: ใส่รหัส <b>1234</b> (ระบบจริงจะล็อกอินด้วยบัญชี/Google)</div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="side" id="side">
+    <div class="brand">
+      <span class="mk"><span>S</span></span>
+      <div><b>SIGNMASTER</b><small>หลังบ้าน · Admin</small></div>
+    </div>
+    <div class="lbl">ภาพรวม</div>
+    <nav class="nav">
+      <a class="active"><span class="em">📊</span> Dashboard <span style="margin-left:auto;font-size:.7rem;color:#8b93a1">ลายลิน</span></a>
+    </nav>
+    <div class="lbl">ทีม AI Agent</div>
+    <nav class="nav">
+      <a><span class="em">🛒</span> น้องอิงค์ · งานขาย <span class="soon">เร็วๆนี้</span></a>
+      <a><span class="em">💰</span> AI Finance <span class="soon">เร็วๆนี้</span></a>
+      <a><span class="em">📦</span> AI Inventory <span class="soon">เร็วๆนี้</span></a>
+      <a><span class="em">📣</span> AI Marketing <span class="soon">เร็วๆนี้</span></a>
+    </nav>
+    <div class="foot">🤖 ขับเคลื่อนโดย Neo-S AI<br>เดโม · ยังไม่ต่อฐานข้อมูลจริง</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="burger" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+        <div><h2>สวัสดีค่ะ คุณนัท 👋</h2><div class="sub" id="today"></div></div>
+      </div>
+      <div class="acts">
+        <button class="btn btn-ghost" onclick="toast('🔄 รีเฟรชข้อมูล (เดโม)')">🔄 รีเฟรช</button>
+        <button class="btn btn-line" onclick="toast('📤 ลายลินส่งสรุปเข้า LINE แล้ว (เดโม)')">📤 ส่งสรุปเข้า LINE</button>
+      </div>
+    </div>
+
+    <!-- ลายลิน daily summary -->
+    <div class="lailin">
+      <div class="ava">👩‍💼</div>
+      <div class="tx">
+        <b>ลายลิน</b><span class="role">AI Manager · สรุปประจำวัน</span>
+        <p>วันนี้มี <span class="hl">3 ออเดอร์ใหม่</span> และ <span class="hl">5 Lead</span> จากน้องอิงค์รอติดตามค่ะ ·
+        งานที่ต้องเร่ง: <span class="hl">ป้ายไวนิล ร้านกาแฟ A</span> ครบกำหนดส่งพรุ่งนี้ ·
+        ยอดเดือนนี้ <span class="hl">฿182,400</span> โต <span class="hl">+18%</span> จากเดือนก่อน เก่งมากเลยค่ะ 🎉
+        แนะนำให้ตามลูกค้า 2 รายที่ขอใบเสนอราคาไว้แต่ยังไม่ตอบกลับนะคะ</p>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpis">
+      <div class="kpi"><div class="ic" style="background:#fff2eb">💵</div><div class="v">฿182,400</div><div class="k">ยอดขายเดือนนี้</div><div class="d up">▲ 18% จากเดือนก่อน</div></div>
+      <div class="kpi"><div class="ic" style="background:#eff6ff">🧾</div><div class="v">24</div><div class="k">ออเดอร์เดือนนี้</div><div class="d up">▲ 6 ออเดอร์</div></div>
+      <div class="kpi"><div class="ic" style="background:#fef9e7">🙋</div><div class="v">5</div><div class="k">Lead รอติดตาม</div><div class="d" style="color:var(--warn)">● จากน้องอิงค์</div></div>
+      <div class="kpi"><div class="ic" style="background:#f0fdf4">🏭</div><div class="v">7</div><div class="k">งานกำลังผลิต</div><div class="d down">▲ 2 งานเร่งด่วน</div></div>
+    </div>
+
+    <!-- Chart + Queue -->
+    <div class="row">
+      <div class="card">
+        <h3>ยอดขาย 6 เดือนล่าสุด</h3>
+        <div class="csub">หน่วย: บาท (เดโม)</div>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="card queue">
+        <h3>คิวงานผลิต</h3>
+        <div class="csub">งานที่กำลังดำเนินการ</div>
+        <div id="queue"></div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="card" style="margin-bottom:22px">
+      <h3>ออเดอร์ล่าสุด</h3><div class="csub">อัปเดตอัตโนมัติเมื่อต่อระบบจริง</div>
+      <table><thead><tr><th>ลูกค้า</th><th>งาน</th><th>ยอด</th><th>กำหนดส่ง</th><th>สถานะ</th></tr></thead>
+      <tbody id="orders"></tbody></table>
+    </div>
+
+    <!-- Leads -->
+    <div class="card">
+      <h3>Lead ใหม่จากน้องอิงค์ 🤖</h3><div class="csub">ลูกค้าที่ทักผ่านเว็บ/แชต</div>
+      <table><thead><tr><th>ชื่อ</th><th>สนใจงาน</th><th>ช่องทาง</th><th>เวลา</th><th></th></tr></thead>
+      <tbody id="leads"></tbody></table>
+    </div>
+
+    <div class="demo-note">📌 ข้อมูลทั้งหมดเป็นตัวอย่าง (เดโม) · ลายลินจะดึงข้อมูลจริงจาก Supabase เมื่อเชื่อมระบบ</div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== gate ===== */
+function login(){
+  const v=document.getElementById('pin').value.trim();
+  if(v==='1234'||v===''){ // demo: 1234 หรือเว้นว่างก็เข้าได้ (โชว์ลูกค้าง่าย)
+    sessionStorage.setItem('sm_admin','1');
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('app').style.display='grid';
+    render();
+  } else { toast('รหัสไม่ถูกต้อง — เดโมใช้ 1234 ค่ะ'); }
+}
+if(sessionStorage.getItem('sm_admin')==='1'){document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';}
+
+/* ===== demo data ===== */
+const REV=[112,128,121,143,155,182]; // พัน บาท
+const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.'];
+const QUEUE=[
+  {nm:'ป้ายไวนิล ร้านกาแฟ A',meta:'3×2 ม. · ส่งพรุ่งนี้',c:'#ef4444',st:'เร่งด่วน',stc:'t-wait'},
+  {nm:'ตู้ไฟ ร้านเสริมสวย B',meta:'ติดตั้งหน้าร้าน',c:'#f59e0b',st:'กำลังผลิต',stc:'t-prod'},
+  {nm:'สติกเกอร์ติดรถ C',meta:'12 ตร.ม.',c:'#f59e0b',st:'กำลังผลิต',stc:'t-prod'},
+  {nm:'บูธอีเวนต์ D',meta:'งานเสาร์นี้',c:'#3b82f6',st:'รอวัสดุ',stc:'t-new'},
+];
+const ORDERS=[
+  ['ร้านกาแฟ Aroma','ป้ายไวนิล 3×2 ม.','฿4,200','10 มิ.ย.','t-prod','กำลังผลิต'],
+  ['คุณวิภา (เสริมสวย)','ตู้ไฟ + ตัวอักษร','฿18,500','14 มิ.ย.','t-new','ออเดอร์ใหม่'],
+  ['บจก. ทรานส์โลจิสติกส์','สติกเกอร์ติดรถ 6 คัน','฿9,800','12 มิ.ย.','t-prod','กำลังผลิต'],
+  ['อีเวนต์ SCG','บูธ + Backdrop','฿32,000','16 มิ.ย.','t-wait','รอมัดจำ'],
+  ['ร้านอาหารครัวคุณยาย','ป้ายหน้าร้าน','฿6,400','9 มิ.ย.','t-done','ส่งมอบแล้ว'],
+];
+const LEADS=[
+  ['คุณเอก','ป้ายไวนิลหน้าร้าน','💬 น้องอิงค์','5 นาทีที่แล้ว'],
+  ['คุณมาลี','ตู้ไฟอักษรซ่อนไฟ','💬 น้องอิงค์','32 นาทีที่แล้ว'],
+  ['บจก. กรีนเทค','สติกเกอร์ + บูธ','📘 Facebook','1 ชม.ที่แล้ว'],
+  ['คุณสมพงษ์','ป้ายบิลบอร์ด','💬 น้องอิงค์','2 ชม.ที่แล้ว'],
+  ['ร้าน Fitness X','ป้ายอะคริลิก','📞 โทร','3 ชม.ที่แล้ว'],
+];
+
+function render(){
+  // date
+  try{const d=new Date();document.getElementById('today').textContent=d.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){document.getElementById('today').textContent='วันนี้';}
+  // bars
+  const mx=Math.max(...REV);
+  document.getElementById('bars').innerHTML=REV.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${MON[i]}</small></div>`).join('');
+  // queue
+  document.getElementById('queue').innerHTML=QUEUE.map(q=>`<div class="q"><span class="dot" style="background:${q.c}"></span><div><div class="nm">${q.nm}</div><div class="meta">${q.meta}</div></div><span class="st ${q.stc}">${q.st}</span></div>`).join('');
+  // orders
+  document.getElementById('orders').innerHTML=ORDERS.map(o=>`<tr><td><b>${o[0]}</b></td><td>${o[1]}</td><td><b>${o[2]}</b></td><td>${o[3]}</td><td><span class="tag ${o[4]}">${o[5]}</span></td></tr>`).join('');
+  // leads
+  document.getElementById('leads').innerHTML=LEADS.map(l=>`<tr><td><b>${l[0]}</b></td><td>${l[1]}</td><td><span class="src">${l[2]}</span></td><td style="color:var(--muted)">${l[3]}</td><td><button class="btn btn-ghost" style="padding:6px 12px;font-size:.8rem" onclick="toast('📞 เปิดติดตาม Lead (เดโม)')">ติดตาม</button></td></tr>`).join('');
+}
+if(document.getElementById('app').style.display==='grid')render();
+
+let tT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600);}
+</script>
+</body>
+</html>
