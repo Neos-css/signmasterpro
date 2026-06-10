@@ -14,11 +14,11 @@
   --accent:#ff5a1f; --accent2:#ff8a00; --accent-deep:#e63900;
   --line:#e7e9ee; --muted:#6b7280; --good:#16a34a; --warn:#f59e0b; --info:#3b82f6;
   --grad:linear-gradient(135deg,#ff8a00,#ff5a1f 55%,#e63900);
+  --gradblue:linear-gradient(135deg,#38bdf8,#2563eb);
   --shadow:0 10px 30px rgba(14,17,22,.08); --shadow-lg:0 24px 60px rgba(14,17,22,.18);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
-.anton{font-family:'Anton',sans-serif;font-weight:400}
 
 /* ===== LOGIN GATE ===== */
 .gate{position:fixed;inset:0;z-index:200;background:radial-gradient(900px 400px at 70% -10%,rgba(255,138,0,.25),transparent),var(--ink);display:grid;place-items:center;padding:24px}
@@ -48,7 +48,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var
 .side .foot{margin-top:auto;font-size:.74rem;color:#6b7280;padding:12px 10px;border-top:1px solid #232a36}
 
 .main{padding:24px 30px 50px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
 .top h2{font-size:1.5rem}.top .sub{color:var(--muted);font-size:.92rem}
 .top .acts{display:flex;gap:10px;align-items:center}
 .btn{font-family:inherit;font-weight:600;font-size:.92rem;padding:11px 18px;border-radius:11px;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.18s}
@@ -56,8 +56,21 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var
 .btn-line:hover{filter:brightness(1.05)}
 .btn-ghost{background:#fff;border:1.5px solid var(--line);color:#374151}
 
+/* ===== RANGE BAR ===== */
+.rangebar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rangebar .rl{font-size:.86rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font-family:inherit;font-size:.86rem;font-weight:600;padding:8px 14px;border-radius:9px;border:1.5px solid var(--line);background:#fff;color:#4b5563;cursor:pointer;transition:.15s}
+.seg button:hover{border-color:var(--accent)}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.custom{display:none;align-items:center;gap:8px;flex-wrap:wrap}
+.custom.show{display:flex}
+.custom input{font-family:inherit;font-size:.86rem;padding:7px 10px;border:1.5px solid var(--line);border-radius:9px;outline:0}
+.custom input:focus{border-color:var(--accent)}
+.range-now{margin-left:auto;font-size:.82rem;color:var(--accent-deep);font-weight:600;background:#fff2eb;padding:6px 12px;border-radius:999px}
+
 /* ลายลิน summary */
-.lailin{background:linear-gradient(120deg,#171c26,#23120a 130%);border:1px solid #2a323f;border-radius:20px;padding:22px 24px;display:flex;gap:18px;align-items:flex-start;margin-bottom:22px;position:relative;overflow:hidden}
+.lailin{background:linear-gradient(120deg,#171c26,#23120a 130%);border:1px solid #2a323f;border-radius:20px;padding:22px 24px;display:flex;gap:18px;align-items:flex-start;margin-bottom:20px;position:relative;overflow:hidden}
 .lailin:before{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,138,0,.22),transparent 70%)}
 .lailin .ava{width:54px;height:54px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:1.7rem;flex:none;box-shadow:0 8px 20px rgba(230,57,0,.45);position:relative}
 .lailin .ava:after{content:"";position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#22ff88;border:2px solid #171c26}
@@ -68,24 +81,36 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var
 .lailin .tx .hl{color:#fff;font-weight:600}
 
 /* KPI */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
-.kpi .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:1.3rem;margin-bottom:12px}
-.kpi .v{font-size:1.7rem;font-weight:700;line-height:1}
-.kpi .k{color:var(--muted);font-size:.86rem;margin-top:5px}
-.kpi .d{font-size:.78rem;font-weight:600;margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px}
+.kpi .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:1.25rem;margin-bottom:11px}
+.kpi .v{font-size:1.55rem;font-weight:700;line-height:1}
+.kpi .k{color:var(--muted);font-size:.82rem;margin-top:5px}
+.kpi .d{font-size:.76rem;font-weight:600;margin-top:7px}
 .up{color:var(--good)}.down{color:#ef4444}
 
 /* grid cards */
-.row{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:22px}
+.row{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:20px}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
-.card h3{font-size:1.05rem;margin-bottom:4px}
+.card h3{font-size:1.05rem;margin-bottom:4px;display:flex;align-items:center;gap:7px}
 .card .csub{color:var(--muted);font-size:.84rem;margin-bottom:16px}
-.bars{display:flex;align-items:flex-end;gap:12px;height:160px;padding-top:10px}
-.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
-.bars .b .bar{width:100%;max-width:38px;background:var(--grad);border-radius:8px 8px 4px 4px;transition:.4s}
-.bars .b small{font-size:.76rem;color:var(--muted)}
-.bars .b .val{font-size:.74rem;font-weight:700;color:var(--accent-deep)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding-top:10px}
+.bars.tall{height:180px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;min-width:0}
+.bars .b .bar{width:100%;max-width:42px;background:var(--grad);border-radius:7px 7px 3px 3px;transition:.4s}
+.bars.visits .b .bar{background:var(--gradblue);max-width:30px}
+.bars .b small{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.bars .b .val{font-size:.7rem;font-weight:700;color:var(--accent-deep)}
+.bars.visits .b .val{color:#2563eb}
+
+/* sources */
+.src-row{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.src-row .si{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:1.05rem;flex:none;background:#f4f6f9}
+.src-row .sb{flex:1;min-width:0}
+.src-row .sb .l{display:flex;justify-content:space-between;font-size:.86rem;font-weight:600;margin-bottom:5px}
+.src-row .sb .l .pc{color:var(--muted);font-weight:600}
+.src-row .track{height:8px;background:#eef1f5;border-radius:999px;overflow:hidden}
+.src-row .track i{display:block;height:100%;border-radius:999px;background:var(--grad)}
 
 .queue .q{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
 .queue .q:last-child{border:0}
@@ -102,13 +127,15 @@ tr:last-child td{border:0}
 .t-new{background:#eff6ff;color:#2563eb}.t-prod{background:#fff7e6;color:#b45309}
 .t-done{background:#ecfdf5;color:#059669}.t-wait{background:#fef2f2;color:#dc2626}
 .src{font-size:.72rem;color:var(--accent-deep);font-weight:600}
+.empty{text-align:center;color:#9aa1ad;padding:24px;font-size:.9rem}
 
 .demo-note{text-align:center;color:#9aa1ad;font-size:.82rem;margin-top:10px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:120;transition:.35s;font-weight:500}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
-@media(max-width:980px){.kpis{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}}
-@media(max-width:760px){.app{grid-template-columns:1fr}.side{position:fixed;left:-260px;transition:.3s;z-index:90}.side.open{left:0}.main{padding:18px}.burger{display:inline-flex!important}}
+@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:980px){.row{grid-template-columns:1fr}}
+@media(max-width:760px){.app{grid-template-columns:1fr}.side{position:fixed;left:-260px;transition:.3s;z-index:90}.side.open{left:0}.main{padding:18px}.burger{display:inline-flex!important}.kpis{grid-template-columns:repeat(2,1fr)}.range-now{margin-left:0}}
 .burger{display:none;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:1.2rem;cursor:pointer}
 </style>
 </head>
@@ -155,9 +182,27 @@ tr:last-child td{border:0}
         <div><h2>สวัสดีค่ะ คุณนัท 👋</h2><div class="sub" id="today"></div></div>
       </div>
       <div class="acts">
-        <button class="btn btn-ghost" onclick="toast('🔄 รีเฟรชข้อมูล (เดโม)')">🔄 รีเฟรช</button>
+        <button class="btn btn-ghost" onclick="render();toast('🔄 รีเฟรชข้อมูล (เดโม)')">🔄 รีเฟรช</button>
         <button class="btn btn-line" onclick="toast('📤 ลายลินส่งสรุปเข้า LINE แล้ว (เดโม)')">📤 ส่งสรุปเข้า LINE</button>
       </div>
+    </div>
+
+    <!-- RANGE FILTER -->
+    <div class="rangebar">
+      <span class="rl">📅 ช่วงข้อมูล</span>
+      <div class="seg" id="seg">
+        <button data-r="today">วันนี้</button>
+        <button data-r="7" class="on">7 วัน</button>
+        <button data-r="30">30 วัน</button>
+        <button data-r="month">เดือนนี้</button>
+        <button data-r="all">ทั้งหมด</button>
+        <button data-r="custom">📅 กำหนดเอง</button>
+      </div>
+      <div class="custom" id="custom">
+        <input type="date" id="cFrom"> <span style="color:var(--muted)">ถึง</span> <input type="date" id="cTo">
+        <button class="btn btn-ghost" style="padding:8px 14px" onclick="applyCustom()">ดูข้อมูล</button>
+      </div>
+      <span class="range-now" id="rangeNow">ช่วง: —</span>
     </div>
 
     <!-- ลายลิน daily summary -->
@@ -165,50 +210,56 @@ tr:last-child td{border:0}
       <div class="ava">👩‍💼</div>
       <div class="tx">
         <b>ลายลิน</b><span class="role">AI Manager · สรุปประจำวัน</span>
-        <p>วันนี้มี <span class="hl">3 ออเดอร์ใหม่</span> และ <span class="hl">5 Lead</span> จากน้องอิงค์รอติดตามค่ะ ·
-        งานที่ต้องเร่ง: <span class="hl">ป้ายไวนิล ร้านกาแฟ A</span> ครบกำหนดส่งพรุ่งนี้ ·
-        ยอดเดือนนี้ <span class="hl">฿182,400</span> โต <span class="hl">+18%</span> จากเดือนก่อน เก่งมากเลยค่ะ 🎉
-        แนะนำให้ตามลูกค้า 2 รายที่ขอใบเสนอราคาไว้แต่ยังไม่ตอบกลับนะคะ</p>
+        <p id="lailinText">กำลังสรุปข้อมูลค่ะ...</p>
       </div>
     </div>
 
     <!-- KPI -->
-    <div class="kpis">
-      <div class="kpi"><div class="ic" style="background:#fff2eb">💵</div><div class="v">฿182,400</div><div class="k">ยอดขายเดือนนี้</div><div class="d up">▲ 18% จากเดือนก่อน</div></div>
-      <div class="kpi"><div class="ic" style="background:#eff6ff">🧾</div><div class="v">24</div><div class="k">ออเดอร์เดือนนี้</div><div class="d up">▲ 6 ออเดอร์</div></div>
-      <div class="kpi"><div class="ic" style="background:#fef9e7">🙋</div><div class="v">5</div><div class="k">Lead รอติดตาม</div><div class="d" style="color:var(--warn)">● จากน้องอิงค์</div></div>
-      <div class="kpi"><div class="ic" style="background:#f0fdf4">🏭</div><div class="v">7</div><div class="k">งานกำลังผลิต</div><div class="d down">▲ 2 งานเร่งด่วน</div></div>
-    </div>
+    <div class="kpis" id="kpis"></div>
 
-    <!-- Chart + Queue -->
+    <!-- Visitors + Sources -->
     <div class="row">
       <div class="card">
-        <h3>ยอดขาย 6 เดือนล่าสุด</h3>
+        <h3>👁️ ผู้เข้าชมเว็บรายวัน</h3>
+        <div class="csub" id="visitSub">นับจำนวนคน (unique) ตามช่วงที่เลือก</div>
+        <div class="bars visits" id="visitBars"></div>
+      </div>
+      <div class="card">
+        <h3>📲 ช่องทางที่มา</h3>
+        <div class="csub">ลูกค้าเข้าเว็บผ่านช่องทางไหนบ้าง</div>
+        <div id="sources"></div>
+      </div>
+    </div>
+
+    <!-- Revenue + Queue -->
+    <div class="row">
+      <div class="card">
+        <h3>💵 ยอดขาย 6 เดือนล่าสุด</h3>
         <div class="csub">หน่วย: บาท (เดโม)</div>
         <div class="bars" id="bars"></div>
       </div>
       <div class="card queue">
-        <h3>คิวงานผลิต</h3>
+        <h3>🏭 คิวงานผลิต</h3>
         <div class="csub">งานที่กำลังดำเนินการ</div>
         <div id="queue"></div>
       </div>
     </div>
 
     <!-- Orders -->
-    <div class="card" style="margin-bottom:22px">
-      <h3>ออเดอร์ล่าสุด</h3><div class="csub">อัปเดตอัตโนมัติเมื่อต่อระบบจริง</div>
+    <div class="card" style="margin-bottom:20px">
+      <h3>🧾 ออเดอร์ล่าสุด</h3><div class="csub">อัปเดตอัตโนมัติเมื่อต่อระบบจริง</div>
       <table><thead><tr><th>ลูกค้า</th><th>งาน</th><th>ยอด</th><th>กำหนดส่ง</th><th>สถานะ</th></tr></thead>
       <tbody id="orders"></tbody></table>
     </div>
 
-    <!-- Leads -->
+    <!-- Leads (date-filtered) -->
     <div class="card">
-      <h3>Lead ใหม่จากน้องอิงค์ 🤖</h3><div class="csub">ลูกค้าที่ทักผ่านเว็บ/แชต</div>
-      <table><thead><tr><th>ชื่อ</th><th>สนใจงาน</th><th>ช่องทาง</th><th>เวลา</th><th></th></tr></thead>
+      <h3>🤖 Lead จากน้องอิงค์</h3><div class="csub" id="leadSub">ลูกค้าที่ทักผ่านเว็บ/แชต</div>
+      <table><thead><tr><th>ชื่อ</th><th>สนใจงาน</th><th>ช่องทาง</th><th>วันที่</th><th></th></tr></thead>
       <tbody id="leads"></tbody></table>
     </div>
 
-    <div class="demo-note">📌 ข้อมูลทั้งหมดเป็นตัวอย่าง (เดโม) · ลายลินจะดึงข้อมูลจริงจาก Supabase เมื่อเชื่อมระบบ</div>
+    <div class="demo-note">📌 ข้อมูลทั้งหมดเป็นตัวอย่าง (เดโม) · ลายลินจะดึงข้อมูลจริงจาก Supabase (site_visits / sm_leads / sm_orders) เมื่อเชื่อมระบบ</div>
   </main>
 </div>
 
@@ -218,18 +269,17 @@ tr:last-child td{border:0}
 /* ===== gate ===== */
 function login(){
   const v=document.getElementById('pin').value.trim();
-  if(v==='1234'||v===''){ // demo: 1234 หรือเว้นว่างก็เข้าได้ (โชว์ลูกค้าง่าย)
+  if(v==='1234'||v===''){
     sessionStorage.setItem('sm_admin','1');
     document.getElementById('gate').classList.add('hide');
     document.getElementById('app').style.display='grid';
-    render();
+    init();
   } else { toast('รหัสไม่ถูกต้อง — เดโมใช้ 1234 ค่ะ'); }
 }
-if(sessionStorage.getItem('sm_admin')==='1'){document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';}
 
 /* ===== demo data ===== */
-const REV=[112,128,121,143,155,182]; // พัน บาท
-const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.'];
+const REV=[112,128,121,143,155,182], MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.'];
+const SRC_META={fb:['📘','Facebook'],google:['🔍','Google'],direct:['🔗','เข้าตรง'],line:['💬','LINE'],tiktok:['🎵','TikTok'],ig:['📷','Instagram']};
 const QUEUE=[
   {nm:'ป้ายไวนิล ร้านกาแฟ A',meta:'3×2 ม. · ส่งพรุ่งนี้',c:'#ef4444',st:'เร่งด่วน',stc:'t-wait'},
   {nm:'ตู้ไฟ ร้านเสริมสวย B',meta:'ติดตั้งหน้าร้าน',c:'#f59e0b',st:'กำลังผลิต',stc:'t-prod'},
@@ -243,28 +293,137 @@ const ORDERS=[
   ['อีเวนต์ SCG','บูธ + Backdrop','฿32,000','16 มิ.ย.','t-wait','รอมัดจำ'],
   ['ร้านอาหารครัวคุณยาย','ป้ายหน้าร้าน','฿6,400','9 มิ.ย.','t-done','ส่งมอบแล้ว'],
 ];
+function midnight(d){const x=new Date(d);x.setHours(0,0,0,0);return x;}
+function dAgo(n){const d=midnight(new Date());d.setDate(d.getDate()-n);return d;}
+// leads แต่ละรายมีวันที่จริง → กรองได้
 const LEADS=[
-  ['คุณเอก','ป้ายไวนิลหน้าร้าน','💬 น้องอิงค์','5 นาทีที่แล้ว'],
-  ['คุณมาลี','ตู้ไฟอักษรซ่อนไฟ','💬 น้องอิงค์','32 นาทีที่แล้ว'],
-  ['บจก. กรีนเทค','สติกเกอร์ + บูธ','📘 Facebook','1 ชม.ที่แล้ว'],
-  ['คุณสมพงษ์','ป้ายบิลบอร์ด','💬 น้องอิงค์','2 ชม.ที่แล้ว'],
-  ['ร้าน Fitness X','ป้ายอะคริลิก','📞 โทร','3 ชม.ที่แล้ว'],
+  {nm:'คุณเอก',job:'ป้ายไวนิลหน้าร้าน',src:'💬 น้องอิงค์',date:dAgo(0)},
+  {nm:'คุณมาลี',job:'ตู้ไฟอักษรซ่อนไฟ',src:'💬 น้องอิงค์',date:dAgo(0)},
+  {nm:'บจก. กรีนเทค',job:'สติกเกอร์ + บูธ',src:'📘 Facebook',date:dAgo(1)},
+  {nm:'คุณสมพงษ์',job:'ป้ายบิลบอร์ด',src:'💬 น้องอิงค์',date:dAgo(2)},
+  {nm:'ร้าน Fitness X',job:'ป้ายอะคริลิก',src:'📞 โทร',date:dAgo(3)},
+  {nm:'คุณนภา',job:'ป้ายโครงไม้',src:'🔍 Google',date:dAgo(5)},
+  {nm:'โรงเรียนสารสาสน์',job:'ป้ายหน้าอาคาร',src:'💬 น้องอิงค์',date:dAgo(8)},
+  {nm:'คาเฟ่ The Garden',job:'ตู้ไฟ + ไวนิล',src:'📷 Instagram',date:dAgo(12)},
+  {nm:'คุณธีระ',job:'สติกเกอร์ฝ้า',src:'💬 น้องอิงค์',date:dAgo(20)},
 ];
+// visitors รายวัน 30 วัน (deterministic — เสถียรทุกครั้ง)
+function buildVisits(){
+  const out=[];
+  for(let i=29;i>=0;i--){
+    const d=dAgo(i), dow=d.getDay();
+    const base=40 + ((i*17)%34) + ((dow===0||dow===6)?20:0);
+    const s={
+      fb:Math.round(base*0.34), google:Math.round(base*0.22), direct:Math.round(base*0.16),
+      line:Math.round(base*0.14), tiktok:Math.round(base*0.09), ig:Math.round(base*0.05)
+    };
+    const n=Object.values(s).reduce((a,b)=>a+b,0);
+    out.push({date:d,n,sources:s});
+  }
+  return out;
+}
+const VISITS=buildVisits();
 
+/* ===== range state ===== */
+let RANGE='7', cFrom=null, cTo=null;
+function bounds(){
+  const today=midnight(new Date());
+  let from=new Date(today), to=new Date(today);
+  if(RANGE==='today'){from=new Date(today);}
+  else if(RANGE==='7'){from=new Date(today);from.setDate(from.getDate()-6);}
+  else if(RANGE==='30'||RANGE==='all'){from=new Date(today);from.setDate(from.getDate()-29);}
+  else if(RANGE==='month'){from=new Date(today.getFullYear(),today.getMonth(),1);}
+  else if(RANGE==='custom'&&cFrom&&cTo){from=midnight(new Date(cFrom));to=midnight(new Date(cTo));}
+  to.setHours(23,59,59,999);
+  return {from,to};
+}
+function fmt(d){return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function setRange(r,btn){
+  RANGE=r;
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.getElementById('custom').classList.toggle('show',r==='custom');
+  if(r!=='custom')render();
+}
+function applyCustom(){
+  const f=document.getElementById('cFrom').value, t=document.getElementById('cTo').value;
+  if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนนะคะ');return;}
+  if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}
+  cFrom=f;cTo=t;render();
+}
+
+/* ===== render ===== */
 function render(){
-  // date
-  try{const d=new Date();document.getElementById('today').textContent=d.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){document.getElementById('today').textContent='วันนี้';}
-  // bars
+  const {from,to}=bounds();
+  document.getElementById('rangeNow').textContent='ช่วง: '+fmt(from)+(RANGE==='today'?'':' – '+fmt(to));
+  try{document.getElementById('today').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){}
+
+  // visits in range
+  const vis=VISITS.filter(v=>v.date>=from&&v.date<=to);
+  const totalVisit=vis.reduce((a,v)=>a+v.n,0);
+  // sources agg
+  const agg={fb:0,google:0,direct:0,line:0,tiktok:0,ig:0};
+  vis.forEach(v=>{for(const k in agg)agg[k]+=v.sources[k];});
+  // leads in range
+  const leads=LEADS.filter(l=>l.date>=from&&l.date<=to);
+
+  // ลายลิน summary (dynamic)
+  const top=Object.entries(agg).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('lailinText').innerHTML=
+    `ช่วงที่เลือกมีผู้เข้าชมเว็บ <span class="hl">${totalVisit.toLocaleString()} คน</span> · `+
+    `Lead ใหม่ <span class="hl">${leads.length} ราย</span> · `+
+    `ช่องทางมาแรงสุดคือ <span class="hl">${SRC_META[top[0]][1]}</span> (${Math.round(top[1]/Math.max(totalVisit,1)*100)}%) ค่ะ · `+
+    `ยอดเดือนนี้ <span class="hl">฿182,400</span> โต <span class="hl">+18%</span> 🎉 แนะนำให้ยิงโฆษณา ${SRC_META[top[0]][1]} ต่อเนื่อง เพราะคนเข้าเยอะที่สุดนะคะ`;
+
+  // KPI (5)
+  document.getElementById('kpis').innerHTML=[
+    {ic:'💵',bg:'#fff2eb',v:'฿182,400',k:'ยอดขายเดือนนี้',d:'▲ 18% จากเดือนก่อน',dc:'up'},
+    {ic:'🧾',bg:'#eff6ff',v:'24',k:'ออเดอร์เดือนนี้',d:'▲ 6 ออเดอร์',dc:'up'},
+    {ic:'🙋',bg:'#fef9e7',v:leads.length,k:'Lead ในช่วงนี้',d:'● จากน้องอิงค์',dc:'',ds:'color:var(--warn)'},
+    {ic:'🏭',bg:'#f0fdf4',v:'7',k:'งานกำลังผลิต',d:'▲ 2 งานเร่งด่วน',dc:'down'},
+    {ic:'👁️',bg:'#eef6ff',v:totalVisit.toLocaleString(),k:'คนเข้าชมเว็บ',d:'ในช่วงที่เลือก',dc:'',ds:'color:var(--info)'},
+  ].map(c=>`<div class="kpi"><div class="ic" style="background:${c.bg}">${c.ic}</div><div class="v">${c.v}</div><div class="k">${c.k}</div><div class="d ${c.dc}" style="${c.ds||''}">${c.d}</div></div>`).join('');
+
+  // visit bars
+  const showLbl=vis.length<=14;
+  const mxv=Math.max(1,...vis.map(v=>v.n));
+  document.getElementById('visitBars').innerHTML = vis.length? vis.map((v,i)=>
+    `<div class="b"><span class="val">${v.n}</span><div class="bar" style="height:${Math.round(v.n/mxv*100)}%"></div><small>${(showLbl||i%4===0)?v.date.getDate():''}</small></div>`
+  ).join('') : '<div class="empty">ไม่มีข้อมูลในช่วงนี้</div>';
+  document.getElementById('visitSub').textContent=`รวม ${totalVisit.toLocaleString()} คน · ${vis.length} วัน`;
+
+  // sources
+  const srcTotal=Object.values(agg).reduce((a,b)=>a+b,0)||1;
+  document.getElementById('sources').innerHTML=Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,val])=>{
+    const pc=Math.round(val/srcTotal*100);
+    return `<div class="src-row"><div class="si">${SRC_META[k][0]}</div><div class="sb"><div class="l"><span>${SRC_META[k][1]}</span><span class="pc">${pc}% · ${val} คน</span></div><div class="track"><i style="width:${pc}%"></i></div></div></div>`;
+  }).join('');
+
+  // revenue bars
   const mx=Math.max(...REV);
   document.getElementById('bars').innerHTML=REV.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${MON[i]}</small></div>`).join('');
+
   // queue
   document.getElementById('queue').innerHTML=QUEUE.map(q=>`<div class="q"><span class="dot" style="background:${q.c}"></span><div><div class="nm">${q.nm}</div><div class="meta">${q.meta}</div></div><span class="st ${q.stc}">${q.st}</span></div>`).join('');
+
   // orders
   document.getElementById('orders').innerHTML=ORDERS.map(o=>`<tr><td><b>${o[0]}</b></td><td>${o[1]}</td><td><b>${o[2]}</b></td><td>${o[3]}</td><td><span class="tag ${o[4]}">${o[5]}</span></td></tr>`).join('');
-  // leads
-  document.getElementById('leads').innerHTML=LEADS.map(l=>`<tr><td><b>${l[0]}</b></td><td>${l[1]}</td><td><span class="src">${l[2]}</span></td><td style="color:var(--muted)">${l[3]}</td><td><button class="btn btn-ghost" style="padding:6px 12px;font-size:.8rem" onclick="toast('📞 เปิดติดตาม Lead (เดโม)')">ติดตาม</button></td></tr>`).join('');
+
+  // leads (filtered)
+  document.getElementById('leadSub').textContent=`${leads.length} ราย ในช่วง ${fmt(from)}${RANGE==='today'?'':' – '+fmt(to)}`;
+  document.getElementById('leads').innerHTML = leads.length? leads.map(l=>`<tr><td><b>${l.nm}</b></td><td>${l.job}</td><td><span class="src">${l.src}</span></td><td style="color:var(--muted)">${fmt(l.date)}</td><td><button class="btn btn-ghost" style="padding:6px 12px;font-size:.8rem" onclick="toast('📞 เปิดติดตาม Lead (เดโม)')">ติดตาม</button></td></tr>`).join('')
+    : '<tr><td colspan="5"><div class="empty">ไม่มี Lead ในช่วงวันที่เลือก</div></td></tr>';
 }
-if(document.getElementById('app').style.display==='grid')render();
+
+function init(){
+  // default custom dates = last 7 days
+  const {from,to}=(function(){const t=midnight(new Date());const f=new Date(t);f.setDate(f.getDate()-6);return {from:f,to:t};})();
+  document.getElementById('cFrom').value=from.toISOString().slice(0,10);
+  document.getElementById('cTo').value=to.toISOString().slice(0,10);
+  document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setRange(b.dataset.r,b);});
+  render();
+}
+if(sessionStorage.getItem('sm_admin')==='1'){document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';init();}
 
 let tT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600);}
 </script>
