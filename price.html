@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ราคาบริการ — Signmaster Pro</title>
+<meta name="description" content="ตารางราคางานอิงค์เจท (ไวนิล/สติกเกอร์) และบูธ (Roll Up/Backdrop) ของ Signmaster Pro · ป้ายและตู้ไฟประเมินหน้างาน">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1116;--paper:#f6f7f9;--white:#fff;
+  --accent:#ff5a1f;--accent2:#ff8a00;--accent-deep:#e63900;
+  --line:#e7e9ee;--muted:#6b7280;--good:#16a34a;
+  --grad:linear-gradient(135deg,#ff8a00,#ff5a1f 55%,#e63900);
+  --shadow:0 10px 30px rgba(14,17,22,.10);--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Sans Thai',sans-serif;color:var(--ink);background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:600;font-size:1rem;padding:13px 24px;border-radius:999px;border:0;cursor:pointer;transition:.2s}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 22px rgba(230,57,0,.35)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+
+/* nav */
+header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{width:46px;height:46px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#ffa64d,#ff5a1f 52%,#d62f00);box-shadow:0 8px 18px rgba(230,57,0,.35)}
+.brand .mark .s{font-weight:500;font-size:1.8rem;line-height:1;color:transparent;-webkit-text-stroke:1.3px #fff;text-shadow:0 0 8px rgba(255,255,255,.8)}
+.brand .wm-main{font-weight:700;font-size:1rem;letter-spacing:1.5px;color:var(--ink)}
+.brand small{display:block;font-size:.78rem;font-weight:600;letter-spacing:.2px;color:var(--accent-deep)}
+
+/* hero */
+.phero{text-align:center;padding:54px 0 30px}
+.eyebrow{display:inline-block;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent-deep);background:#fff2eb;padding:6px 14px;border-radius:999px;margin-bottom:14px}
+.phero h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-.5px}
+.phero p{color:var(--muted);margin-top:10px;font-size:1.05rem}
+
+/* price cards */
+.pwrap{padding-bottom:70px;display:flex;flex-direction:column;gap:26px}
+.pcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.pcard>.ph{display:flex;align-items:center;gap:10px;padding:18px 22px;background:linear-gradient(135deg,#fff7f2,#fff);border-bottom:1px solid var(--line)}
+.pcard>.ph .ic{font-size:1.5rem}
+.pcard>.ph h2{font-size:1.2rem;font-weight:700}
+.pcard>.ph .sub{color:var(--muted);font-size:.85rem;font-weight:500}
+.pbody{padding:10px 22px 22px}
+.ptitle{font-weight:700;font-size:.98rem;margin:18px 0 8px;color:var(--accent-deep)}
+.ptitle small{color:var(--muted);font-weight:500;font-size:.82rem}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{background:#faf7f5;color:var(--muted);font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fffaf7}
+.unit{color:var(--muted);font-size:.8rem;margin-left:3px}
+.pnote{background:#fff8ee;border:1px solid #ffe7c2;border-radius:12px;padding:11px 15px;margin-top:14px;font-size:.88rem;color:#8a5a00}
+.quote-card{display:flex;gap:16px;flex-wrap:wrap}
+.quote-item{flex:1;min-width:240px;background:#f7f9fc;border:1px solid var(--line);border-radius:14px;padding:18px}
+.quote-item h3{font-size:1.05rem}.quote-item p{color:var(--muted);font-size:.9rem;margin-top:6px}
+.quote-item .tag{display:inline-block;margin-top:12px;background:var(--ink);color:#fff;font-size:.82rem;font-weight:600;padding:6px 14px;border-radius:999px}
+.cta-row{text-align:center;padding:8px 0 40px}
+.disclaimer{text-align:center;color:var(--muted);font-size:.86rem;margin-top:10px}
+
+/* footer */
+footer{background:#0a0d12;color:#cbd2dc;padding:46px 0 26px;font-size:.92rem}
+footer b{color:#fff}
+footer a{color:var(--accent2)}
+.foot-row{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:10px}
+.copy{margin-top:22px;padding-top:16px;border-top:1px solid #1c222c;color:#7c828c;font-size:.82rem}
+
+@media(max-width:620px){.brand small{display:none}th,td{padding:9px 8px;font-size:.86rem}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap nav-in">
+  <a href="index.html" class="brand">
+    <span class="mark"><span class="s">S</span></span>
+    <span><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
+  </a>
+  <a href="index.html" class="btn btn-ghost">← กลับหน้าหลัก</a>
+</div></header>
+
+<section class="phero"><div class="wrap">
+  <span class="eyebrow">ราคาบริการ</span>
+  <h1>ตารางราคา Signmaster Pro</h1>
+  <p>ราคามาตรฐานงานอิงค์เจท &amp; บูธ · ป้ายและตู้ไฟประเมินหน้างานตามสเปก</p>
+</div></section>
+
+<div class="wrap"><div class="pwrap">
+
+  <!-- อิงค์เจท -->
+  <div class="pcard">
+    <div class="ph"><span class="ic">🖨️</span><div><h2>งานอิงค์เจท</h2><div class="sub">ไวนิล · สติกเกอร์ · ผ้า — คิดตามตารางเมตร (สั่ง 10 ตร.ม.ขึ้นไป ราคาถูกลง)</div></div></div>
+    <div class="pbody">
+      <div class="ptitle">Outdoor 720 DPI <small>· งานทั่วไป</small></div>
+      <table><thead><tr><th>วัสดุ</th><th class="num">1–9 ตร.ม.</th><th class="num">10 ตร.ม.+</th></tr></thead><tbody>
+        <tr><td>ไวนิลทึบแสง</td><td class="num">150</td><td class="num">120</td></tr>
+        <tr><td>ไวนิลโปร่งแสง</td><td class="num">250</td><td class="num">230</td></tr>
+        <tr><td>สติกเกอร์ PVC (ขาว/ใส)</td><td class="num">350</td><td class="num">300</td></tr>
+        <tr><td>สติกเกอร์ซีทรู</td><td class="num">350</td><td class="num">300</td></tr>
+      </tbody></table>
+      <div class="pnote">💡 งานเหมาใหญ่: ไวนิลทึบแสง <b>300 ตร.ม.ขึ้นไป = 90 บาท/ตร.ม.</b></div>
+
+      <div class="ptitle">Outdoor 1440 DPI <small>· คมชัดระดับภาพถ่าย (MIMAKI JV33)</small></div>
+      <table><thead><tr><th>วัสดุ</th><th class="num">1–9 ตร.ม.</th><th class="num">10 ตร.ม.+</th></tr></thead><tbody>
+        <tr><td>ไวนิลทึบแสง</td><td class="num">350</td><td class="num">300</td></tr>
+        <tr><td>ไวนิลโปร่งแสง</td><td class="num">450</td><td class="num">400</td></tr>
+        <tr><td>สติกเกอร์ PVC (ขาว/ใส/ซีทรู)</td><td class="num">450</td><td class="num">400</td></tr>
+        <tr><td>สติกเกอร์รีมูฟ 3M</td><td class="num">500</td><td class="num">450</td></tr>
+        <tr><td>ผ้าแคนวาส / ผ้าไอที</td><td class="num">500</td><td class="num">450</td></tr>
+      </tbody></table>
+
+      <div class="ptitle">Indoor 1200 DPI <small>· งานในร่ม (HP DesignJet 5100)</small></div>
+      <table><thead><tr><th>วัสดุ</th><th class="num">1–9 ตร.ม.</th><th class="num">10 ตร.ม.+</th></tr></thead><tbody>
+        <tr><td>กระดาษโฟโต้</td><td class="num">350</td><td class="num">300</td></tr>
+        <tr><td>กระดาษพีพี / สติกเกอร์ PP / PVC / ใส</td><td class="num">450</td><td class="num">400</td></tr>
+        <tr><td>แบ็คลิทสติกเกอร์ / แบ็คลิทฟิล์ม / แคนวาส</td><td class="num">500</td><td class="num">450</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- บูธ -->
+  <div class="pcard">
+    <div class="ph"><span class="ic">🎪</span><div><h2>บูธ &amp; อีเวนต์</h2><div class="sub">Roll Up · เคาน์เตอร์ · Backdrop — ราคาต่อชิ้น</div></div></div>
+    <div class="pbody">
+      <div class="ptitle">Roll Up</div>
+      <table><thead><tr><th>ขนาด</th><th class="num">ราคา (บาท)</th></tr></thead><tbody>
+        <tr><td>50 × 120 ซม.</td><td class="num">650</td></tr>
+        <tr><td>60 × 160 ซม.</td><td class="num">750</td></tr>
+        <tr><td>50 × 150 ซม.</td><td class="num">850</td></tr>
+        <tr><td>80 × 180 ซม.</td><td class="num">900</td></tr>
+        <tr><td>80 × 200 ซม.</td><td class="num">1,200</td></tr>
+        <tr><td>85 × 200 ซม.</td><td class="num">1,300</td></tr>
+        <tr><td>100 × 200 ซม.</td><td class="num">1,500</td></tr>
+      </tbody></table>
+
+      <div class="ptitle">เคาน์เตอร์ Pull Frame 2×2</div>
+      <table><thead><tr><th>ประเภท</th><th class="num">ราคา (บาท)</th></tr></thead><tbody>
+        <tr><td>โครงเปล่า</td><td class="num">3,500</td></tr>
+        <tr><td>โครง + งานพิมพ์</td><td class="num">5,500</td></tr>
+      </tbody></table>
+
+      <div class="ptitle">Backdrop Pull Frame <small>· โครง / โครง+งานพิมพ์</small></div>
+      <table><thead><tr><th>ขนาด</th><th class="num">โครง</th><th class="num">โครง+พิมพ์</th></tr></thead><tbody>
+        <tr><td>3 × 2 ม.</td><td class="num">4,900</td><td class="num">8,500</td></tr>
+        <tr><td>3 × 3 ม.</td><td class="num">5,200</td><td class="num">9,900</td></tr>
+        <tr><td>3 × 4 ม.</td><td class="num">5,700</td><td class="num">12,000</td></tr>
+        <tr><td>3 × 5 ม.</td><td class="num">6,500</td><td class="num">13,500</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ป้าย + ตู้ไฟ -->
+  <div class="pcard">
+    <div class="ph"><span class="ic">🪧</span><div><h2>ป้าย &amp; ตู้ไฟ</h2><div class="sub">ราคาขึ้นกับขนาด วัสดุ และหน้างาน</div></div></div>
+    <div class="pbody">
+      <div class="quote-card">
+        <div class="quote-item"><h3>🪧 ป้ายทุกชนิด</h3><p>ป้ายสตีล ซิงค์ โลหะ อะคริลิก ตัวอักษรโลหะ บิลบอร์ด ป้ายหน้าอาคาร คอมโพสิท ฯลฯ</p><span class="tag">💡 ประเมินหน้างาน</span></div>
+        <div class="quote-item"><h3>💡 ตู้ไฟ (Lightbox)</h3><p>ตู้ไฟ นีออน ไฟออกหน้า-หลัง ตัวอักษรซ่อนไฟ LED Moving ไฟปิงปอง</p><span class="tag">💡 ประเมินหน้างาน</span></div>
+      </div>
+      <div class="pnote">📐 งานป้าย/ตู้ไฟ ทีมงานประเมินราคาให้ตามแบบและหน้างาน — แจ้งรายละเอียดกับน้องอิงค์ หรือกดเริ่มสั่งทำงานได้เลยค่ะ</div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <a href="index.html#order" class="btn btn-primary btn-lg">🖊️ เริ่มสั่งทำงาน / ขอใบเสนอราคา</a>
+    <div class="disclaimer">* ราคาอาจเปลี่ยนแปลงตามสเปกงาน · ยังไม่รวมค่าออกแบบ (~500 บาท) และค่าติดตั้ง (~100 บาท/ตร.ม.) · สอบถาม/ยืนยันราคากับทีมงานอีกครั้ง</div>
+  </div>
+
+</div></div>
+
+<footer><div class="wrap">
+  <b>บริษัท ซายน์ มาสเตอร์โปร จำกัด</b> — รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด
+  <div class="foot-row">
+    <span>📞 02-373-7050-2, 08-6591-5313 (คุณนก)</span>
+    <span>💬 LINE: sign_masterpro</span>
+    <span>✉️ signmasterpro07@gmail.com</span>
+    <span>📘 facebook.com/signmasterpro</span>
+  </div>
+  <div class="copy">© 2026 Signmaster Pro · ขับเคลื่อนโดยทีม Neo-S AI</div>
+</div></footer>
+</body>
+</html>
