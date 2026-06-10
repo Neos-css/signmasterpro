@@ -297,19 +297,19 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
     <p class="sec-sub">ตั้งแต่ออกแบบ ผลิต จนถึงติดตั้งหน้างาน — จบในที่เดียว</p>
     <div class="svc-grid">
       <div class="svc" onclick="filterTo('booth')">
-        <div class="ic"><img loading="lazy" style="object-position:center 42%" src="media/assets/img/service/gallery/booth/booth1.jpg" alt="บูธ & อีเวนต์" onerror="this.parentNode.innerHTML='🎪'"></div>
+        <div class="ic"><img data-slot="booth" loading="lazy" style="object-position:center 42%" src="media/assets/img/service/gallery/booth/booth1.jpg" alt="บูธ & อีเวนต์" onerror="this.parentNode.innerHTML='🎪'"></div>
         <div class="body"><h3>🎪 บูธ & อีเวนต์</h3><p>ออกบูธ ทำบูธ อุปกรณ์ออกบูธ Roll Up Backdrop งาน Event ครบชุด</p><span class="tag">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('inkjet')">
-        <div class="ic"><img loading="lazy" style="object-position:center 38%" src="media/assets/img/service/gallery/inkjet-vinyl/inkjet-vinyl3.jpg" alt="งานอิงค์เจท" onerror="this.parentNode.innerHTML='🖨️'"></div>
+        <div class="ic"><img data-slot="inkjet" loading="lazy" style="object-position:center 38%" src="media/assets/img/service/gallery/inkjet-vinyl/inkjet-vinyl3.jpg" alt="งานอิงค์เจท" onerror="this.parentNode.innerHTML='🖨️'"></div>
         <div class="body"><h3>🖨️ งานอิงค์เจท</h3><p>ไวนิล สติกเกอร์ คมชัด 720–1440 DPI ทั้งงานกลางแจ้งและในร่ม</p><span class="tag">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('sign')">
-        <div class="ic"><img loading="lazy" style="object-position:center 78%" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="ป้ายทุกชนิด" onerror="this.parentNode.innerHTML='🪧'"></div>
+        <div class="ic"><img data-slot="sign" loading="lazy" style="object-position:center 78%" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="ป้ายทุกชนิด" onerror="this.parentNode.innerHTML='🪧'"></div>
         <div class="body"><h3>🪧 ป้ายทุกชนิด</h3><p>ป้ายสตีล ซิงค์ โลหะ คอมโพสิท ตัวอักษรโลหะ บิลบอร์ด หน้าอาคาร</p><span class="tag">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('lightbox')">
-        <div class="ic"><img loading="lazy" style="object-position:center 45%" src="media/assets/img/service/gallery/lightbox-front-light/lightbox-front-light1.jpg" alt="ตู้ไฟ" onerror="this.parentNode.innerHTML='💡'"></div>
+        <div class="ic"><img data-slot="lightbox" loading="lazy" style="object-position:center 45%" src="media/assets/img/service/gallery/lightbox-front-light/lightbox-front-light1.jpg" alt="ตู้ไฟ" onerror="this.parentNode.innerHTML='💡'"></div>
         <div class="body"><h3>💡 ตู้ไฟ (Lightbox)</h3><p>ตู้ไฟ นีออน ไฟออกหน้า-หลัง ตัวอักษรซ่อนไฟ LED Moving</p><span class="tag">ดูผลงาน →</span></div>
       </div>
     </div>
@@ -457,7 +457,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
         <div class="val"><span class="n">3</span><div><b>ครบ + ราคายุติธรรม</b><p>มีครบทุกบริการ พร้อมไอเดียดีๆ ในราคาที่ยุติธรรม</p></div></div>
       </div>
     </div>
-    <img class="about-photo" src="office.jpg" alt="สำนักงาน Signmaster Pro" onerror="this.onerror=null;this.src='media/assets/img/service/gallery/sign-background/sign-background1.jpg'">
+    <img class="about-photo" data-slot="about" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="สำนักงาน Signmaster Pro" onerror="this.onerror=null;this.src='media/assets/img/service/gallery/sign-background/sign-background1.jpg'">
   </div>
 </section>
 
@@ -522,6 +522,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 
 <script src="price-config.js"></script>
 <script src="gallery-data.js"></script>
+<script src="site-images.js"></script>
 <script>
 /* ---------- NAV ---------- */
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
@@ -700,8 +701,17 @@ function inkReply(q){
 function inkAsk(q){inkPush(q,'me');inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');i.value='';inkReply(v)}
 
+/* ---------- รูปที่เปลี่ยนได้จากหลังบ้าน (site-images.js) ---------- */
+function applyImages(){
+  if(!window.SITE_IMAGES)return;
+  document.querySelectorAll('[data-slot]').forEach(img=>{
+    const s=window.SITE_IMAGES[img.dataset.slot];
+    if(s&&s.src){img.src=s.src;if(s.pos)img.style.objectPosition=s.pos;}
+  });
+}
+
 /* ---------- INIT ---------- */
-buildGallery();buildMaterials();setSteps();
+applyImages();buildGallery();buildMaterials();setSteps();
 </script>
 </body>
 </html>

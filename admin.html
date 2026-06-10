@@ -181,6 +181,22 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 .roleswitch button{font-family:inherit;font-size:.82rem;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #fcd34d;background:#fff;color:#92600c;cursor:pointer}
 .roleswitch button.on{background:#f59e0b;color:#fff;border-color:#f59e0b}
 
+/* IMAGE MANAGER */
+.savebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff7e6;border:1px solid #fde68a;border-radius:13px;padding:12px 16px;margin-bottom:18px;font-size:.88rem;color:#92600c}
+.savebar .sp{margin-left:auto;display:flex;gap:8px}
+.imgslots{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:18px}
+.imgslot{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.imgslot .ih{padding:13px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.imgslot .ih b{font-size:.98rem}.imgslot .ih .dirty{margin-left:auto;font-size:.7rem;font-weight:700;color:#b45309;background:#fff7e6;border:1px solid #fde68a;padding:2px 9px;border-radius:999px;display:none}
+.imgslot.dirty .ih .dirty{display:inline-block}
+.imgslot .ipv{height:170px;background:var(--ink2);position:relative;overflow:hidden}
+.imgslot .ipv img{width:100%;height:100%;object-fit:cover;display:block}
+.imgslot .ipv:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,17,22,.12),transparent 45%,rgba(14,17,22,.2));pointer-events:none}
+.imgslot .ia{display:flex;gap:7px;padding:12px 13px;flex-wrap:wrap}
+.imgslot .ia button{font-family:inherit;font-size:.82rem;font-weight:600;padding:8px 12px;border-radius:9px;border:1.5px solid var(--line);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.imgslot .ia button:hover{border-color:var(--accent)}
+.imgslot .ia .b-ai{background:linear-gradient(120deg,#171c26,#23120a);color:#fff;border-color:transparent}
+@media(max-width:760px){.imgslots{grid-template-columns:1fr}}
 .demo-note{text-align:center;color:#9aa1ad;font-size:.82rem;margin-top:14px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:170;transition:.35s;font-weight:500;max-width:92vw}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -214,6 +230,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="customers"><span class="em">👥</span> ลูกค้า</a>
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
+      <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
     </nav>
@@ -286,6 +303,16 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
+    <!-- ===== IMAGE MANAGER ===== -->
+    <section class="view" id="view-images">
+      <div class="lailin" style="margin-bottom:16px"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน</b><span class="role">ผู้ช่วยจัดการภาพ</span><p>เปลี่ยนรูปหน้าเว็บได้เองเลยค่ะ 🖼️ — กด <b>อัปโหลดรูปเอง</b> หรือให้ <b>ลายลินสลับรูป</b>จากคลังผลงาน แล้วกด <b>บันทึก</b> · หน้าเว็บจะเปลี่ยนตามทันที (ไม่ต้องแก้โค้ด!)</p></div></div>
+      <div class="savebar">
+        <span>💡 แก้รูปแล้วอย่าลืมกด "บันทึก" · ตอนนี้บันทึกในเครื่องนี้ (เดโม) — ต่อ Supabase Storage แล้วจะเปลี่ยนให้ทุกคนเห็น</span>
+        <div class="sp"><button class="btn btn-ghost" onclick="resetAllImg()">↩️ คืนค่าเริ่มต้นทั้งหมด</button><button class="btn btn-pri" onclick="saveImages()">💾 บันทึกทั้งหมด</button></div>
+      </div>
+      <div class="imgslots" id="imgSlots"></div>
+    </section>
+
     <!-- ===== POWER (พลัง AI) ===== -->
     <section class="view" id="view-power">
       <div class="pwr-alert" id="pwrAlert"></div>
@@ -332,6 +359,9 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
 <div class="toast" id="toast"></div>
 
+<input type="file" id="imgFile" accept="image/*" style="display:none">
+<script src="gallery-data.js"></script>
+<script src="site-images.js"></script>
 <script>
 /* gate */
 function login(){const v=document.getElementById('pin').value.trim();if(v==='1234'||v===''){sessionStorage.setItem('sm_admin','1');document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';init();}else toast('รหัสไม่ถูกต้อง — เดโมใช้ 1234 ค่ะ');}
@@ -414,7 +444,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -422,7 +452,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
 
 /* ===== role ===== */
@@ -512,6 +542,23 @@ function addUser(){const u=document.getElementById('uName').value.trim(),d=docum
   if(USERS.some(x=>x.u===u)){toast('ชื่อผู้ใช้นี้มีแล้วค่ะ');return;}
   USERS.push({u,d,r});document.getElementById('uName').value='';document.getElementById('uDisplay').value='';document.getElementById('uPass').value='';renderUsers();toast(`✅ เพิ่มผู้ใช้ "${esc(d)}" แล้วค่ะ (เดโม)`);}
 function delUser(i){if(USERS[i].r==='admin'){toast('ลบ Admin ไม่ได้ค่ะ');return;}const n=USERS[i].d;USERS.splice(i,1);renderUsers();toast(`ลบผู้ใช้ "${esc(n)}" แล้วค่ะ`);}
+
+/* ===== IMAGE MANAGER ===== */
+let STAGED=null,imgCurSlot=null;const IMG_ORDER=['booth','inkjet','sign','lightbox','about'];
+function ensureStaged(){if(!STAGED)STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES));}
+function imgPool(group){const out=[],G=window.GALLERY||{};for(const k in G){if(G[k].group===group)G[k].imgs.forEach(s=>out.push(s));}return out;}
+function renderImages(){
+  ensureStaged();
+  document.getElementById('imgSlots').innerHTML=IMG_ORDER.map(k=>{
+    const s=STAGED[k],dirty=s.src!==window.SITE_IMAGES[k].src;
+    return `<div class="imgslot ${dirty?'dirty':''}"><div class="ih"><b>${s.label}</b><span class="dirty">● ยังไม่บันทึก</span></div><div class="ipv"><img src="${esc(s.src)}" style="object-position:${s.pos||'center'}"></div><div class="ia"><button onclick="imgUpload('${k}')">📤 อัปโหลดรูปเอง</button><button class="b-ai" onclick="imgSwapAI('${k}')">🤖 ให้ลายลินสลับ</button><button onclick="imgReset('${k}')">↩️ เดิม</button></div></div>`;
+  }).join('');
+}
+function imgSwapAI(k){ensureStaged();const pool=imgPool(STAGED[k].group);if(!pool.length){toast('คลังรูปหมวดนี้ว่างค่ะ');return;}let idx=pool.indexOf(STAGED[k].src);idx=(idx+1)%pool.length;if(idx<0)idx=0;STAGED[k].src=pool[idx];renderImages();toast(`🤖 <b>ลายลิน:</b> สลับรูป "${STAGED[k].label}" เป็นผลงานใหม่ให้แล้วค่ะ ✨ ถูกใจกด 💾 บันทึกเลยนะคะ`);}
+function imgUpload(k){imgCurSlot=k;const inp=document.getElementById('imgFile');inp.value='';inp.onchange=function(){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){const im=new Image();im.onload=function(){const max=1400;let w=im.width,h=im.height;if(w>max||h>max){const sc=max/Math.max(w,h);w=Math.round(w*sc);h=Math.round(h*sc);}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);STAGED[imgCurSlot].src=cv.toDataURL('image/jpeg',0.85);renderImages();toast(`📤 อัปโหลดรูป "${STAGED[imgCurSlot].label}" แล้วค่ะ — กด 💾 บันทึกเพื่อให้เว็บเปลี่ยนนะคะ`);};im.src=ev.target.result;};r.readAsDataURL(f);};inp.click();}
+function imgReset(k){ensureStaged();STAGED[k].src=window.SITE_IMAGES_DEFAULT[k].src;STAGED[k].pos=window.SITE_IMAGES_DEFAULT[k].pos;renderImages();toast('คืนค่ารูปเริ่มต้นแล้วค่ะ');}
+function resetAllImg(){STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES_DEFAULT));renderImages();toast('คืนค่ารูปทั้งหมดแล้วค่ะ — กด 💾 บันทึกเพื่อยืนยัน');}
+function saveImages(){ensureStaged();try{const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAGED[k].src,pos:STAGED[k].pos};});localStorage.setItem('sm_site_images',JSON.stringify(out));IMG_ORDER.forEach(k=>{window.SITE_IMAGES[k].src=STAGED[k].src;window.SITE_IMAGES[k].pos=STAGED[k].pos;});renderImages();toast('💾 บันทึกแล้วค่ะ! เปิดหน้าเว็บ (รีเฟรช) จะเห็นรูปใหม่ทันที 🎉');}catch(e){toast('⚠️ บันทึกไม่สำเร็จ (รูปอาจใหญ่เกิน) — ลองรูปเล็กลงนะคะ');}}
 
 /* ===== init ===== */
 function init(){
