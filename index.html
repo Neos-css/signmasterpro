@@ -200,6 +200,39 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .note-banner{background:#fff7e6;border-bottom:1px solid #fde68a;color:#92600c;text-align:center;font-size:.85rem;padding:8px 14px;font-weight:500}
 
+/* member / auth */
+.btn-auth{font-family:inherit;font-weight:600;font-size:.92rem;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:#374151;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-auth:hover{border-color:var(--accent);color:var(--accent-deep)}
+.member{position:relative}
+.member .chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border-radius:999px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-weight:600;font-size:.9rem;max-width:170px}
+.member .chip .mav{width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.member .chip .mn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member .menu{position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);min-width:210px;padding:8px;display:none;z-index:60}
+.member.open .menu{display:block}
+.member .menu .top{padding:9px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.member .menu .top b{display:block;font-size:.95rem}.member .menu .top small{color:var(--muted);font-size:.8rem}
+.member .menu .mi{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:.92rem;color:#374151}
+.member .menu .mi:hover{background:#f6f7f9}
+.amodal{position:fixed;inset:0;background:rgba(8,10,14,.6);z-index:130;display:none;place-items:center;padding:20px}
+.amodal.open{display:grid}
+.acard{background:#fff;border-radius:20px;width:min(400px,100%);max-height:90vh;overflow:auto;padding:30px 26px;position:relative;box-shadow:var(--shadow-lg)}
+.acard .ax{position:absolute;top:14px;right:18px;font-size:1.7rem;cursor:pointer;color:var(--muted);line-height:1}
+.acard .ahead{text-align:center;margin-bottom:20px}
+.acard .aava{width:60px;height:60px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:1.8rem;margin:0 auto 12px;color:#fff}
+.acard .ahead h3{font-size:1.25rem}.acard .ahead p{color:var(--muted);font-size:.9rem;margin-top:5px}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;font-weight:600;font-size:1rem;padding:13px;border-radius:12px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
+.gbtn:hover{background:#f6f7f9}
+.gbtn .gi{width:20px;height:20px;border-radius:50%;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0)}
+.ediv{text-align:center;color:#9aa1ad;font-size:.85rem;margin:15px 0}
+.aform{display:flex;flex-direction:column;gap:10px}
+.aform input{font-family:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;outline:0}
+.aform input:focus{border-color:var(--accent)}
+.anote{font-size:.78rem;color:#9aa1ad;text-align:center;margin-top:16px;line-height:1.5}
+.ord-card{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:11px}
+.ord-card .oh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ord-card .oh b{font-size:.96rem}.ord-card .ost{font-size:.74rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.ord-card .om{font-size:.84rem;color:var(--muted)}
+
 /* น้องอิงค์ — AI Sale flagship chat widget */
 .ink-fab{position:fixed;bottom:18px;right:18px;z-index:120;display:flex;align-items:center;gap:7px;border:0;cursor:pointer;
   font-family:inherit;font-weight:700;font-size:.88rem;color:#fff;padding:8px 15px 8px 9px;border-radius:999px;
@@ -255,6 +288,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
       <a href="#contact" onclick="closeNav()">ติดต่อ</a>
     </nav>
     <div class="nav-cta">
+      <span class="auth" id="authArea"></span>
       <a href="#order" class="btn btn-primary">เริ่มสั่งทำงาน</a>
       <button class="burger" onclick="toggleNav()" aria-label="menu">☰</button>
     </div>
@@ -496,6 +530,31 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- เข้าสู่ระบบ / สมาชิก -->
+<div class="amodal" id="authModal">
+  <div class="acard">
+    <span class="ax" onclick="closeAuth()">×</span>
+    <div class="ahead"><div class="aava">👤</div><h3>เข้าสู่ระบบ / สมัครสมาชิก</h3><p>เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
+    <button class="gbtn" onclick="loginDemo('google')"><span class="gi"></span> เข้าสู่ระบบด้วย Google</button>
+    <div class="ediv">— หรือ กรอกข้อมูลเข้าใช้ —</div>
+    <div class="aform">
+      <input id="mName" placeholder="ชื่อ-นามสกุล *">
+      <input id="mPhone" placeholder="เบอร์โทร *">
+      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="loginDemo('guest')">เข้าใช้งาน</button>
+    </div>
+    <p class="anote">🔒 <b>เดโม:</b> ระบบจริงจะล็อกอินด้วยบัญชี Google จริง + เก็บข้อมูลปลอดภัยใน Supabase</p>
+  </div>
+</div>
+
+<!-- ออเดอร์ของฉัน -->
+<div class="amodal" id="ordersModal">
+  <div class="acard">
+    <span class="ax" onclick="document.getElementById('ordersModal').classList.remove('open')">×</span>
+    <div class="ahead"><div class="aava">📦</div><h3>ออเดอร์ของฉัน</h3><p id="ordersWho"></p></div>
+    <div id="myOrders"></div>
+  </div>
+</div>
+
 <!-- น้องอิงค์ — AI Sale flagship -->
 <button class="ink-fab" id="inkFab" onclick="toggleInk()" aria-label="ปรึกษาน้องอิงค์">
   <span class="ink-ava">🤖</span><span>ปรึกษาน้องอิงค์</span>
@@ -680,7 +739,7 @@ function validate(){
   }
   return true;
 }
-function goStep(n){cur=Math.max(1,Math.min(6,n));if(cur===3&&!document.getElementById('material').options.length)buildMaterials();if(cur===4)updateArea();if(cur===6)renderQuote();setSteps()}
+function goStep(n){cur=Math.max(1,Math.min(6,n));if(cur===3&&!document.getElementById('material').options.length)buildMaterials();if(cur===4)updateArea();if(cur===5)prefillMember();if(cur===6)renderQuote();setSteps()}
 function next(){if(!validate())return;if(cur===3)state.matId=document.getElementById('material').value;goStep(cur+1)}
 
 /* ---------- TOAST ---------- */
@@ -701,6 +760,34 @@ function inkReply(q){
 function inkAsk(q){inkPush(q,'me');inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');i.value='';inkReply(v)}
 
+/* ---------- ระบบสมาชิก / เข้าสู่ระบบ (เดโม · ต่อ Google+Supabase ทีหลัง) ---------- */
+function esc(s){return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function getMember(){try{return JSON.parse(localStorage.getItem('sm_member')||'null');}catch(e){return null;}}
+function renderMember(){
+  const m=getMember(),a=document.getElementById('authArea');if(!a)return;
+  if(!m){a.innerHTML='<button class="btn-auth" onclick="openAuth()">👤 เข้าสู่ระบบ</button>';return;}
+  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0])}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${m.via==='google'?'🔵 บัญชี Google':'📱 '+esc(m.phone||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ออเดอร์ของฉัน</div><div class="mi" onclick="logout()">🚪 ออกจากระบบ</div></div></div>`;
+}
+function openAuth(){closeNav();document.getElementById('authModal').classList.add('open');}
+function closeAuth(){document.getElementById('authModal').classList.remove('open');}
+function loginDemo(method){
+  let m;
+  if(method==='google'){m={name:'คุณลูกค้า (Google)',email:'demo@gmail.com',via:'google'};}
+  else{const n=document.getElementById('mName').value.trim(),p=document.getElementById('mPhone').value.trim();if(!n||!p){toast('กรอกชื่อ + เบอร์ก่อนนะคะ');return;}m={name:n,phone:p,via:'guest'};}
+  localStorage.setItem('sm_member',JSON.stringify(m));closeAuth();renderMember();toast(`สวัสดีค่ะ ${esc(m.name)} 🎉 เข้าสู่ระบบแล้ว (เดโม)`);
+}
+function logout(){localStorage.removeItem('sm_member');renderMember();toast('ออกจากระบบแล้วค่ะ');}
+function openMyOrders(){
+  const m=getMember();if(!m)return;const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');
+  document.getElementById('ordersWho').textContent=m.name;
+  const demo=[{job:'ป้ายไวนิลหน้าร้าน 3×2 ม.',amt:'฿4,200',st:'กำลังผลิต',c:'#f59e0b'},{job:'สติกเกอร์ติดกระจก',amt:'฿1,800',st:'ส่งมอบแล้ว',c:'#16a34a'}];
+  document.getElementById('myOrders').innerHTML=demo.map(o=>`<div class="ord-card"><div class="oh"><b>${esc(o.job)}</b><span class="ost" style="background:${o.c}22;color:${o.c}">${o.st}</span></div><div class="om">ยอด ${o.amt} · สั่งเมื่อ มิ.ย. 2569</div></div>`).join('')+'<p class="anote">📌 เดโม — ระบบจริงจะดึงออเดอร์จริงของคุณจาก Supabase</p>';
+  document.getElementById('ordersModal').classList.add('open');
+}
+function prefillMember(){const m=getMember();if(!m)return;const n=document.getElementById('cName'),p=document.getElementById('cPhone');if(n&&!n.value&&m.via==='guest')n.value=m.name;if(p&&!p.value&&m.phone)p.value=m.phone;}
+document.addEventListener('click',e=>{const mb=document.getElementById('memberBox');if(mb&&!mb.contains(e.target))mb.classList.remove('open');});
+document.querySelectorAll('.amodal').forEach(md=>md.addEventListener('click',e=>{if(e.target===md)md.classList.remove('open');}));
+
 /* ---------- รูปที่เปลี่ยนได้จากหลังบ้าน (site-images.js) ---------- */
 function applyImages(){
   if(!window.SITE_IMAGES)return;
@@ -711,7 +798,7 @@ function applyImages(){
 }
 
 /* ---------- INIT ---------- */
-applyImages();buildGallery();buildMaterials();setSteps();
+applyImages();buildGallery();buildMaterials();setSteps();renderMember();
 </script>
 </body>
 </html>
