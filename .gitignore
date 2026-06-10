@@ -5,6 +5,8 @@ _*.md
 _devserver.ps1
 secrets.local.ps1
 *.local.ps1
+*.ps1
+*.sql
 
 # ===== OS / junk =====
 Thumbs.db
