@@ -779,14 +779,36 @@ let tT;function toast(m){const t=document.getElementById('toast');t.textContent=
 /* ---------- น้องอิงค์ (AI Sale) ---------- */
 function toggleInk(){document.getElementById('inkChat').classList.toggle('open');document.getElementById('inkFab').classList.toggle('hide')}
 function inkPush(t,who){const b=document.getElementById('inkBody');const d=document.createElement('div');d.className='ink-msg '+who;d.innerHTML=t;b.appendChild(d);b.scrollTop=b.scrollHeight}
-function inkReply(q){
+const INK_WORKER='https://signmaster-proxy.neos-css01.workers.dev';
+function inkHistory(){
+  // ประวัติสนทนาก่อนข้อความล่าสุด (Dify stateless → แนบไปให้ AI จำบริบท)
+  const msgs=[...document.querySelectorAll('#inkBody .ink-msg')];
+  return msgs.slice(-13,-1).map(m=>(m.classList.contains('me')?'ลูกค้า':'น้องอิงค์')+': '+m.textContent.trim()).join('\n');
+}
+async function inkReply(q){
+  const hist=inkHistory();
+  inkPush('<i style="opacity:.55">น้องอิงค์กำลังพิมพ์…</i>','bot');
+  const typingEl=document.getElementById('inkBody').lastElementChild;
+  try{
+    const res=await fetch(INK_WORKER+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:q,history:hist,user:(localStorage.getItem('sm_vid')||'web')})});
+    const data=await res.json();
+    if(typingEl)typingEl.remove();
+    if(data&&data.answer){const a=esc(data.answer).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');inkPush(a,'bot');logChat('bot',data.answer);return;}
+    throw new Error('no answer');
+  }catch(e){
+    if(typingEl)typingEl.remove();
+    inkReplyDemo(q);   // fallback เดโม (rule-based) ถ้า Worker/AI ล่ม
+  }
+}
+function inkReplyDemo(q){
   let r,go=null;
   if(/ราคา|ประเมิน|เท่าไ[หร]|กี่บาท/.test(q)){r='ได้เลยค่ะ! น้องอิงค์พาไปประเมินราคาในระบบสั่งทำงานได้เลย — เลือกวัสดุ + ใส่ขนาด แล้วรู้ราคาทันทีค่ะ 💰';go='order'}
   else if(/บริการ|ทำอะไร|รับงาน/.test(q)){r='เรารับครบวงจรเลยค่ะ 🧱 บูธ·อิงค์เจท·ป้ายทุกชนิด·ตู้ไฟ — น้องอิงค์พาไปดูหัวข้อบริการนะคะ';go='services'}
   else if(/ผลงาน|ตัวอย่าง|รูป/.test(q)){r='มีผลงานจริงเยอะเลยค่ะ 🖼️ น้องอิงค์พาไปชมแกลเลอรีเลยนะคะ';go='gallery'}
   else if(/ติดต่อ|เบอร์|line|ไลน์|โทร/i.test(q)){r='ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ';go='contact'}
-  else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว — เดโมนี้ยังไม่ได้ต่อ AI เต็มระบบ พอเชื่อมแล้วน้องอิงค์จะตอบ + เสนอราคา + ออกแบบให้ได้ทันทีค่ะ ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
-  setTimeout(()=>{inkPush(r,'bot');logChat('bot',r);if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},450);
+  else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว ทีมงานจะติดต่อกลับนะคะ — ระหว่างนี้ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
+  setTimeout(()=>{inkPush(r,'bot');logChat('bot',r);if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},300);
 }
 function inkAsk(q){inkPush(q,'me');logChat('user',q);inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');logChat('user',v);i.value='';inkReply(v)}
