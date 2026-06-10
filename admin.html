@@ -213,10 +213,12 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
   <div class="gate-card">
     <div class="ava">👩‍💼</div>
     <h1>หลังบ้าน Signmaster Pro</h1>
-    <p>ลายลิน (AI Manager) รอรายงานคุณอยู่ค่ะ</p>
-    <input id="pin" type="password" maxlength="4" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')login()">
-    <button onclick="login()">เข้าสู่ระบบ</button>
-    <div class="hint">🔑 เดโม: ใส่รหัส <b>1234</b> (ระบบจริงล็อกอินด้วยบัญชี/Google)</div>
+    <p>เข้าสู่ระบบด้วยบัญชีแอดมินค่ะ</p>
+    <input id="adEmail" type="email" autocomplete="username" placeholder="อีเมลแอดมิน" style="letter-spacing:0;text-align:left;margin-bottom:10px;font-size:1rem" onkeydown="if(event.key==='Enter')login()">
+    <input id="adPass" type="password" autocomplete="current-password" placeholder="รหัสผ่าน" style="letter-spacing:0;text-align:left;font-size:1rem" onkeydown="if(event.key==='Enter')login()">
+    <button id="loginBtn" onclick="login()">เข้าสู่ระบบ</button>
+    <div class="gate-err" id="gateErr" style="display:none;color:#dc2626;font-size:.85rem;margin-top:12px;line-height:1.5"></div>
+    <div class="hint">🔒 เฉพาะแอดมินที่ลงทะเบียนไว้ · เชื่อม Supabase Auth จริง</div>
   </div>
 </div>
 
@@ -234,7 +236,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
     </nav>
-    <div class="foot">🤖 ขับเคลื่อนโดย Neo-S AI<br>เดโม · ยังไม่ต่อฐานข้อมูลจริง</div>
+    <div class="foot" id="sideFoot">🤖 ขับเคลื่อนโดย Neo-S AI<br>เชื่อม Supabase แล้ว ✅</div>
   </aside>
 
   <main class="main">
@@ -244,8 +246,9 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div><h2 id="vTitle">สวัสดีค่ะ คุณนัท 👋</h2><div class="sub" id="vSub"></div></div>
       </div>
       <div class="acts">
-        <button class="btn btn-ghost" onclick="renderDash();toast('🔄 รีเฟรชข้อมูล (เดโม)')">🔄 รีเฟรช</button>
+        <button class="btn btn-ghost" onclick="reloadData()">🔄 รีเฟรช</button>
         <button class="btn btn-line" onclick="toast('📤 ลายลินส่งสรุปเข้า LINE แล้ว (เดโม)')">📤 ส่งสรุป LINE</button>
+        <button class="btn btn-ghost" onclick="logout()">🚪 ออกจากระบบ</button>
       </div>
     </div>
 
@@ -268,7 +271,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div class="card"><h3>📲 ช่องทางที่มา</h3><div class="csub">ลูกค้าเข้าเว็บผ่านช่องทางไหน</div><div id="sources"></div></div>
       </div>
       <div class="row">
-        <div class="card"><h3>💵 ยอดขาย 6 เดือนล่าสุด</h3><div class="csub">หน่วย: บาท (เดโม)</div><div class="bars" id="bars"></div></div>
+        <div class="card"><h3>💵 ยอดขาย 6 เดือนล่าสุด</h3><div class="csub">หน่วย: พันบาท · จากออเดอร์จริงในระบบ</div><div class="bars" id="bars"></div></div>
         <div class="card queue"><h3>🏭 คิวงานผลิต</h3><div class="csub">งานที่กำลังดำเนินการ</div><div id="queue"></div></div>
       </div>
       <div class="card"><h3>🤖 Lead จากน้องอิงค์</h3><div class="csub" id="leadSub"></div>
@@ -335,7 +338,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div class="r"><b>👁️ Viewer</b><ul><li>ดูอย่างเดียว</li><li>❌ แก้ไขใดๆ</li><li>❌ หน้าผู้ใช้งาน</li></ul></div>
       </div>
       <div class="card admin-only">
-        <h3>➕ เพิ่มผู้ใช้งาน</h3><div class="csub">สร้างบัญชีให้พนักงาน (ล็อกอินด้วยชื่อผู้ใช้ + รหัสผ่าน)</div>
+        <h3>➕ เพิ่มผู้ใช้งาน</h3><div class="csub">🔒 รายชื่อด้านล่าง = แอดมินจริงจาก <b>sm_admin_users</b> · การเพิ่ม/ลบจริงต้องผ่าน Worker (service_role) — เฟสถัดไป</div>
         <div class="userform">
           <div class="f"><label>ชื่อผู้ใช้</label><input id="uName" placeholder="เช่น staff01"></div>
           <div class="f"><label>ชื่อแสดง</label><input id="uDisplay" placeholder="เช่น คุณส้ม"></div>
@@ -343,11 +346,11 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <div class="f"><label>สิทธิ์</label><select id="uRole"><option value="staff">✏️ Staff</option><option value="viewer">👁️ Viewer</option></select></div>
           <button class="btn btn-pri" onclick="addUser()">เพิ่ม</button>
         </div>
-        <table><thead><tr><th>ชื่อแสดง</th><th>ชื่อผู้ใช้</th><th>สิทธิ์</th><th></th></tr></thead><tbody id="userBody"></tbody></table>
+        <table><thead><tr><th>ชื่อแสดง</th><th>อีเมล</th><th>สิทธิ์</th><th></th></tr></thead><tbody id="userBody"></tbody></table>
       </div>
     </section>
 
-    <div class="demo-note">📌 ข้อมูลทั้งหมดเป็นตัวอย่าง (เดโม) · เชื่อม Supabase + Worker (RBAC/พลัง AI/แชต) เมื่อต่อ backend</div>
+    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม = <b>ข้อมูลจริงจาก Supabase</b> · พลัง AI &amp; จัดการภาพ = เดโม (ต่อ Worker/Storage ภายหลัง)</div>
   </main>
 </div>
 
@@ -360,11 +363,65 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 <div class="toast" id="toast"></div>
 
 <input type="file" id="imgFile" accept="image/*" style="display:none">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
 <script>
-/* gate */
-function login(){const v=document.getElementById('pin').value.trim();if(v==='1234'||v===''){sessionStorage.setItem('sm_admin','1');document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';init();}else toast('รหัสไม่ถูกต้อง — เดโมใช้ 1234 ค่ะ');}
+/* ===== AUTH (Supabase · อีเมล+รหัสผ่าน) ===== */
+let CURRENT_USER=null;   // {email, role, name}
+function showErr(m){const e=document.getElementById('gateErr');e.textContent=m;e.style.display='block';}
+async function login(){
+  const email=(document.getElementById('adEmail').value||'').trim().toLowerCase();
+  const pw=document.getElementById('adPass').value||'';
+  const errEl=document.getElementById('gateErr');errEl.style.display='none';
+  if(!email||!pw){showErr('กรอกอีเมลและรหัสผ่านก่อนค่ะ');return;}
+  if(!window.SB){showErr('โหลด Supabase ไม่สำเร็จ — เช็คอินเทอร์เน็ตแล้วรีเฟรชค่ะ');return;}
+  const btn=document.getElementById('loginBtn');btn.disabled=true;btn.textContent='กำลังเข้าสู่ระบบ...';
+  const {error}=await SB.auth.signInWithPassword({email,password:pw});
+  btn.disabled=false;btn.textContent='เข้าสู่ระบบ';
+  if(error){showErr(/invalid/i.test(error.message)?'อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ':('เข้าสู่ระบบไม่สำเร็จ: '+error.message));return;}
+  const ok=await afterAuth();
+  if(!ok){showErr('บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้านค่ะ 🙏');document.getElementById('adPass').value='';}
+}
+async function afterAuth(){
+  if(!window.SB)return false;
+  const {data:{session}}=await SB.auth.getSession();
+  if(!session)return false;
+  const email=(session.user.email||'').toLowerCase();
+  const {data,error}=await SB.from('sm_admin_users').select('email,role,name').eq('email',email).maybeSingle();
+  if(error||!data){await SB.auth.signOut();return false;}   // ไม่อยู่ใน sm_admin_users = เด้งออก
+  CURRENT_USER={email, role:data.role||'admin', name:data.name||email};
+  await enterApp();
+  return true;
+}
+async function enterApp(){
+  document.getElementById('gate').classList.add('hide');
+  document.getElementById('app').style.display='grid';
+  applyRole(CURRENT_USER.role);
+  document.getElementById('sideFoot').innerHTML='🤖 Neo-S AI · เชื่อม Supabase ✅<br>👤 '+esc(CURRENT_USER.email);
+  TITLES.dash[0]='สวัสดีค่ะ '+esc(CURRENT_USER.name)+' 👋';
+  document.getElementById('vTitle').textContent=TITLES.dash[0];
+  await loadAll();
+  init();
+}
+function applyRole(r){
+  document.body.className='role-'+r;
+  const map={admin:'👑 Admin · ดู/แก้ไขได้ทั้งหมด',staff:'✏️ Staff · ดู/แก้ไขได้ (ไม่จัดการผู้ใช้)',viewer:'👁️ Viewer · ดูอย่างเดียว'};
+  document.getElementById('roleBadge').textContent=map[r]||map.admin;
+  // sync ปุ่มทดลองมุมมองในหน้าผู้ใช้งานให้ตรง role จริง
+  document.querySelectorAll('.roleswitch button').forEach(b=>b.classList.toggle('on',(b.textContent||'').includes({admin:'Admin',staff:'Staff',viewer:'Viewer'}[r])));
+}
+async function logout(){if(window.SB){try{await SB.auth.signOut();}catch(e){}}CURRENT_USER=null;location.reload();}
+async function reloadData(){
+  if(!window.SB){toast('ยังไม่ได้เชื่อม Supabase ค่ะ');return;}
+  toast('🔄 กำลังโหลดข้อมูลล่าสุด...');
+  await loadAll();
+  const cur=(document.querySelector('#nav a.active')||{}).dataset; const v=cur?cur.v:'dash';
+  renderDash();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  toast('✅ อัปเดตข้อมูลล่าสุดแล้วค่ะ');
+}
 
 /* ===== helpers ===== */
 function midnight(d){const x=new Date(d);x.setHours(0,0,0,0);return x;}
@@ -373,46 +430,81 @@ function fmt(d){return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digi
 function esc(s){return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 let tT;function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),3200);}
 
-/* ===== demo data ===== */
-const REV=[112,128,121,143,155,182],MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.'];
+/* ===== ข้อมูลจริงจาก Supabase (โหลดหลัง login) ===== */
 const SRC_META={fb:['📘','Facebook'],google:['🔍','Google'],direct:['🔗','เข้าตรง'],line:['💬','LINE'],tiktok:['🎵','TikTok'],ig:['📷','Instagram']};
-const QUEUE=[{nm:'ป้ายไวนิล ร้านกาแฟ A',meta:'3×2 ม. · ส่งพรุ่งนี้',c:'#ef4444',st:'เร่งด่วน',stc:'t-wait'},{nm:'ตู้ไฟ ร้านเสริมสวย B',meta:'ติดตั้งหน้าร้าน',c:'#f59e0b',st:'กำลังผลิต',stc:'t-prod'},{nm:'สติกเกอร์ติดรถ C',meta:'12 ตร.ม.',c:'#f59e0b',st:'กำลังผลิต',stc:'t-prod'},{nm:'บูธอีเวนต์ D',meta:'งานเสาร์นี้',c:'#3b82f6',st:'รอวัสดุ',stc:'t-new'}];
-const ORDERS=[
-  {c:'ร้านกาแฟ Aroma',job:'ป้ายไวนิล 3×2 ม.',amt:'฿4,200',due:'10 มิ.ย.',stc:'t-prod',st:'กำลังผลิต'},
-  {c:'คุณวิภา (เสริมสวย)',job:'ตู้ไฟ + ตัวอักษร',amt:'฿18,500',due:'14 มิ.ย.',stc:'t-new',st:'ออเดอร์ใหม่'},
-  {c:'บจก. ทรานส์โลจิสติกส์',job:'สติกเกอร์ติดรถ 6 คัน',amt:'฿9,800',due:'12 มิ.ย.',stc:'t-prod',st:'กำลังผลิต'},
-  {c:'อีเวนต์ SCG',job:'บูธ + Backdrop',amt:'฿32,000',due:'16 มิ.ย.',stc:'t-wait',st:'รอมัดจำ'},
-  {c:'ร้านอาหารครัวคุณยาย',job:'ป้ายหน้าร้าน',amt:'฿6,400',due:'9 มิ.ย.',stc:'t-done',st:'ส่งมอบแล้ว'},
-  {c:'คลินิกฟันสวย',job:'ป้ายอะคริลิก + ตู้ไฟ',amt:'฿14,200',due:'18 มิ.ย.',stc:'t-new',st:'ออเดอร์ใหม่'},
-];
-const CUSTOMERS=[
-  {nm:'ร้านกาแฟ Aroma',tel:'081-234-5678',orders:4,total:38600},
-  {nm:'อีเวนต์ SCG',tel:'02-555-1234',orders:7,total:128000},
-  {nm:'คุณวิภา (เสริมสวย)',tel:'089-876-5432',orders:2,total:24500},
-  {nm:'บจก. ทรานส์โลจิสติกส์',tel:'086-111-2222',orders:5,total:54000},
-  {nm:'ร้านอาหารครัวคุณยาย',tel:'084-999-0000',orders:1,total:6400},
-  {nm:'คลินิกฟันสวย',tel:'02-700-8899',orders:3,total:41200},
-];
 const VIP_THRESHOLD=40000;
-const LEADS=[
-  {nm:'คุณเอก',job:'ป้ายไวนิลหน้าร้าน',src:'💬 น้องอิงค์',date:dAgo(0)},{nm:'คุณมาลี',job:'ตู้ไฟอักษรซ่อนไฟ',src:'💬 น้องอิงค์',date:dAgo(0)},
-  {nm:'บจก. กรีนเทค',job:'สติกเกอร์ + บูธ',src:'📘 Facebook',date:dAgo(1)},{nm:'คุณสมพงษ์',job:'ป้ายบิลบอร์ด',src:'💬 น้องอิงค์',date:dAgo(2)},
-  {nm:'ร้าน Fitness X',job:'ป้ายอะคริลิก',src:'📞 โทร',date:dAgo(3)},{nm:'คุณนภา',job:'ป้ายโครงไม้',src:'🔍 Google',date:dAgo(5)},
-  {nm:'โรงเรียนสารสาสน์',job:'ป้ายหน้าอาคาร',src:'💬 น้องอิงค์',date:dAgo(8)},{nm:'คาเฟ่ The Garden',job:'ตู้ไฟ + ไวนิล',src:'📷 IG',date:dAgo(12)},{nm:'คุณธีระ',job:'สติกเกอร์ฝ้า',src:'💬 น้องอิงค์',date:dAgo(20)},
-];
-const CHATS=[
-  {nm:'คุณเอก',when:'5 นาทีที่แล้ว',msgs:[
-    {r:'user',m:'สนใจทำป้ายไวนิลหน้าร้านครับ',t:'14:20'},{r:'bot',m:'สวัสดีค่ะ น้องอิงค์ยินดีช่วยค่ะ 😊 ป้ายขนาดประมาณเท่าไหร่ดีคะ?',t:'14:20'},
-    {r:'user',m:'กว้าง 3 เมตร สูง 2 เมตร',t:'14:21'},{r:'bot',m:'ได้เลยค่ะ! ไวนิล 3×2 = 6 ตร.ม. · ไวนิลทึบแสง ตร.ม.ละ 150 บาท = ประมาณ 900 บาทค่ะ (ราคาประมาณการ) ต้องการให้ติดตั้งด้วยไหมคะ?',t:'14:21'},
-    {r:'user',m:'เอาติดตั้งด้วยครับ',t:'14:22'},{r:'bot',m:'รับทราบค่ะ 🙏 ขอชื่อ-เบอร์ติดต่อ เดี๋ยวทีมงานติดต่อกลับไปประเมินหน้างานให้นะคะ',t:'14:22'}]},
-  {nm:'คุณมาลี',when:'32 นาทีที่แล้ว',msgs:[
-    {r:'user',m:'ตู้ไฟตัวอักษรซ่อนไฟ ทำได้ไหมคะ',t:'13:50'},{r:'bot',m:'ทำได้ค่ะ! เรามีทั้งไฟออกหน้าและไฟออกหลัง 💡 อยากได้ข้อความว่าอะไรคะ?',t:'13:50'},
-    {r:'user',m:'ชื่อร้าน MALEE BEAUTY',t:'13:51'},{r:'bot',m:'สวยค่ะ ✨ งานตู้ไฟ+ตัวอักษรประเมินหน้างานนะคะ ทีมงานจะติดต่อไปวัดพื้นที่ให้ค่ะ',t:'13:52'}]},
-  {nm:'บจก. กรีนเทค',when:'1 ชม.ที่แล้ว',msgs:[
-    {r:'user',m:'อยากได้สติกเกอร์ติดรถ + บูธออกงาน',t:'12:30'},{r:'bot',m:'ได้เลยค่ะ 🚗🎪 รถกี่คัน และบูธขนาดเท่าไหร่คะ?',t:'12:30'},
-    {r:'user',m:'รถ 6 คัน บูธ 3x3',t:'12:31'},{r:'bot',m:'รับทราบค่ะ งานชุดนี้ขอประเมินรวมให้นะคะ เดี๋ยวส่งใบเสนอราคาไปทางอีเมลค่ะ 📧',t:'12:32'}]},
-];
-let USERS=[{u:'admin',d:'คุณนัท (เจ้าของ)',r:'admin'},{u:'staff01',d:'คุณส้ม (ฝ่ายขาย)',r:'staff'},{u:'view01',d:'คุณบอย (บัญชี)',r:'viewer'}];
+const MON12=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+// แปลงสถานะออเดอร์ DB → [class, label, สีจุดคิว]
+const OSTAT={new:['t-new','ออเดอร์ใหม่','#3b82f6'],prod:['t-prod','กำลังผลิต','#f59e0b'],wait:['t-wait','รอชำระ','#ef4444'],done:['t-done','ส่งมอบแล้ว','#16a34a']};
+// แปลง source → ป้ายช่องทาง (สำหรับตาราง Lead)
+const SRC_LABEL={ink:'💬 น้องอิงค์',web:'🌐 เว็บไซต์',facebook:'📘 Facebook',fb:'📘 Facebook',line:'💬 LINE',phone:'📞 โทร',google:'🔍 Google',tiktok:'🎵 TikTok',ig:'📷 IG',instagram:'📷 IG'};
+// แปลง source → key กราฟผู้เข้าชม
+const SRC_NORM={facebook:'fb',fb:'fb',google:'google',direct:'direct',line:'line',tiktok:'tiktok',ig:'ig',instagram:'ig'};
+
+let ORDERS=[],CUSTOMERS=[],LEADS=[],CHATS=[],USERS=[],VISITS=[];
+
+function relTime(d){if(!d)return '';const s=Math.floor((Date.now()-d.getTime())/1000);
+  if(s<60)return 'เมื่อสักครู่';if(s<3600)return Math.floor(s/60)+' นาทีที่แล้ว';
+  if(s<86400)return Math.floor(s/3600)+' ชม.ที่แล้ว';return Math.floor(s/86400)+' วันที่แล้ว';}
+function hhmm(d){return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
+
+async function loadOrders(){
+  const {data,error}=await SB.from('sm_orders').select('*').order('created_at',{ascending:false});
+  if(error){console.warn('orders',error);return;}
+  ORDERS=(data||[]).map(o=>{const m=OSTAT[o.status]||['t-new',o.status||'—','#3b82f6'];const amt=Number(o.amount)||0;
+    return {cid:o.customer_id||null,c:o.customer_name||'(ไม่ระบุ)',job:[o.job,o.material,o.size].filter(Boolean).join(' · ')||'—',
+      amount:amt,amt:o.amount!=null?'฿'+amt.toLocaleString():'—',due:o.due_date?fmt(new Date(o.due_date)):'—',
+      status:o.status,stc:m[0],st:m[1],dot:m[2],created:o.created_at?new Date(o.created_at):null};});
+}
+async function loadLeads(){
+  const {data,error}=await SB.from('sm_leads').select('*').order('created_at',{ascending:false});
+  if(error){console.warn('leads',error);return;}
+  LEADS=(data||[]).map(l=>({nm:l.name||'(ไม่ระบุชื่อ)',job:l.job_type||l.detail||'—',
+    src:SRC_LABEL[(l.source||'web').toLowerCase()]||('🌐 '+l.source),date:l.created_at?new Date(l.created_at):new Date(),
+    phone:l.phone||'',status:l.status||'new'}));
+}
+async function loadCustomers(){
+  const {data,error}=await SB.from('sm_customers').select('*');
+  if(error){console.warn('customers',error);return;}
+  CUSTOMERS=(data||[]).map(c=>({cid:c.customer_id,nm:c.name||c.customer_id,tel:c.phone||'—',
+    orders:0,total:Number(c.total_spent)||0}));
+}
+async function loadChats(){
+  const {data,error}=await SB.from('sm_chat_logs').select('*').order('created_at',{ascending:true});
+  if(error){console.warn('chats',error);return;}
+  const map={};
+  (data||[]).forEach(r=>{const k=r.customer_key||r.customer_name||'guest';const d=r.created_at?new Date(r.created_at):new Date();
+    if(!map[k])map[k]={nm:r.customer_name||k,msgs:[],last:d};
+    map[k].msgs.push({r:r.role==='bot'?'bot':'user',m:r.message||'',t:hhmm(d)});map[k].last=d;});
+  CHATS=Object.values(map).sort((a,b)=>b.last-a.last).map(c=>({nm:c.nm,when:relTime(c.last),msgs:c.msgs}));
+}
+async function loadVisits(){
+  const {data,error}=await SB.from('sm_site_visits').select('source,created_at').order('created_at',{ascending:false}).limit(8000);
+  if(error){console.warn('visits',error);return;}
+  const idx={},days=[];
+  for(let i=29;i>=0;i--){const d=dAgo(i);idx[d.getTime()]={date:d,n:0,sources:{fb:0,google:0,direct:0,line:0,tiktok:0,ig:0}};days.push(idx[d.getTime()]);}
+  (data||[]).forEach(v=>{const b=idx[midnight(new Date(v.created_at)).getTime()];if(!b)return;
+    const s=SRC_NORM[(v.source||'direct').toLowerCase()]||'direct';b.sources[s]++;b.n++;});
+  VISITS=days;
+}
+async function loadUsers(){
+  const {data,error}=await SB.from('sm_admin_users').select('*').order('created_at',{ascending:true});
+  if(error){console.warn('users',error);return;}
+  USERS=(data||[]).map(u=>({u:u.email,d:u.name||u.email,r:u.role||'admin'}));
+}
+async function loadAll(){
+  if(!window.SB)return;
+  await Promise.all([loadOrders(),loadLeads(),loadCustomers(),loadChats(),loadVisits(),loadUsers()]);
+  // นับจำนวนออเดอร์ต่อลูกค้า (จาก customer_id)
+  const cnt={};ORDERS.forEach(o=>{if(o.cid)cnt[o.cid]=(cnt[o.cid]||0)+1;});
+  CUSTOMERS.forEach(c=>{c.orders=cnt[c.cid]||0;});
+}
+// ยอดขายรายเดือน 6 เดือนล่าสุด (จากออเดอร์จริง · หน่วยพันบาท)
+function revByMonth(){const now=new Date(),vals=[],labs=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labs.push(MON12[d.getMonth()]);
+    const sum=ORDERS.filter(o=>o.created&&o.created.getFullYear()===d.getFullYear()&&o.created.getMonth()===d.getMonth()).reduce((a,o)=>a+o.amount,0);
+    vals.push(Math.round(sum/1000));}
+  return {vals,labs};}
 // พลัง AI — หมึก AI ต่อ LLM
 const LLMS=[
   {key:'gpt',name:'GPT-4o-mini',sub:'น้องอิงค์ คุยลูกค้า',emoji:'🟢',cap:500,used:205,warned:{}},
@@ -429,8 +521,6 @@ const PWR_LOG=[
 function remPct(l){return Math.max(0,Math.round((l.cap-l.used)/l.cap*100));}
 function pwrColor(p){return p>=50?'#16a34a':p>=20?'#f59e0b':p>=1?'#fb923c':'#ef4444';}
 function pwrLevel(p){return p>=50?'ok':p>=20?'heads':p>=1?'warn':'crit';}
-
-const VISITS=(function(){const out=[];for(let i=29;i>=0;i--){const d=dAgo(i),dow=d.getDay();const base=40+((i*17)%34)+((dow===0||dow===6)?20:0);const s={fb:Math.round(base*0.34),google:Math.round(base*0.22),direct:Math.round(base*0.16),line:Math.round(base*0.14),tiktok:Math.round(base*0.09),ig:Math.round(base*0.05)};out.push({date:d,n:Object.values(s).reduce((a,b)=>a+b,0),sources:s});}return out;})();
 
 /* ===== range ===== */
 let RANGE='7',cFrom=null,cTo=null;
@@ -471,11 +561,17 @@ function renderDash(){
   const vis=VISITS.filter(v=>v.date>=from&&v.date<=to),totalVisit=vis.reduce((a,v)=>a+v.n,0);
   const agg={fb:0,google:0,direct:0,line:0,tiktok:0,ig:0};vis.forEach(v=>{for(const k in agg)agg[k]+=v.sources[k];});
   const leads=LEADS.filter(l=>l.date>=from&&l.date<=to);
+  const ordRange=ORDERS.filter(o=>o.created&&o.created>=from&&o.created<=to);
+  const revRange=ordRange.reduce((a,o)=>a+o.amount,0);
+  const prodCount=ORDERS.filter(o=>o.status==='prod').length;
   const top=Object.entries(agg).sort((a,b)=>b[1]-a[1])[0];
-  document.getElementById('lailinText').innerHTML=`ช่วงที่เลือกมีผู้เข้าชม <span class="hl">${totalVisit.toLocaleString()} คน</span> · Lead ใหม่ <span class="hl">${leads.length} ราย</span> · ช่องทางมาแรงสุด <span class="hl">${SRC_META[top[0]][1]}</span> (${Math.round(top[1]/Math.max(totalVisit,1)*100)}%) · ยอดเดือนนี้ <span class="hl">฿182,400</span> โต <span class="hl">+18%</span> 🎉 เก่งมากเลยค่ะ`;
+  const topTxt=(top&&top[1]>0)?` · ช่องทางมาแรงสุด <span class="hl">${SRC_META[top[0]][1]}</span> (${Math.round(top[1]/Math.max(totalVisit,1)*100)}%)`:'';
+  document.getElementById('lailinText').innerHTML=`ช่วงที่เลือกมีผู้เข้าชม <span class="hl">${totalVisit.toLocaleString()} คน</span> · Lead ใหม่ <span class="hl">${leads.length} ราย</span> · ออเดอร์ <span class="hl">${ordRange.length}</span> · ยอดขาย <span class="hl">฿${revRange.toLocaleString()}</span>${topTxt} ค่ะ 😊`;
   document.getElementById('kpis').innerHTML=[
-    {ic:'💵',bg:'#fff2eb',v:'฿182,400',k:'ยอดขายเดือนนี้',d:'▲ 18%',dc:'up'},{ic:'🧾',bg:'#eff6ff',v:ORDERS.length,k:'ออเดอร์',d:'▲ 6',dc:'up'},
-    {ic:'🙋',bg:'#fef9e7',v:leads.length,k:'Lead ในช่วงนี้',d:'● น้องอิงค์',ds:'color:var(--warn)'},{ic:'🏭',bg:'#f0fdf4',v:'7',k:'งานกำลังผลิต',d:'▲ 2 เร่งด่วน',dc:'down'},
+    {ic:'💵',bg:'#fff2eb',v:'฿'+revRange.toLocaleString(),k:'ยอดขาย (ช่วงนี้)',d:`${ordRange.length} ออเดอร์`,ds:'color:var(--muted)'},
+    {ic:'🧾',bg:'#eff6ff',v:ORDERS.length,k:'ออเดอร์ทั้งหมด',d:'สะสม',ds:'color:var(--muted)'},
+    {ic:'🙋',bg:'#fef9e7',v:leads.length,k:'Lead ในช่วงนี้',d:'● น้องอิงค์',ds:'color:var(--warn)'},
+    {ic:'🏭',bg:'#f0fdf4',v:prodCount,k:'งานกำลังผลิต',d:'สถานะ prod',ds:'color:var(--good)'},
     {ic:'👁️',bg:'#eef6ff',v:totalVisit.toLocaleString(),k:'คนเข้าชมเว็บ',d:'ในช่วงที่เลือก',ds:'color:var(--info)'},
   ].map(c=>`<div class="kpi"><div class="ic" style="background:${c.bg}">${c.ic}</div><div class="v">${c.v}</div><div class="k">${c.k}</div><div class="d ${c.dc||''}" style="${c.ds||''}">${c.d}</div></div>`).join('');
   const showLbl=vis.length<=14,mxv=Math.max(1,...vis.map(v=>v.n));
@@ -483,8 +579,10 @@ function renderDash(){
   document.getElementById('visitSub').textContent=`รวม ${totalVisit.toLocaleString()} คน · ${vis.length} วัน`;
   const st=Object.values(agg).reduce((a,b)=>a+b,0)||1;
   document.getElementById('sources').innerHTML=Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,val])=>{const pc=Math.round(val/st*100);return `<div class="src-row"><div class="si">${SRC_META[k][0]}</div><div class="sb"><div class="l"><span>${SRC_META[k][1]}</span><span class="pc">${pc}% · ${val} คน</span></div><div class="track"><i style="width:${pc}%"></i></div></div></div>`;}).join('');
-  const mx=Math.max(...REV);document.getElementById('bars').innerHTML=REV.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${MON[i]}</small></div>`).join('');
-  document.getElementById('queue').innerHTML=QUEUE.map(q=>`<div class="q"><span class="dot" style="background:${q.c}"></span><div><div class="nm">${q.nm}</div><div class="meta">${q.meta}</div></div><span class="st ${q.stc}">${q.st}</span></div>`).join('');
+  const rev=revByMonth(),mx=Math.max(1,...rev.vals);
+  document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในระบบ</div>';
+  const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,6);
+  document.getElementById('queue').innerHTML=q.length?q.map(o=>`<div class="q"><span class="dot" style="background:${o.dot}"></span><div><div class="nm">${esc(o.c)} · ${esc(o.job)}</div><div class="meta">${o.due!=='—'?'กำหนดส่ง '+o.due:'ยังไม่กำหนดส่ง'} · ${o.amt}</div></div><span class="st ${o.stc}">${o.st}</span></div>`).join(''):'<div class="empty">ไม่มีงานในคิว</div>';
   document.getElementById('leadSub').textContent=`${leads.length} ราย ในช่วง ${fmt(from)}${RANGE==='today'?'':' – '+fmt(to)}`;
   document.getElementById('leads').innerHTML=leads.length?leads.map(l=>`<tr><td><b>${l.nm}</b></td><td>${l.job}</td><td><span class="src-t">${l.src}</span></td><td style="color:var(--muted)">${fmt(l.date)}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty">ไม่มี Lead ในช่วงนี้</div></td></tr>';
 }
@@ -537,11 +635,8 @@ function topup(i){const l=LLMS[i];l.used=0;l.warned={};renderPower();toast(`⚡ 
 function renderUsers(){
   document.getElementById('userBody').innerHTML=USERS.map((u,i)=>{const rt={admin:'👑 Admin',staff:'✏️ Staff',viewer:'👁️ Viewer'}[u.r];const del=u.r==='admin'?'<span style="color:#9aa1ad;font-size:.8rem">—</span>':`<button class="btn btn-ghost" style="padding:6px 11px;font-size:.8rem;color:#dc2626;border-color:#fecaca" onclick="delUser(${i})">ลบ</button>`;return `<tr><td><b>${esc(u.d)}</b></td><td>${esc(u.u)}</td><td>${rt}</td><td>${del}</td></tr>`;}).join('');
 }
-function addUser(){const u=document.getElementById('uName').value.trim(),d=document.getElementById('uDisplay').value.trim(),p=document.getElementById('uPass').value.trim(),r=document.getElementById('uRole').value;
-  if(!u||!d||!p){toast('กรอกชื่อผู้ใช้ + ชื่อแสดง + รหัสผ่านก่อนค่ะ');return;}
-  if(USERS.some(x=>x.u===u)){toast('ชื่อผู้ใช้นี้มีแล้วค่ะ');return;}
-  USERS.push({u,d,r});document.getElementById('uName').value='';document.getElementById('uDisplay').value='';document.getElementById('uPass').value='';renderUsers();toast(`✅ เพิ่มผู้ใช้ "${esc(d)}" แล้วค่ะ (เดโม)`);}
-function delUser(i){if(USERS[i].r==='admin'){toast('ลบ Admin ไม่ได้ค่ะ');return;}const n=USERS[i].d;USERS.splice(i,1);renderUsers();toast(`ลบผู้ใช้ "${esc(n)}" แล้วค่ะ`);}
+function addUser(){toast('🔒 เพิ่ม/ลบผู้ใช้จริงต้องผ่าน Worker (service_role) ค่ะ — ฝั่งเว็บมีสิทธิ์อ่านอย่างเดียว · รายชื่อด้านล่างดึงจาก sm_admin_users จริง');}
+function delUser(i){toast('🔒 ลบผู้ใช้จริงต้องผ่าน Worker (service_role) ค่ะ — เฟสถัดไปนะคะ');}
 
 /* ===== IMAGE MANAGER ===== */
 let STAGED=null,imgCurSlot=null;const IMG_ORDER=['hero','booth','inkjet','sign','lightbox','about'];
@@ -561,16 +656,20 @@ function resetAllImg(){STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES_DEFAU
 function saveImages(){ensureStaged();try{const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAGED[k].src,pos:STAGED[k].pos};});localStorage.setItem('sm_site_images',JSON.stringify(out));IMG_ORDER.forEach(k=>{window.SITE_IMAGES[k].src=STAGED[k].src;window.SITE_IMAGES[k].pos=STAGED[k].pos;});renderImages();toast('💾 บันทึกแล้วค่ะ! เปิดหน้าเว็บ (รีเฟรช) จะเห็นรูปใหม่ทันที 🎉');}catch(e){toast('⚠️ บันทึกไม่สำเร็จ (รูปอาจใหญ่เกิน) — ลองรูปเล็กลงนะคะ');}}
 
 /* ===== init ===== */
+let _inited=false;
 function init(){
-  try{document.getElementById('vSub')&&(document.querySelector('#view-dash')&& 0);}catch(e){}
-  const t=midnight(new Date()),f=new Date(t);f.setDate(f.getDate()-6);
-  document.getElementById('cFrom').value=f.toISOString().slice(0,10);document.getElementById('cTo').value=t.toISOString().slice(0,10);
-  document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setRange(b.dataset.r,b);});
-  document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a');if(a){switchView(a.dataset.v);document.getElementById('side').classList.remove('open');}});
-  document.getElementById('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')e.currentTarget.classList.remove('open');});
+  if(!_inited){
+    _inited=true;
+    const t=midnight(new Date()),f=new Date(t);f.setDate(f.getDate()-6);
+    document.getElementById('cFrom').value=f.toISOString().slice(0,10);document.getElementById('cTo').value=t.toISOString().slice(0,10);
+    document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setRange(b.dataset.r,b);});
+    document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a');if(a){switchView(a.dataset.v);document.getElementById('side').classList.remove('open');}});
+    document.getElementById('chatModal').addEventListener('click',e=>{if(e.target.id==='chatModal')e.currentTarget.classList.remove('open');});
+  }
   renderDash();renderPower();// pre-compute badge
 }
-if(sessionStorage.getItem('sm_admin')==='1'){document.getElementById('gate').classList.add('hide');document.getElementById('app').style.display='grid';init();}
+/* คืนค่า session ถ้าเคย login ไว้ (refresh แล้วไม่ต้อง login ใหม่) */
+(async function(){if(window.SB){try{const {data:{session}}=await SB.auth.getSession();if(session)await afterAuth();}catch(e){console.warn('restore session',e);}}})();
 </script>
 </body>
 </html>
