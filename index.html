@@ -534,15 +534,18 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="authModal">
   <div class="acard">
     <span class="ax" onclick="closeAuth()">×</span>
-    <div class="ahead"><div class="aava">👤</div><h3>เข้าสู่ระบบ / สมัครสมาชิก</h3><p>เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
-    <button class="gbtn" onclick="loginDemo('google')"><span class="gi"></span> เข้าสู่ระบบด้วย Google</button>
-    <div class="ediv">— หรือ กรอกข้อมูลเข้าใช้ —</div>
+    <div class="ahead"><div class="aava">👤</div><h3 id="authTitle">เข้าสู่ระบบ</h3><p>เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
     <div class="aform">
-      <input id="mName" placeholder="ชื่อ-นามสกุล *">
-      <input id="mPhone" placeholder="เบอร์โทร *">
-      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="loginDemo('guest')">เข้าใช้งาน</button>
+      <input id="mName" placeholder="ชื่อ-นามสกุล" autocomplete="name" style="display:none">
+      <input id="mEmail" type="email" placeholder="อีเมล" autocomplete="email">
+      <input id="mPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')authSubmit()">
+      <button class="btn btn-primary btn-lg" id="authSubmit" style="justify-content:center" onclick="authSubmit()">เข้าสู่ระบบ</button>
     </div>
-    <p class="anote">🔒 <b>เดโม:</b> ระบบจริงจะล็อกอินด้วยบัญชี Google จริง + เก็บข้อมูลปลอดภัยใน Supabase</p>
+    <div class="aerr" id="authErr" style="display:none;color:#dc2626;font-size:.85rem;margin-top:10px;text-align:center;line-height:1.5"></div>
+    <div style="text-align:center;margin-top:14px;font-size:.9rem;color:var(--muted)">
+      <span id="authSwitchTxt">ยังไม่มีบัญชี?</span> <a href="#" id="authSwitchLink" onclick="toggleAuthMode(event)" style="color:var(--accent-deep);font-weight:700">สมัครสมาชิก</a>
+    </div>
+    <p class="anote">🔒 ข้อมูลปลอดภัยใน Supabase · ไม่บังคับสมัคร — สั่งงานแบบไม่ล็อกอินก็ได้ค่ะ</p>
   </div>
 </div>
 
@@ -742,7 +745,7 @@ function submitOrder(){
   const jobName=m?m.name:'';
   if(window.SB){
     const lead={name:c.name||null,phone:c.phone||null,email:c.email||null,job_type:jobName,detail:(c.note||''),source:'web',status:'new'};
-    const order={customer_name:c.name||null,phone:c.phone||null,job:jobName,material:jobName,size:w+'x'+h+' ม.',qty:qty,area_sqm:a,status:'new',note:(c.note||null)};
+    const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:c.phone||null,job:jobName,material:jobName,size:w+'x'+h+' ม.',qty:qty,area_sqm:a,status:'new',note:(c.note||null)};
     Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)])
       .then(()=>toast('✅ ส่งคำขอแล้ว! บันทึกเข้าระบบเรียบร้อย ทีมงานจะติดต่อกลับค่ะ 🎉'))
       .catch(()=>toast('✅ ส่งคำขอแล้ว! (บันทึกออฟไลน์) ทีมงานจะติดต่อกลับค่ะ'));
@@ -788,31 +791,67 @@ function inkReply(q){
 function inkAsk(q){inkPush(q,'me');logChat('user',q);inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');logChat('user',v);i.value='';inkReply(v)}
 
-/* ---------- ระบบสมาชิก / เข้าสู่ระบบ (เดโม · ต่อ Google+Supabase ทีหลัง) ---------- */
+/* ---------- ระบบสมาชิก / เข้าสู่ระบบ (Supabase Auth จริง · อีเมล+รหัสผ่าน) ---------- */
 function esc(s){return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function getMember(){try{return JSON.parse(localStorage.getItem('sm_member')||'null');}catch(e){return null;}}
+let CUR_MEMBER=null,authMode='login';
+function getMember(){return CUR_MEMBER;}
+async function refreshMember(){
+  if(window.SB){try{const {data:{session}}=await SB.auth.getSession();
+    if(session&&session.user){const u=session.user;CUR_MEMBER={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||(u.email||'').split('@')[0]};}
+    else CUR_MEMBER=null;}catch(e){CUR_MEMBER=null;}}
+  renderMember();
+}
 function renderMember(){
-  const m=getMember(),a=document.getElementById('authArea');if(!a)return;
+  const m=CUR_MEMBER,a=document.getElementById('authArea');if(!a)return;
   if(!m){a.innerHTML='<button class="btn-auth" onclick="openAuth()">👤 เข้าสู่ระบบ</button>';return;}
-  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0])}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${m.via==='google'?'🔵 บัญชี Google':'📱 '+esc(m.phone||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ออเดอร์ของฉัน</div><div class="mi" onclick="logout()">🚪 ออกจากระบบ</div></div></div>`;
+  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0].toUpperCase())}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${esc(m.email||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ออเดอร์ของฉัน</div><div class="mi" onclick="logout()">🚪 ออกจากระบบ</div></div></div>`;
 }
-function openAuth(){closeNav();document.getElementById('authModal').classList.add('open');}
+function openAuth(){closeNav();setAuthMode('login');document.getElementById('authErr').style.display='none';document.getElementById('authModal').classList.add('open');}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');}
-function loginDemo(method){
-  let m;
-  if(method==='google'){m={name:'คุณลูกค้า (Google)',email:'demo@gmail.com',via:'google'};}
-  else{const n=document.getElementById('mName').value.trim(),p=document.getElementById('mPhone').value.trim();if(!n||!p){toast('กรอกชื่อ + เบอร์ก่อนนะคะ');return;}m={name:n,phone:p,via:'guest'};}
-  localStorage.setItem('sm_member',JSON.stringify(m));closeAuth();renderMember();toast(`สวัสดีค่ะ ${esc(m.name)} 🎉 เข้าสู่ระบบแล้ว (เดโม)`);
+function setAuthMode(mode){authMode=mode;
+  document.getElementById('authTitle').textContent=mode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
+  document.getElementById('mName').style.display=mode==='signup'?'':'none';
+  document.getElementById('authSubmit').textContent=mode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
+  document.getElementById('authSwitchTxt').textContent=mode==='signup'?'มีบัญชีแล้ว?':'ยังไม่มีบัญชี?';
+  document.getElementById('authSwitchLink').textContent=mode==='signup'?'เข้าสู่ระบบ':'สมัครสมาชิก';
 }
-function logout(){localStorage.removeItem('sm_member');renderMember();toast('ออกจากระบบแล้วค่ะ');}
-function openMyOrders(){
-  const m=getMember();if(!m)return;const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');
+function toggleAuthMode(e){if(e)e.preventDefault();document.getElementById('authErr').style.display='none';setAuthMode(authMode==='login'?'signup':'login');}
+function authErr(m){const e=document.getElementById('authErr');e.textContent=m;e.style.display='block';}
+async function authSubmit(){
+  if(!window.SB){authErr('ระบบล็อกอินยังไม่พร้อม ลองรีเฟรชค่ะ');return;}
+  const email=(document.getElementById('mEmail').value||'').trim().toLowerCase();
+  const pass=document.getElementById('mPass').value||'';
+  const name=(document.getElementById('mName').value||'').trim();
+  document.getElementById('authErr').style.display='none';
+  if(!email||!pass){authErr('กรอกอีเมลและรหัสผ่านก่อนค่ะ');return;}
+  if(authMode==='signup'&&!name){authErr('กรอกชื่อ-นามสกุลก่อนค่ะ');return;}
+  if(authMode==='signup'&&pass.length<6){authErr('รหัสผ่านอย่างน้อย 6 ตัวอักษรค่ะ');return;}
+  const btn=document.getElementById('authSubmit');btn.disabled=true;const old=btn.textContent;btn.textContent='กำลังดำเนินการ...';
+  const res=authMode==='signup'
+    ? await SB.auth.signUp({email,password:pass,options:{data:{name:name}}})
+    : await SB.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent=old;
+  if(res.error){const msg=res.error.message||'';
+    if(/already|exists/i.test(msg))authErr('อีเมลนี้มีบัญชีแล้ว ลองเข้าสู่ระบบแทนค่ะ');
+    else if(/invalid login/i.test(msg))authErr('อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ');
+    else authErr(msg);return;}
+  await refreshMember();
+  if(!CUR_MEMBER){authErr('สมัครแล้วค่ะ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');return;}
+  try{await SB.from('sm_customers').upsert({customer_id:'M-'+CUR_MEMBER.id,name:CUR_MEMBER.name,email:CUR_MEMBER.email},{onConflict:'customer_id'});}catch(e){}
+  closeAuth();renderMember();toast(`สวัสดีค่ะ ${esc(CUR_MEMBER.name)} 🎉 เข้าสู่ระบบแล้ว`);
+}
+async function logout(){const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');if(window.SB){try{await SB.auth.signOut();}catch(e){}}CUR_MEMBER=null;renderMember();toast('ออกจากระบบแล้วค่ะ');}
+async function openMyOrders(){
+  const m=CUR_MEMBER;if(!m)return;const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');
   document.getElementById('ordersWho').textContent=m.name;
-  const demo=[{job:'ป้ายไวนิลหน้าร้าน 3×2 ม.',amt:'฿4,200',st:'กำลังผลิต',c:'#f59e0b'},{job:'สติกเกอร์ติดกระจก',amt:'฿1,800',st:'ส่งมอบแล้ว',c:'#16a34a'}];
-  document.getElementById('myOrders').innerHTML=demo.map(o=>`<div class="ord-card"><div class="oh"><b>${esc(o.job)}</b><span class="ost" style="background:${o.c}22;color:${o.c}">${o.st}</span></div><div class="om">ยอด ${o.amt} · สั่งเมื่อ มิ.ย. 2569</div></div>`).join('')+'<p class="anote">📌 เดโม — ระบบจริงจะดึงออเดอร์จริงของคุณจาก Supabase</p>';
+  document.getElementById('myOrders').innerHTML='<p class="anote">กำลังโหลด...</p>';
   document.getElementById('ordersModal').classList.add('open');
+  let rows=[];
+  try{const {data}=await SB.from('sm_orders').select('*').eq('customer_id','M-'+m.id).order('created_at',{ascending:false});rows=data||[];}catch(e){}
+  const ST={new:['ออเดอร์ใหม่','#3b82f6'],prod:['กำลังผลิต','#f59e0b'],wait:['รอชำระ','#ef4444'],done:['ส่งมอบแล้ว','#16a34a']};
+  document.getElementById('myOrders').innerHTML=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];return `<div class="ord-card"><div class="oh"><b>${esc(o.job||'งาน')}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?'ยอด ฿'+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}</div></div>`;}).join(''):'<p class="anote">ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊</p>';
 }
-function prefillMember(){const m=getMember();if(!m)return;const n=document.getElementById('cName'),p=document.getElementById('cPhone');if(n&&!n.value&&m.via==='guest')n.value=m.name;if(p&&!p.value&&m.phone)p.value=m.phone;}
+function prefillMember(){const m=CUR_MEMBER;if(!m)return;const n=document.getElementById('cName'),e=document.getElementById('cEmail');if(n&&!n.value&&m.name)n.value=m.name;if(e&&!e.value&&m.email)e.value=m.email;}
 document.addEventListener('click',e=>{const mb=document.getElementById('memberBox');if(mb&&!mb.contains(e.target))mb.classList.remove('open');});
 document.querySelectorAll('.amodal').forEach(md=>md.addEventListener('click',e=>{if(e.target===md)md.classList.remove('open');}));
 
@@ -843,7 +882,8 @@ function logChat(role,msg){
 }
 
 /* ---------- INIT ---------- */
-applyImages();buildGallery();buildMaterials();setSteps();renderMember();trackVisit();
+applyImages();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
+if(window.SB&&SB.auth&&SB.auth.onAuthStateChange){SB.auth.onAuthStateChange(()=>{refreshMember();});}
 </script>
 </body>
 </html>
