@@ -861,9 +861,10 @@ function openQuoteDoc(){
   if(!state.quoteNo)state.quoteNo=genQuoteNo();
   window.printSignmasterQuote({customer:d.c,items:d.items,vatRate:0.07,quoteNo:state.quoteNo});
 }
-/* ส่ง backup เข้าอีเมล (ช่องทางอิสระจาก Supabase — กันพลาดออเดอร์) ผ่าน FormSubmit */
+/* ส่ง backup เข้าอีเมล (ช่องทางอิสระจาก Supabase — กันพลาดออเดอร์) ผ่าน Resend (worker signmaster-mail) ในชื่อ "Signmaster Pro ออเดอร์" */
+const MAIL_WORKER='https://signmaster-mail.neos-css01.workers.dev';
 function emailOrder(subject,fields){
-  try{fetch('https://formsubmit.co/ajax/neos.css01@gmail.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({_subject:subject,_template:'table'},fields))}).then(()=>{},()=>{});}catch(e){}
+  try{fetch(MAIL_WORKER+'/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:subject,fields:fields})}).then(()=>{},()=>{});}catch(e){}
 }
 function submitWork(){
   if(!state.quoteNo)state.quoteNo=genQuoteNo();
