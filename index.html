@@ -258,6 +258,9 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 .ink-msg{max-width:82%;padding:10px 14px;border-radius:15px;font-size:.92rem;line-height:1.5;animation:fade .3s}
 .ink-msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
 .ink-msg.me{background:var(--ink);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.ink-gal{display:flex;gap:6px;margin:2px 0;width:100%}
+.ink-gal img{flex:1;min-width:0;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--line)}
+.ink-galbtn{align-self:flex-start;background:#fff;border:1.5px solid var(--accent);color:var(--accent-deep);font-family:inherit;font-weight:600;font-size:.85rem;padding:7px 14px;border-radius:999px;cursor:pointer;margin-top:2px}
 .ink-quick{display:flex;gap:7px;flex-wrap:wrap;padding:10px 14px;background:#f6f7f9;border-top:1px solid var(--line)}
 .ink-quick button{font-family:inherit;font-size:.82rem;font-weight:600;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:#374151;cursor:pointer;transition:.15s}
 .ink-quick button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -558,6 +561,21 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   </div>
 </div>
 
+<!-- ขอราคาพิเศษ งานจำนวนมาก -->
+<div class="amodal" id="bulkModal">
+  <div class="acard">
+    <span class="ax" onclick="closeBulk()">×</span>
+    <div class="ahead"><div class="aava">🎁</div><h3>ขอราคาพิเศษ — งานจำนวนมาก</h3><p>ฝากข้อมูลไว้ ทีมงานติดต่อกลับพร้อมราคาพิเศษค่ะ</p></div>
+    <div class="aform">
+      <input id="bkName" placeholder="ชื่อ-นามสกุล *" autocomplete="name">
+      <input id="bkPhone" placeholder="เบอร์โทร *" autocomplete="tel" inputmode="tel">
+      <textarea id="bkDetail" placeholder="รายละเอียดงาน + จำนวน (เช่น สติกเกอร์ติดรถ 50 คัน / ไวนิล 200 ตร.ม. / Roll Up 30 ชิ้น)" rows="3" style="font-family:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;outline:0;resize:vertical;width:100%"></textarea>
+      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="submitBulk()">📩 ส่งขอราคาพิเศษ</button>
+    </div>
+    <p class="anote">🤝 เหมาะกับงานล็อตใหญ่ / สั่งซ้ำประจำ — ราคาพิเศษกว่าหน้าเว็บค่ะ</p>
+  </div>
+</div>
+
 <!-- น้องอิงค์ — AI Sale flagship -->
 <button class="ink-fab" id="inkFab" onclick="toggleInk()" aria-label="ปรึกษาน้องอิงค์">
   <span class="ink-ava">🤖</span><span>ปรึกษาน้องอิงค์</span>
@@ -575,6 +593,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
     <button onclick="inkAsk('ขอประเมินราคางานป้าย')">💰 ประเมินราคา</button>
     <button onclick="inkAsk('มีบริการอะไรบ้าง')">🧱 บริการ</button>
     <button onclick="inkAsk('ขอดูผลงาน')">🖼️ ผลงาน</button>
+    <button onclick="openBulk()">🎁 ราคาพิเศษ (สั่งเยอะ)</button>
   </div>
   <div class="ink-input">
     <input id="inkText" placeholder="พิมพ์ถึงน้องอิงค์..." onkeydown="if(event.key==='Enter')inkSend()">
@@ -794,7 +813,16 @@ async function inkReply(q){
       body:JSON.stringify({message:q,history:hist,user:(localStorage.getItem('sm_vid')||'web')})});
     const data=await res.json();
     if(typingEl)typingEl.remove();
-    if(data&&data.answer){const a=esc(data.answer).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');inkPush(a,'bot');logChat('bot',data.answer);return;}
+    if(data&&data.answer){
+      let ans=data.answer;
+      const gm=ans.match(/\[GALLERY:(booth|inkjet|sign|lightbox)\]/i);   // น้องอิงค์ขอโชว์รูปหมวดนี้
+      const grp=gm?gm[1].toLowerCase():null;
+      ans=ans.replace(/\[GALLERY:[^\]]*\]/gi,'').trim();
+      const a=esc(ans).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+      inkPush(a,'bot');logChat('bot',data.answer);
+      if(grp)inkShowGallery(grp);
+      return;
+    }
     throw new Error('no answer');
   }catch(e){
     if(typingEl)typingEl.remove();
@@ -809,6 +837,24 @@ function inkReplyDemo(q){
   else if(/ติดต่อ|เบอร์|line|ไลน์|โทร/i.test(q)){r='ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ';go='contact'}
   else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว ทีมงานจะติดต่อกลับนะคะ — ระหว่างนี้ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
   setTimeout(()=>{inkPush(r,'bot');logChat('bot',r);if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},300);
+}
+function inkShowGallery(group){
+  const G=window.GALLERY||{},imgs=[];
+  for(const k in G){if(G[k].group===group)G[k].imgs.forEach(s=>imgs.push(s));}
+  if(!imgs.length)return;
+  const pick=imgs.slice(0,3);
+  const html='<div class="ink-gal">'+pick.map(s=>`<img src="${esc(s)}" loading="lazy" onclick="filterTo('${group}')">`).join('')+`</div><button class="ink-galbtn" onclick="filterTo('${group}')">ดูผลงานทั้งหมด →</button>`;
+  inkPush(html,'bot');
+}
+function openBulk(){try{closeNav();}catch(e){}document.getElementById('bulkModal').classList.add('open');}
+function closeBulk(){document.getElementById('bulkModal').classList.remove('open');}
+async function submitBulk(){
+  const n=document.getElementById('bkName').value.trim(),p=document.getElementById('bkPhone').value.trim(),d=document.getElementById('bkDetail').value.trim();
+  if(!n||!p){toast('กรอกชื่อ + เบอร์โทรก่อนนะคะ');return;}
+  if(window.SB){try{await SB.from('sm_leads').insert({name:n,phone:p,job_type:'ราคาพิเศษ (งานจำนวนมาก)',detail:d||null,source:'bulk',status:'new'});}catch(e){}}
+  document.getElementById('bkName').value='';document.getElementById('bkPhone').value='';document.getElementById('bkDetail').value='';
+  closeBulk();
+  toast('รับเรื่องแล้วค่ะ 🙏 ทีมงานจะติดต่อกลับเรื่องราคาพิเศษให้เร็วๆ นี้นะคะ 🎁');
 }
 function inkAsk(q){inkPush(q,'me');logChat('user',q);inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');logChat('user',v);i.value='';inkReply(v)}
@@ -906,6 +952,7 @@ function logChat(role,msg){
 /* ---------- INIT ---------- */
 applyImages();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
 if(window.SB&&SB.auth&&SB.auth.onAuthStateChange){SB.auth.onAuthStateChange(()=>{refreshMember();});}
+if(/[?&]bulk=1/.test(location.search))setTimeout(openBulk,700);   // มาจากปุ่ม "ขอราคาพิเศษ" หน้าราคา
 </script>
 </body>
 </html>
