@@ -19,9 +19,6 @@
       .cls-16 { fill: #e63900; }
       .cls-17 { fill: #ff8a00; }
       .cls-18 { fill: #e63900; }
-      .sheen { opacity: .5; animation: smsweep 4.5s ease-in-out infinite; }
-      @keyframes smsweep { 0%,55% { transform: translateX(-180px); } 100% { transform: translateX(430px); } }
-      @media (prefers-reduced-motion: reduce) { .sheen { display: none; } }
     </style>
     <g id="smart">
       <!-- SIGN (ตัวใหญ่) -->
@@ -57,9 +54,7 @@
         <path class="cls-12" d="M238.42,323.47c.25-.25.49-.49.74-.74-.25.25-.49.49-.74.74Z"/>
       </g>
     </g>
-    <clipPath id="smclip"><use href="#smart"/></clipPath>
   </defs>
-  <!-- โลโก้ Signmaster Pro — recolor ส้ม + MASTERPRO ใหญ่ขึ้น + แสงวิ่ง -->
+  <!-- โลโก้ Signmaster Pro — recolor ส้ม + MASTERPRO ใหญ่ขึ้น (แสงวิ่งทำที่ CSS หน้าเว็บ) -->
   <use href="#smart"/>
-  <g clip-path="url(#smclip)"><g class="sheen"><rect x="120" y="150" width="52" height="226" transform="skewX(-20)" fill="#fff"/></g></g>
 </svg>
