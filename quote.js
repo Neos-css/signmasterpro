@@ -26,7 +26,7 @@
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function baht(n){ n=Math.round((Number(n)||0)*100)/100; return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function thaiDate(d){ return d.getDate()+' '+THMON[d.getMonth()]+' '+(d.getFullYear()+543); }
-  function quoteNo(d){ var p=function(x){return ('0'+x).slice(-2);}; return 'SM'+String(d.getFullYear()+543).slice(-2)+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes()); }
+  function quoteNo(d){ var p=function(x){return ('0'+x).slice(-2);}; return 'SMW'+String(d.getFullYear()+543).slice(-2)+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes()); }
 
   // โลโก้ส้ม (mark) ใช้ในหัวใบ — ดึงจาก #smart ถ้าหน้านั้นมี ไม่งั้น fallback ตัวอักษร
   function logoSVG(){
@@ -63,7 +63,8 @@
     + '.bar{max-width:210mm;margin:8px auto;display:flex;gap:10px;justify-content:center}.bar button{padding:10px 22px;border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}.bar .p{background:#e63900;color:#fff}.bar .c{background:#eee;color:#333}'
     + '.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #e63900;padding-bottom:10px;gap:14px}'
     + '.co .name{font-size:19px;font-weight:700;color:#111}.co .addr{font-size:11.5px;color:#444;line-height:1.55;margin-top:3px}'
-    + '.title{text-align:center;font-size:22px;font-weight:700;margin:14px 0 10px;letter-spacing:1px;color:#e63900}'
+    + '.title{text-align:center;font-size:22px;font-weight:700;margin:14px 0 4px;letter-spacing:1px;color:#e63900}'
+    + '.onlinebadge{text-align:center;font-size:11.5px;color:#9a3412;background:#fff2eb;border:1px dashed #f4a06a;border-radius:6px;padding:5px 10px;margin:0 0 10px;font-weight:600}'
     + '.meta{display:flex;justify-content:space-between;margin-bottom:8px;gap:16px}.meta div{font-size:12.5px;line-height:1.85}.meta b{font-weight:600}.fill{color:#c2410c;font-weight:600}'
     + 'table{width:100%;border-collapse:collapse;margin-top:4px}th,td{border:1px solid #555;padding:6px 8px;font-size:12.5px;vertical-align:top}th{background:#fff2eb;text-align:center;font-weight:600;color:#7c2d12}'
     + '.c-no{width:7%;text-align:center}.c-desc{width:47%}.c-qty{width:10%;text-align:center}.c-unit{width:10%;text-align:center}.c-price{width:13%;text-align:right}.c-amt{width:13%;text-align:right}'
@@ -78,6 +79,7 @@
     + '<div class="head"><div style="flex:none">'+logoSVG()+'</div>'
     +   '<div class="co" style="text-align:right"><div class="name">'+CO.name+'</div><div class="addr">'+CO.addr+'<br>โทร '+CO.tel+' · แฟกซ์ '+CO.fax+'<br>'+CO.email+' · '+CO.web+'<br>เลขประจำตัวผู้เสียภาษี '+CO.taxId+' ('+CO.taxNote+')</div></div></div>'
     + '<div class="title">ใบเสนอราคา / QUOTATION</div>'
+    + '<div class="onlinebadge">🌐 ฉบับออนไลน์ · ประเมินเบื้องต้น (Online Estimate) — ฉบับสมบูรณ์/มีลายเซ็น-ตราประทับ ออกโดยทีมงาน Signmaster Pro หน้าร้านอีกครั้ง</div>'
     + '<div class="meta"><div><b>เรียน / To:</b> <span class="fill">'+esc(c.name||'-')+'</span><br><b>ติดต่อ / Tel:</b> <span class="fill">'+esc([c.phone,c.email].filter(Boolean).join(' · ')||'-')+'</span>'+(c.note?'<br><b>หมายเหตุ:</b> '+esc(c.note):'')+'</div>'
     +   '<div style="text-align:right"><b>เลขที่ / No.:</b> <span class="fill">'+quoteNo(now)+'</span><br><b>วันที่ / Date:</b> <span class="fill">'+thaiDate(now)+'</span><br><b>พนักงานขาย:</b> '+CO.seller+'</div></div>'
     + '<table><thead><tr><th class="c-no">ลำดับ<br>Item</th><th class="c-desc">รายการ<br>Description</th><th class="c-qty">จำนวน<br>Qty</th><th class="c-unit">หน่วย<br>Unit</th><th class="c-price">ราคา/หน่วย<br>Unit Price</th><th class="c-amt">ราคารวม<br>Amount</th></tr></thead><tbody>'+rows
