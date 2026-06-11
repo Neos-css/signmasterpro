@@ -863,7 +863,7 @@ function openQuoteDoc(){
 }
 /* ส่ง backup เข้าอีเมล (ช่องทางอิสระจาก Supabase — กันพลาดออเดอร์) ผ่าน FormSubmit */
 function emailOrder(subject,fields){
-  try{fetch('https://formsubmit.co/ajax/signmasterpro07@gmail.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({_subject:subject,_template:'table'},fields))}).then(()=>{},()=>{});}catch(e){}
+  try{fetch('https://formsubmit.co/ajax/neos.css01@gmail.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({_subject:subject,_template:'table'},fields))}).then(()=>{},()=>{});}catch(e){}
 }
 function submitWork(){
   if(!state.quoteNo)state.quoteNo=genQuoteNo();
