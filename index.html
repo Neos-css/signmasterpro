@@ -70,11 +70,19 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .langtoggle{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
 .langbtn{font-family:inherit;font-weight:700;font-size:.78rem;padding:6px 11px;border:0;background:#fff;color:var(--muted);cursor:pointer;transition:.15s;line-height:1}
 .langbtn.on{background:var(--grad);color:#fff}
+.langtoggle-menu{display:none}   /* สำเนาปุ่มภาษาในเมนูสไลด์ — โชว์เฉพาะมือถือ */
 @media(max-width:900px){
   .nav-links{position:fixed;inset:68px 0 auto 0;background:#fff;flex-direction:column;padding:18px 22px;gap:4px;border-bottom:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(-130%);transition:.3s;align-items:flex-start}
   .nav-links.open{transform:translateY(0)}
   .nav-links a{padding:11px 0;width:100%;border-bottom:1px solid var(--line)}
   .burger{display:block}.nav-cta .btn:not(.burger){display:none}
+  .nav-cta .langtoggle{display:none}          /* ซ่อนปุ่มภาษาบน header */
+  .nav-links .langtoggle-menu{display:inline-flex;margin-top:14px}   /* ย้ายไปอยู่ในเมนูสไลด์ */
+}
+@media(max-width:560px){
+  .brand small{display:none}                  /* ซ่อนคำโปรยใต้โลโก้ ให้ header พอดีจอ */
+  .brand .wm-main{font-size:.95rem;letter-spacing:1px}
+  .nav-cta{gap:8px}
 }
 
 /* HERO */
@@ -293,6 +301,10 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
       <a href="#about" onclick="closeNav()" data-en="About">เกี่ยวกับเรา</a>
       <a href="faq.html" data-en="FAQ">ถาม-ตอบ</a>
       <a href="#contact" onclick="closeNav()" data-en="Contact">ติดต่อ</a>
+      <span class="langtoggle langtoggle-menu">
+        <button class="langbtn on" data-l="th" onclick="applyLang('th')">ไทย</button>
+        <button class="langbtn" data-l="en" onclick="applyLang('en')">EN</button>
+      </span>
     </nav>
     <div class="nav-cta">
       <span class="langtoggle">
@@ -965,6 +977,19 @@ function applyImages(){
     if(s&&s.src){img.src=s.src;if(s.pos)img.style.objectPosition=s.pos;}
   });
 }
+async function applySiteImagesOverlay(){   // ดึง override รูปหน้าเว็บจาก Supabase (เห็นทุกเครื่อง · async ไม่ block)
+  if(!window.SB)return;
+  try{
+    const {data,error}=await SB.from('sm_gallery').select('*').eq('action','site').order('created_at',{ascending:true});
+    if(error||!data)return;
+    const bySlot={};
+    data.forEach(r=>{bySlot[r.grp]={src:r.src,pos:r.title};});   // เรียง asc → ตัวล่าสุดทับ
+    document.querySelectorAll('[data-slot]').forEach(img=>{
+      const s=bySlot[img.dataset.slot];
+      if(s&&s.src){img.src=s.src;if(s.pos)img.style.objectPosition=s.pos;}
+    });
+  }catch(e){}
+}
 
 /* ---------- Supabase: เก็บผู้เข้าชม + แชต ---------- */
 function trackVisit(){
@@ -995,7 +1020,7 @@ window.onLangChange=function(){
 };
 
 /* ---------- INIT ---------- */
-applyImages();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
+applyImages();applySiteImagesOverlay();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
 if(window.SB&&SB.auth&&SB.auth.onAuthStateChange){SB.auth.onAuthStateChange(()=>{refreshMember();});}
 if(/[?&]bulk=1/.test(location.search))setTimeout(openBulk,700);   // มาจากปุ่ม "ขอราคาพิเศษ" หน้าราคา
 </script>

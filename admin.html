@@ -677,7 +677,37 @@ function imgSwapAI(k){ensureStaged();const pool=imgPool(STAGED[k].group);if(!poo
 function imgUpload(k){imgCurSlot=k;const inp=document.getElementById('imgFile');inp.value='';inp.onchange=function(){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){const im=new Image();im.onload=function(){const max=1400;let w=im.width,h=im.height;if(w>max||h>max){const sc=max/Math.max(w,h);w=Math.round(w*sc);h=Math.round(h*sc);}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);STAGED[imgCurSlot].src=cv.toDataURL('image/jpeg',0.85);renderImages();toast(`📤 อัปโหลดรูป "${STAGED[imgCurSlot].label}" แล้วค่ะ — กด 💾 บันทึกเพื่อให้เว็บเปลี่ยนนะคะ`);};im.src=ev.target.result;};r.readAsDataURL(f);};inp.click();}
 function imgReset(k){ensureStaged();STAGED[k].src=window.SITE_IMAGES_DEFAULT[k].src;STAGED[k].pos=window.SITE_IMAGES_DEFAULT[k].pos;renderImages();toast('คืนค่ารูปเริ่มต้นแล้วค่ะ');}
 function resetAllImg(){STAGED=JSON.parse(JSON.stringify(window.SITE_IMAGES_DEFAULT));renderImages();toast('คืนค่ารูปทั้งหมดแล้วค่ะ — กด 💾 บันทึกเพื่อยืนยัน');}
-function saveImages(){ensureStaged();try{const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAGED[k].src,pos:STAGED[k].pos};});localStorage.setItem('sm_site_images',JSON.stringify(out));IMG_ORDER.forEach(k=>{window.SITE_IMAGES[k].src=STAGED[k].src;window.SITE_IMAGES[k].pos=STAGED[k].pos;});renderImages();toast('💾 บันทึกแล้วค่ะ! เปิดหน้าเว็บ (รีเฟรช) จะเห็นรูปใหม่ทันที 🎉');}catch(e){toast('⚠️ บันทึกไม่สำเร็จ (รูปอาจใหญ่เกิน) — ลองรูปเล็กลงนะคะ');}}
+function _persistSiteLocal(){const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAGED[k].src,pos:STAGED[k].pos};});try{localStorage.setItem('sm_site_images',JSON.stringify(out));}catch(e){}IMG_ORDER.forEach(k=>{window.SITE_IMAGES[k].src=STAGED[k].src;window.SITE_IMAGES[k].pos=STAGED[k].pos;});}
+async function saveImages(){
+  ensureStaged();
+  if(!window.SB){_persistSiteLocal();renderImages();toast('💾 บันทึกในเครื่องนี้แล้วค่ะ (ยังไม่เชื่อม Supabase → เครื่องอื่นยังไม่เห็น)');return;}
+  const DEF=window.SITE_IMAGES_DEFAULT;
+  toast('⏳ กำลังบันทึกรูปขึ้นระบบ (ให้เห็นทุกเครื่อง)...');
+  try{
+    for(const k of IMG_ORDER){
+      const isOverride = STAGED[k].src!==DEF[k].src || (STAGED[k].pos||'')!==(DEF[k].pos||'');
+      // ลบ override เดิมของ slot นี้ก่อนเสมอ (กันค้าง + รองรับการกดคืนค่าเดิม)
+      await SB.from('sm_gallery').delete().eq('action','site').eq('grp',k);
+      if(!isOverride) continue;
+      let src=STAGED[k].src;
+      if(/^data:/.test(src)){            // รูปที่อัปโหลดเอง (base64) → ขึ้น Supabase Storage
+        const blob=await (await fetch(src)).blob();
+        const path='site/'+k+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)+'.jpg';
+        const up=await SB.storage.from('gallery').upload(path,blob,{contentType:'image/jpeg'});
+        if(up.error) throw up.error;
+        src=SB.storage.from('gallery').getPublicUrl(path).data.publicUrl;
+        STAGED[k].src=src;
+      }
+      const ins=await SB.from('sm_gallery').insert({action:'site',grp:k,src:src,title:(STAGED[k].pos||'center')});
+      if(ins.error) throw ins.error;
+    }
+    _persistSiteLocal();renderImages();
+    toast('💾 บันทึกขึ้นระบบแล้วค่ะ! ทุกเครื่องจะเห็นรูปใหม่ (รีเฟรชหน้าเว็บ) 🎉');
+  }catch(e){
+    _persistSiteLocal();renderImages();
+    toast('⚠️ ขึ้นระบบไม่สำเร็จ: '+(e.message||e)+' · บันทึกในเครื่องนี้ไว้แล้ว');
+  }
+}
 
 /* ===== GALLERY MANAGER (รูปผลงาน · Supabase Storage + sm_gallery overlay) ===== */
 const GAL_GROUPS=[['booth','🎪 บูธ & อีเวนต์'],['inkjet','🖨️ งานอิงค์เจท'],['sign','🪧 ป้าย'],['lightbox','💡 ตู้ไฟ']];
