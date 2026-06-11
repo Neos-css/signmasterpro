@@ -664,6 +664,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
 <script src="i18n.js"></script>
+<script src="quote.js"></script>
 <script>
 /* ---------- NAV ---------- */
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
@@ -824,8 +825,23 @@ function renderQuote(){
   let head=`<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:.92rem">
     <b>${esc(c.name)||'-'}</b> · ${esc(c.phone)||'-'} ${c.email?'· '+esc(c.email):''}<br>
     <span class="muted">${t('ที่มาแบบ: ','Design source: ')}${src} ${c.note?'· '+esc(c.note):''}</span></div>`;
+  const printBtn = q.quote ? '' :
+    `<button class="btn btn-dark btn-lg" style="margin-top:10px;width:100%" onclick="openQuoteDoc()">${t('📄 พิมพ์ใบเสนอราคา (PDF)','📄 Print Quotation (PDF)')}</button>`;
   document.getElementById('quoteOut').innerHTML=head+q.html+
-    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">${t('📩 ส่งคำขอใบเสนอราคา','📩 Send Quote Request')}</button>`;
+    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">${t('📩 ส่งคำขอใบเสนอราคา','📩 Send Quote Request')}</button>`+printBtn;
+}
+/* สร้างใบเสนอราคา A4 จากข้อมูล wizard → quote.js เปิดแท็บใหม่ + พิมพ์ PDF */
+function openQuoteDoc(){
+  const m=curMat(),a=area();
+  if(!m||m.quote){toast(t('งานกลุ่มนี้ประเมินหน้างานค่ะ','This group is quoted on-site'));return;}
+  if(typeof window.printSignmasterQuote!=='function'){toast('ระบบใบเสนอราคายังไม่พร้อม ลองรีเฟรชค่ะ');return;}
+  const w=document.getElementById('w').value,h=document.getElementById('h').value,qty=parseInt(document.getElementById('qty').value)||1;
+  const unit=a>=10?m.price_10:m.price_1_9;
+  const items=[{desc:`${m.name} (${m.line})`,subs:[`ขนาด ${w}×${h} ม. × ${qty} ชิ้น = ${a.toFixed(2)} ตร.ม.`],qty:a.toFixed(2),unit:'ตร.ม.',price:unit}];
+  if(document.getElementById('optDesign').checked)items.push({desc:PC.options.design_fee.label,qty:1,unit:'งาน',price:PC.options.design_fee.price});
+  if(document.getElementById('optInstall').checked)items.push({desc:PC.options.install_fee.label,qty:a.toFixed(2),unit:'ตร.ม.',price:PC.options.install_fee.price});
+  const c=state.customer||{name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value};
+  window.printSignmasterQuote({customer:c,items:items,vatRate:0.07});
 }
 function submitOrder(){
   const c=state.customer||{}, m=curMat(), a=area();

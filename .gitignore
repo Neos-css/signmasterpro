@@ -13,6 +13,14 @@ secrets.local.ps1
 *.ps1
 *.sql
 
+# ===== ไฟล์ลับ/ภายใน (บัญชี/ลายเซ็น/ฟอร์มต้นฉบับ) — ❌ ห้าม publish =====
+*.xlsx
+*.xls
+Account Sign.jpg
+Sign V2.svg
+signature.*
+stamp.*
+
 # ===== OS / junk =====
 Thumbs.db
 desktop.ini
