@@ -13,27 +13,27 @@ window.PRICE_CONFIG = {
   /* วัสดุงานพิมพ์ คิดตาม ตร.ม. (price_1_9 = 1-9 ตร.ม. / price_10 = 10 ตร.ม.ขึ้นไป) */
   materials: [
     // ── INKJET OUTDOOR 720 DPI (งานทั่วไป) ──
-    { id:"o720-vinyl-opaque",  group:"inkjet", line:"Outdoor 720 DPI", name:"ไวนิลทึบแสง",            price_1_9:150, price_10:120 },
-    { id:"o720-vinyl-trans",   group:"inkjet", line:"Outdoor 720 DPI", name:"ไวนิลโปร่งแสง",          price_1_9:250, price_10:230 },
-    { id:"o720-sticker-pvc",   group:"inkjet", line:"Outdoor 720 DPI", name:"สติกเกอร์ PVC (ขาว/ใส)", price_1_9:350, price_10:300 },
-    { id:"o720-sticker-see",   group:"inkjet", line:"Outdoor 720 DPI", name:"สติกเกอร์ซีทรู",          price_1_9:350, price_10:300 },
+    { id:"o720-vinyl-opaque",  group:"inkjet", line:"Outdoor 720 DPI", name:"ไวนิลทึบแสง",            name_en:"Opaque vinyl",            price_1_9:150, price_10:120 },
+    { id:"o720-vinyl-trans",   group:"inkjet", line:"Outdoor 720 DPI", name:"ไวนิลโปร่งแสง",          name_en:"Translucent vinyl",       price_1_9:250, price_10:230 },
+    { id:"o720-sticker-pvc",   group:"inkjet", line:"Outdoor 720 DPI", name:"สติกเกอร์ PVC (ขาว/ใส)", name_en:"PVC sticker (white/clear)", price_1_9:350, price_10:300 },
+    { id:"o720-sticker-see",   group:"inkjet", line:"Outdoor 720 DPI", name:"สติกเกอร์ซีทรู",          name_en:"See-through sticker",     price_1_9:350, price_10:300 },
 
     // ── INKJET OUTDOOR 1440 DPI (คมชัดระดับภาพถ่าย · MIMAKI) ──
-    { id:"o1440-vinyl-opaque", group:"inkjet", line:"Outdoor 1440 DPI", name:"ไวนิลทึบแสง (คมชัด)",     price_1_9:350, price_10:300 },
-    { id:"o1440-vinyl-trans",  group:"inkjet", line:"Outdoor 1440 DPI", name:"ไวนิลโปร่งแสง (คมชัด)",   price_1_9:450, price_10:400 },
-    { id:"o1440-sticker-pvc",  group:"inkjet", line:"Outdoor 1440 DPI", name:"สติกเกอร์ PVC (ขาว/ใส)",  price_1_9:450, price_10:400 },
-    { id:"o1440-sticker-3m",   group:"inkjet", line:"Outdoor 1440 DPI", name:"สติกเกอร์ 3M ลอกออกได้",  price_1_9:500, price_10:450 },
-    { id:"o1440-canvas",       group:"inkjet", line:"Outdoor 1440 DPI", name:"ผ้าแคนวาส / ผ้า IT",      price_1_9:500, price_10:450 },
+    { id:"o1440-vinyl-opaque", group:"inkjet", line:"Outdoor 1440 DPI", name:"ไวนิลทึบแสง (คมชัด)",     name_en:"Opaque vinyl (HD)",        price_1_9:350, price_10:300 },
+    { id:"o1440-vinyl-trans",  group:"inkjet", line:"Outdoor 1440 DPI", name:"ไวนิลโปร่งแสง (คมชัด)",   name_en:"Translucent vinyl (HD)",   price_1_9:450, price_10:400 },
+    { id:"o1440-sticker-pvc",  group:"inkjet", line:"Outdoor 1440 DPI", name:"สติกเกอร์ PVC (ขาว/ใส)",  name_en:"PVC sticker (white/clear)", price_1_9:450, price_10:400 },
+    { id:"o1440-sticker-3m",   group:"inkjet", line:"Outdoor 1440 DPI", name:"สติกเกอร์ 3M ลอกออกได้",  name_en:"3M removable sticker",     price_1_9:500, price_10:450 },
+    { id:"o1440-canvas",       group:"inkjet", line:"Outdoor 1440 DPI", name:"ผ้าแคนวาส / ผ้า IT",      name_en:"Canvas / IT fabric",       price_1_9:500, price_10:450 },
 
     // ── INKJET INDOOR 1200 DPI (งานในร่ม · HP DesignJet) ──
-    { id:"i1200-photo",        group:"inkjet", line:"Indoor 1200 DPI", name:"กระดาษโฟโต้ / PP",         price_1_9:350, price_10:300 },
-    { id:"i1200-sticker",      group:"inkjet", line:"Indoor 1200 DPI", name:"สติกเกอร์ PP / PVC",       price_1_9:450, price_10:400 },
-    { id:"i1200-backlit",      group:"inkjet", line:"Indoor 1200 DPI", name:"สติกเกอร์/ฟิล์มแบ็คลิท",   price_1_9:500, price_10:450 },
-    { id:"i1200-canvas",       group:"inkjet", line:"Indoor 1200 DPI", name:"แคนวาส (ในร่ม)",            price_1_9:500, price_10:450 },
+    { id:"i1200-photo",        group:"inkjet", line:"Indoor 1200 DPI", name:"กระดาษโฟโต้ / PP",         name_en:"Photo paper / PP",        price_1_9:350, price_10:300 },
+    { id:"i1200-sticker",      group:"inkjet", line:"Indoor 1200 DPI", name:"สติกเกอร์ PP / PVC",       name_en:"PP / PVC sticker",        price_1_9:450, price_10:400 },
+    { id:"i1200-backlit",      group:"inkjet", line:"Indoor 1200 DPI", name:"สติกเกอร์/ฟิล์มแบ็คลิท",   name_en:"Backlit sticker / film",  price_1_9:500, price_10:450 },
+    { id:"i1200-canvas",       group:"inkjet", line:"Indoor 1200 DPI", name:"แคนวาส (ในร่ม)",            name_en:"Canvas (indoor)",         price_1_9:500, price_10:450 },
 
     // ── ป้าย / ตู้ไฟ (เว็บเดิมไม่ระบุราคา → ประเมินหน้างาน) ──
-    { id:"sign-quote",     group:"sign",     line:"ป้ายทุกชนิด",  name:"ป้ายโลหะ/อะคริลิก/ตัวอักษร ฯลฯ", quote:true },
-    { id:"lightbox-quote", group:"lightbox", line:"ตู้ไฟ",        name:"ตู้ไฟ / ตัวอักษรซ่อนไฟ",          quote:true },
+    { id:"sign-quote",     group:"sign",     line:"ป้ายทุกชนิด",  name:"ป้ายโลหะ/อะคริลิก/ตัวอักษร ฯลฯ", name_en:"Metal/acrylic signs, letters, etc.", quote:true },
+    { id:"lightbox-quote", group:"lightbox", line:"ตู้ไฟ",        name:"ตู้ไฟ / ตัวอักษรซ่อนไฟ",          name_en:"Lightbox / hidden-light letters",    quote:true },
   ],
 
   /* สินค้าสำเร็จรูป คิดเป็นชิ้น (Booth / Roll Up / Backdrop) */
@@ -52,7 +52,7 @@ window.PRICE_CONFIG = {
 
   /* ค่าบริการเสริม (ประมาณการ — รอยืนยัน) */
   options: {
-    design_fee:  { label:"ค่าออกแบบ (ถ้าให้เราออกแบบ)", price:500, draft:true },
-    install_fee: { label:"ค่าติดตั้ง (ต่อ ตร.ม.)",       price:100, draft:true },
+    design_fee:  { label:"ค่าออกแบบ (ถ้าให้เราออกแบบ)", label_en:"Design fee (if we design it)", price:500, draft:true },
+    install_fee: { label:"ค่าติดตั้ง (ต่อ ตร.ม.)",       label_en:"Installation (per sq.m.)",    price:100, draft:true },
   },
 };

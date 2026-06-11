@@ -67,6 +67,9 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .nav-links a:hover{color:var(--accent-deep)}
 .nav-cta{display:flex;gap:10px;align-items:center}
 .burger{display:none;background:none;border:0;cursor:pointer;font-size:1.6rem;color:var(--ink)}
+.langtoggle{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.langbtn{font-family:inherit;font-weight:700;font-size:.78rem;padding:6px 11px;border:0;background:#fff;color:var(--muted);cursor:pointer;transition:.15s;line-height:1}
+.langbtn.on{background:var(--grad);color:#fff}
 @media(max-width:900px){
   .nav-links{position:fixed;inset:68px 0 auto 0;background:#fff;flex-direction:column;padding:18px 22px;gap:4px;border-bottom:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(-130%);transition:.3s;align-items:flex-start}
   .nav-links.open{transform:translateY(0)}
@@ -274,7 +277,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <body>
 
 <!-- DEMO banner -->
-<div class="note-banner">🚧 เว็บตัวอย่าง (Demo) · ราคาที่แสดงเป็น “ประมาณการ” รอยืนยันราคาจริง · พัฒนาโดยทีม Neo-S AI</div>
+<div class="note-banner" data-en="🚧 Demo site · Prices shown are estimates pending confirmation · Built by Neo-S AI">🚧 เว็บตัวอย่าง (Demo) · ราคาที่แสดงเป็น “ประมาณการ” รอยืนยันราคาจริง · พัฒนาโดยทีม Neo-S AI</div>
 
 <!-- NAV -->
 <header class="nav">
@@ -284,16 +287,20 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
       <span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
     </a>
     <nav class="nav-links" id="navLinks">
-      <a href="#services" onclick="closeNav()">บริการ</a>
-      <a href="#gallery" onclick="closeNav()">ผลงาน</a>
-      <a href="price.html">ราคา</a>
-      <a href="#about" onclick="closeNav()">เกี่ยวกับเรา</a>
-      <a href="faq.html">ถาม-ตอบ</a>
-      <a href="#contact" onclick="closeNav()">ติดต่อ</a>
+      <a href="#services" onclick="closeNav()" data-en="Services">บริการ</a>
+      <a href="#gallery" onclick="closeNav()" data-en="Portfolio">ผลงาน</a>
+      <a href="price.html" data-en="Pricing">ราคา</a>
+      <a href="#about" onclick="closeNav()" data-en="About">เกี่ยวกับเรา</a>
+      <a href="faq.html" data-en="FAQ">ถาม-ตอบ</a>
+      <a href="#contact" onclick="closeNav()" data-en="Contact">ติดต่อ</a>
     </nav>
     <div class="nav-cta">
+      <span class="langtoggle">
+        <button class="langbtn on" data-l="th" onclick="applyLang('th')">ไทย</button>
+        <button class="langbtn" data-l="en" onclick="applyLang('en')">EN</button>
+      </span>
       <span class="auth" id="authArea"></span>
-      <a href="#order" class="btn btn-primary">เริ่มสั่งทำงาน</a>
+      <a href="#order" class="btn btn-primary" data-en="Start Order">เริ่มสั่งทำงาน</a>
       <button class="burger" onclick="toggleNav()" aria-label="menu">☰</button>
     </div>
   </div>
@@ -303,26 +310,26 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a">ก่อตั้งปี 2550 · ประสบการณ์กว่า 17 ปี</span>
-      <h1>ป้ายโฆษณา<br><span class="hl">ครบทุกบริการ</span><br>ในที่เดียว</h1>
-      <p class="lead">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ
+      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a" data-en="Est. 2007 · Over 17 Years of Experience">ก่อตั้งปี 2550 · ประสบการณ์กว่า 17 ปี</span>
+      <h1 data-en="All Your Signage.<br><span class=&quot;hl&quot;>One Place.</span>">ป้ายโฆษณา<br><span class="hl">ครบทุกบริการ</span><br>ในที่เดียว</h1>
+      <p class="lead" data-en="We produce and install every kind of sign — booths, inkjet, signage, lightboxes — with an <b>AI-powered design</b> and <b>instant quote</b> system">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ
         พร้อมระบบสั่งทำงาน <b>ออกแบบด้วย AI</b> และ <b>ประเมินราคาทันที</b></p>
       <div class="hero-cta">
-        <a href="#order" class="btn btn-primary btn-lg">🛒 เริ่มสั่งทำงาน</a>
-        <a href="#gallery" class="btn btn-ghost btn-lg">ดูผลงาน</a>
+        <a href="#order" class="btn btn-primary btn-lg" data-en="🛒 Start Order">🛒 เริ่มสั่งทำงาน</a>
+        <a href="#gallery" class="btn btn-ghost btn-lg" data-en="View Portfolio">ดูผลงาน</a>
       </div>
       <div class="hero-stats">
-        <div class="s"><b>17+</b><span>ปีประสบการณ์</span></div>
-        <div class="s"><b>4</b><span>กลุ่มบริการหลัก</span></div>
-        <div class="s"><b>30+</b><span>ชนิดงานป้าย</span></div>
-        <div class="s"><b>100%</b><span>ผลิต+ติดตั้งเอง</span></div>
+        <div class="s"><b>17+</b><span data-en="Years Experience">ปีประสบการณ์</span></div>
+        <div class="s"><b>4</b><span data-en="Core Services">กลุ่มบริการหลัก</span></div>
+        <div class="s"><b>30+</b><span data-en="Sign Types">ชนิดงานป้าย</span></div>
+        <div class="s"><b>100%</b><span data-en="In-house Install">ผลิต+ติดตั้งเอง</span></div>
       </div>
     </div>
     <div style="position:relative">
       <div class="hero-card">
         <img class="photo" data-slot="hero" src="media/assets/img/service/gallery/lightbox-neon/lightbox-neon1.jpg" alt="ผลงานป้ายตู้ไฟนีออน" onerror="this.src='media/assets/img/header.png'">
       </div>
-      <div class="hero-badge"><span class="dot"></span> ตรงต่อเวลา · ใส่ใจทุกรายละเอียด</div>
+      <div class="hero-badge"><span class="dot"></span> <span data-en="On time · Attention to detail">ตรงต่อเวลา · ใส่ใจทุกรายละเอียด</span></div>
     </div>
   </div>
 </section>
@@ -330,25 +337,25 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <!-- SERVICES -->
 <section id="services">
   <div class="wrap center">
-    <span class="eyebrow">บริการของเรา</span>
-    <h2 class="sec-title">งานป้ายครบวงจร 4 กลุ่มหลัก</h2>
-    <p class="sec-sub">ตั้งแต่ออกแบบ ผลิต จนถึงติดตั้งหน้างาน — จบในที่เดียว</p>
+    <span class="eyebrow" data-en="Our Services">บริการของเรา</span>
+    <h2 class="sec-title" data-en="Full-Service Signage — 4 Core Groups">งานป้ายครบวงจร 4 กลุ่มหลัก</h2>
+    <p class="sec-sub" data-en="From design and production to on-site installation — all in one place">ตั้งแต่ออกแบบ ผลิต จนถึงติดตั้งหน้างาน — จบในที่เดียว</p>
     <div class="svc-grid">
       <div class="svc" onclick="filterTo('booth')">
         <div class="ic"><img data-slot="booth" loading="lazy" style="object-position:center 42%" src="media/assets/img/service/gallery/booth/booth1.jpg" alt="บูธ & อีเวนต์" onerror="this.parentNode.innerHTML='🎪'"></div>
-        <div class="body"><h3>🎪 บูธ & อีเวนต์</h3><p>ออกบูธ ทำบูธ อุปกรณ์ออกบูธ Roll Up Backdrop งาน Event ครบชุด</p><span class="tag">ดูผลงาน →</span></div>
+        <div class="body"><h3 data-en="🎪 Booth & Event">🎪 บูธ & อีเวนต์</h3><p data-en="Exhibition booths, Roll Ups, Backdrops & complete event gear">ออกบูธ ทำบูธ อุปกรณ์ออกบูธ Roll Up Backdrop งาน Event ครบชุด</p><span class="tag" data-en="View work →">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('inkjet')">
         <div class="ic"><img data-slot="inkjet" loading="lazy" style="object-position:center 38%" src="media/assets/img/service/gallery/inkjet-vinyl/inkjet-vinyl3.jpg" alt="งานอิงค์เจท" onerror="this.parentNode.innerHTML='🖨️'"></div>
-        <div class="body"><h3>🖨️ งานอิงค์เจท</h3><p>ไวนิล สติกเกอร์ คมชัด 720–1440 DPI ทั้งงานกลางแจ้งและในร่ม</p><span class="tag">ดูผลงาน →</span></div>
+        <div class="body"><h3 data-en="🖨️ Inkjet Printing">🖨️ งานอิงค์เจท</h3><p data-en="Vinyl & stickers, sharp 720–1440 DPI, for both outdoor and indoor">ไวนิล สติกเกอร์ คมชัด 720–1440 DPI ทั้งงานกลางแจ้งและในร่ม</p><span class="tag" data-en="View work →">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('sign')">
         <div class="ic"><img data-slot="sign" loading="lazy" style="object-position:center 78%" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="ป้ายทุกชนิด" onerror="this.parentNode.innerHTML='🪧'"></div>
-        <div class="body"><h3>🪧 ป้ายทุกชนิด</h3><p>ป้ายสตีล ซิงค์ โลหะ คอมโพสิท ตัวอักษรโลหะ บิลบอร์ด หน้าอาคาร</p><span class="tag">ดูผลงาน →</span></div>
+        <div class="body"><h3 data-en="🪧 All Sign Types">🪧 ป้ายทุกชนิด</h3><p data-en="Steel, zinc, metal, composite, metal letters, billboards & storefronts">ป้ายสตีล ซิงค์ โลหะ คอมโพสิท ตัวอักษรโลหะ บิลบอร์ด หน้าอาคาร</p><span class="tag" data-en="View work →">ดูผลงาน →</span></div>
       </div>
       <div class="svc" onclick="filterTo('lightbox')">
         <div class="ic"><img data-slot="lightbox" loading="lazy" style="object-position:center 45%" src="media/assets/img/service/gallery/lightbox-front-light/lightbox-front-light1.jpg" alt="ตู้ไฟ" onerror="this.parentNode.innerHTML='💡'"></div>
-        <div class="body"><h3>💡 ตู้ไฟ (Lightbox)</h3><p>ตู้ไฟ นีออน ไฟออกหน้า-หลัง ตัวอักษรซ่อนไฟ LED Moving</p><span class="tag">ดูผลงาน →</span></div>
+        <div class="body"><h3 data-en="💡 Lightbox">💡 ตู้ไฟ (Lightbox)</h3><p data-en="Lightboxes, neon, front/back-lit, hidden-light letters & LED moving signs">ตู้ไฟ นีออน ไฟออกหน้า-หลัง ตัวอักษรซ่อนไฟ LED Moving</p><span class="tag" data-en="View work →">ดูผลงาน →</span></div>
       </div>
     </div>
   </div>
@@ -357,9 +364,9 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <!-- GALLERY -->
 <section class="gallery" id="gallery">
   <div class="wrap center">
-    <span class="eyebrow">ผลงานจริง</span>
-    <h2 class="sec-title">ผลงานที่เราภูมิใจ</h2>
-    <p class="sec-sub">คัดผลงานจริงจากลูกค้าหลากหลายแบรนด์ — คลิกที่รูปเพื่อดูเต็ม</p>
+    <span class="eyebrow" data-en="Real Work">ผลงานจริง</span>
+    <h2 class="sec-title" data-en="Work We're Proud Of">ผลงานที่เราภูมิใจ</h2>
+    <p class="sec-sub" data-en="Real projects from a wide range of brands — click any image to enlarge">คัดผลงานจริงจากลูกค้าหลากหลายแบรนด์ — คลิกที่รูปเพื่อดูเต็ม</p>
     <div class="filters" id="filters"></div>
     <div class="grid-masonry" id="galleryGrid"></div>
     <button class="btn btn-dark btn-lg" id="moreBtn" style="margin-top:26px" onclick="moreGallery()">ดูผลงานเพิ่ม</button>
@@ -369,113 +376,113 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <!-- WIZARD / ORDER -->
 <section class="wizard-sec" id="order">
   <div class="wrap center">
-    <span class="eyebrow">สั่งทำงาน</span>
-    <h2 class="sec-title">สั่งทำงานป้าย + ประเมินราคาทันที</h2>
-    <p class="sec-sub">เพียง 6 ขั้นตอน — มีแบบอยู่แล้วก็อัปโหลด ไม่มีแบบให้ AI ช่วยออกแบบ</p>
+    <span class="eyebrow" data-en="Place an Order">สั่งทำงาน</span>
+    <h2 class="sec-title" data-en="Order Your Sign + Instant Quote">สั่งทำงานป้าย + ประเมินราคาทันที</h2>
+    <p class="sec-sub" data-en="Just 6 steps — upload your own design, or let AI design it for you">เพียง 6 ขั้นตอน — มีแบบอยู่แล้วก็อัปโหลด ไม่มีแบบให้ AI ช่วยออกแบบ</p>
   </div>
 
   <div class="wizard">
     <div class="wz-head">
-      <b>🛒 ระบบสั่งทำงาน Signmaster Pro</b>
+      <b data-en="🛒 Signmaster Pro Order System">🛒 ระบบสั่งทำงาน Signmaster Pro</b>
       <div class="steps" id="steps">
-        <div class="st" data-s="1"><span class="bar"></span>ที่มาของแบบ</div>
-        <div class="st" data-s="2"><span class="bar"></span>ดูแบบ</div>
-        <div class="st" data-s="3"><span class="bar"></span>วัสดุ</div>
-        <div class="st" data-s="4"><span class="bar"></span>ขนาด</div>
-        <div class="st" data-s="5"><span class="bar"></span>ข้อมูล</div>
-        <div class="st" data-s="6"><span class="bar"></span>ราคา</div>
+        <div class="st" data-s="1"><span class="bar"></span><span data-en="Design Source">ที่มาของแบบ</span></div>
+        <div class="st" data-s="2"><span class="bar"></span><span data-en="Preview">ดูแบบ</span></div>
+        <div class="st" data-s="3"><span class="bar"></span><span data-en="Material">วัสดุ</span></div>
+        <div class="st" data-s="4"><span class="bar"></span><span data-en="Size">ขนาด</span></div>
+        <div class="st" data-s="5"><span class="bar"></span><span data-en="Details">ข้อมูล</span></div>
+        <div class="st" data-s="6"><span class="bar"></span><span data-en="Quote">ราคา</span></div>
       </div>
     </div>
 
     <div class="wz-body">
       <!-- STEP 1 -->
       <div class="wz-step show" data-step="1">
-        <h3>1 · เลือกที่มาของแบบ</h3>
-        <p class="hint">คุณมีไฟล์แบบป้ายอยู่แล้ว หรือให้เราออกแบบให้?</p>
+        <h3 data-en="1 · Choose Design Source">1 · เลือกที่มาของแบบ</h3>
+        <p class="hint" data-en="Do you already have a design file, or shall we design it for you?">คุณมีไฟล์แบบป้ายอยู่แล้ว หรือให้เราออกแบบให้?</p>
         <div class="choice">
           <div class="opt" data-src="import" onclick="pickSource('import')">
-            <div class="em">📁</div><b>อัปโหลดไฟล์แบบ</b><small>มีแบบอยู่แล้ว (JPG/PNG/PDF)</small>
+            <div class="em">📁</div><b data-en="Upload Design File">อัปโหลดไฟล์แบบ</b><small data-en="Already have a design (JPG/PNG/PDF)">มีแบบอยู่แล้ว (JPG/PNG/PDF)</small>
           </div>
           <div class="opt" data-src="ai" onclick="pickSource('ai')">
-            <div class="em">🤖</div><b>ให้น้องอิงค์ (AI) ออกแบบ</b><small>ยังไม่มีแบบ? พิมพ์ไอเดียให้น้องอิงค์สร้างให้</small>
+            <div class="em">🤖</div><b data-en="Let Ink (AI) Design It">ให้น้องอิงค์ (AI) ออกแบบ</b><small data-en="No design yet? Tell Ink your idea and AI will create it">ยังไม่มีแบบ? พิมพ์ไอเดียให้น้องอิงค์สร้างให้</small>
           </div>
         </div>
       </div>
 
       <!-- STEP 2 -->
       <div class="wz-step" data-step="2">
-        <h3>2 · ดูแบบ / พรีวิว</h3>
-        <p class="hint" id="step2hint">อัปโหลดไฟล์แบบของคุณ</p>
+        <h3 data-en="2 · Preview Design">2 · ดูแบบ / พรีวิว</h3>
+        <p class="hint" id="step2hint" data-en="Upload your design file">อัปโหลดไฟล์แบบของคุณ</p>
         <div id="importPane">
           <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="onFile(event)">
           <div class="preview-box" id="previewBox" onclick="document.getElementById('fileInput').click()">
-            <div>📤<br><b>คลิกเพื่อเลือกไฟล์รูปแบบป้าย</b><br><small>รองรับ JPG, PNG · พรีวิวทันที</small></div>
+            <div data-en="📤<br><b>Click to choose your sign design file</b><br><small>JPG, PNG supported · instant preview</small>">📤<br><b>คลิกเพื่อเลือกไฟล์รูปแบบป้าย</b><br><small>รองรับ JPG, PNG · พรีวิวทันที</small></div>
           </div>
         </div>
         <div id="aiPane" style="display:none">
-          <div class="field"><label>อธิบายแบบที่ต้องการ (บรีฟให้ AI)</label>
-            <input id="aiPrompt" placeholder="เช่น ป้ายร้านกาแฟ โทนน้ำตาล มินิมอล มีโลโก้แก้วกาแฟ"></div>
+          <div class="field"><label data-en="Describe the design you want (brief for AI)">อธิบายแบบที่ต้องการ (บรีฟให้ AI)</label>
+            <input id="aiPrompt" placeholder="เช่น ป้ายร้านกาแฟ โทนน้ำตาล มินิมอล มีโลโก้แก้วกาแฟ" data-en-ph="e.g. Coffee shop sign, brown tone, minimal, with a coffee-cup logo"></div>
           <div class="preview-box" id="aiPreview">
-            <div>🤖<br><b>ตัวอย่างแบบจากน้องอิงค์จะแสดงตรงนี้</b><br><small>* เดโม: น้องอิงค์จะ Gen ภาพจริงด้วย AI เมื่อต่อ backend (Gemini)</small></div>
+            <div data-en="🤖<br><b>The AI design sample will appear here</b><br><small>* Demo: Ink will generate real images via AI once the backend (Gemini) is connected</small>">🤖<br><b>ตัวอย่างแบบจากน้องอิงค์จะแสดงตรงนี้</b><br><small>* เดโม: น้องอิงค์จะ Gen ภาพจริงด้วย AI เมื่อต่อ backend (Gemini)</small></div>
           </div>
-          <button class="btn btn-dark" style="margin-top:14px" onclick="mockGen()">✨ ลองให้ AI สร้างตัวอย่าง</button>
+          <button class="btn btn-dark" style="margin-top:14px" onclick="mockGen()" data-en="✨ Try AI sample">✨ ลองให้ AI สร้างตัวอย่าง</button>
         </div>
       </div>
 
       <!-- STEP 3 -->
       <div class="wz-step" data-step="3">
-        <h3>3 · เลือกชนิดวัสดุ</h3>
-        <p class="hint">เลือกวัสดุที่ต้องการ — ราคาคิดตามตารางจริงของร้าน</p>
-        <div class="field"><label>กลุ่มงาน</label>
+        <h3 data-en="3 · Choose Material">3 · เลือกชนิดวัสดุ</h3>
+        <p class="hint" data-en="Pick your material — pricing follows our real rate table">เลือกวัสดุที่ต้องการ — ราคาคิดตามตารางจริงของร้าน</p>
+        <div class="field"><label data-en="Work Group">กลุ่มงาน</label>
           <select id="matGroup" onchange="buildMaterials()">
-            <option value="inkjet">🖨️ งานอิงค์เจท (คิดตาม ตร.ม.)</option>
-            <option value="sign">🪧 ป้ายทุกชนิด (ประเมินหน้างาน)</option>
-            <option value="lightbox">💡 ตู้ไฟ (ประเมินหน้างาน)</option>
+            <option value="inkjet" data-en="🖨️ Inkjet (per sq.m.)">🖨️ งานอิงค์เจท (คิดตาม ตร.ม.)</option>
+            <option value="sign" data-en="🪧 All Signs (on-site quote)">🪧 ป้ายทุกชนิด (ประเมินหน้างาน)</option>
+            <option value="lightbox" data-en="💡 Lightbox (on-site quote)">💡 ตู้ไฟ (ประเมินหน้างาน)</option>
           </select>
         </div>
-        <div class="field"><label>ชนิดวัสดุ</label>
+        <div class="field"><label data-en="Material Type">ชนิดวัสดุ</label>
           <select id="material" onchange="updateArea()"></select>
         </div>
         <div class="field" id="extraOpts">
-          <label><input type="checkbox" id="optDesign" style="width:auto" onchange="updateArea()"> ให้เราออกแบบให้ (+ค่าออกแบบ)</label>
-          <label style="margin-top:8px"><input type="checkbox" id="optInstall" style="width:auto" onchange="updateArea()"> ต้องการบริการติดตั้งหน้างาน</label>
+          <label><input type="checkbox" id="optDesign" style="width:auto" onchange="updateArea()"> <span data-en="Add our design service (+design fee)">ให้เราออกแบบให้ (+ค่าออกแบบ)</span></label>
+          <label style="margin-top:8px"><input type="checkbox" id="optInstall" style="width:auto" onchange="updateArea()"> <span data-en="Add on-site installation">ต้องการบริการติดตั้งหน้างาน</span></label>
         </div>
       </div>
 
       <!-- STEP 4 -->
       <div class="wz-step" data-step="4">
-        <h3>4 · ระบุขนาด & จำนวน</h3>
-        <p class="hint">กรอกขนาดป้าย (หน่วยเมตร) และจำนวนที่ต้องการ</p>
+        <h3 data-en="4 · Size & Quantity">4 · ระบุขนาด & จำนวน</h3>
+        <p class="hint" data-en="Enter the sign size (in meters) and the quantity you need">กรอกขนาดป้าย (หน่วยเมตร) และจำนวนที่ต้องการ</p>
         <div class="row2">
-          <div class="field"><label>กว้าง (เมตร)</label><input type="number" id="w" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
-          <div class="field"><label>สูง/ยาว (เมตร)</label><input type="number" id="h" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
+          <div class="field"><label data-en="Width (m)">กว้าง (เมตร)</label><input type="number" id="w" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
+          <div class="field"><label data-en="Height/Length (m)">สูง/ยาว (เมตร)</label><input type="number" id="h" min="0.1" step="0.1" value="1" oninput="updateArea()"></div>
         </div>
-        <div class="field"><label>จำนวน (ชิ้น)</label><input type="number" id="qty" min="1" step="1" value="1" oninput="updateArea()"></div>
+        <div class="field"><label data-en="Quantity (pcs)">จำนวน (ชิ้น)</label><input type="number" id="qty" min="1" step="1" value="1" oninput="updateArea()"></div>
         <div class="areainfo" id="areaInfo">พื้นที่รวม: 1.00 ตร.ม.</div>
       </div>
 
       <!-- STEP 5 -->
       <div class="wz-step" data-step="5">
-        <h3>5 · ข้อมูลลูกค้า</h3>
-        <p class="hint">กรอกข้อมูลเพื่อรับใบประเมินราคาและให้ทีมงานติดต่อกลับ</p>
-        <div class="field"><label>ชื่อ-นามสกุล *</label><input id="cName" placeholder="ชื่อของคุณ"></div>
+        <h3 data-en="5 · Your Details">5 · ข้อมูลลูกค้า</h3>
+        <p class="hint" data-en="Fill in your info to receive a quote and a callback from our team">กรอกข้อมูลเพื่อรับใบประเมินราคาและให้ทีมงานติดต่อกลับ</p>
+        <div class="field"><label data-en="Full Name *">ชื่อ-นามสกุล *</label><input id="cName" placeholder="ชื่อของคุณ" data-en-ph="Your name"></div>
         <div class="row2">
-          <div class="field"><label>เบอร์โทร *</label><input id="cPhone" placeholder="08x-xxx-xxxx"></div>
-          <div class="field"><label>อีเมล</label><input id="cEmail" placeholder="you@email.com"></div>
+          <div class="field"><label data-en="Phone *">เบอร์โทร *</label><input id="cPhone" placeholder="08x-xxx-xxxx"></div>
+          <div class="field"><label data-en="Email">อีเมล</label><input id="cEmail" placeholder="you@email.com"></div>
         </div>
-        <div class="field"><label>สถานที่ติดตั้ง / หมายเหตุ</label><input id="cNote" placeholder="เช่น หน้าร้าน ถ.สุขุมวิท / ต้องการด่วน"></div>
+        <div class="field"><label data-en="Install location / Notes">สถานที่ติดตั้ง / หมายเหตุ</label><input id="cNote" placeholder="เช่น หน้าร้าน ถ.สุขุมวิท / ต้องการด่วน" data-en-ph="e.g. Storefront on Sukhumvit Rd / urgent"></div>
       </div>
 
       <!-- STEP 6 -->
       <div class="wz-step" data-step="6">
-        <h3>6 · สรุป & ประเมินราคา</h3>
-        <p class="hint">ราคาประเมินเบื้องต้นจากข้อมูลที่กรอก</p>
+        <h3 data-en="6 · Summary & Quote">6 · สรุป & ประเมินราคา</h3>
+        <p class="hint" data-en="Estimated price based on the details you entered">ราคาประเมินเบื้องต้นจากข้อมูลที่กรอก</p>
         <div id="quoteOut"></div>
       </div>
     </div>
 
     <div class="wz-foot">
-      <button class="btn btn-dark" id="btnBack" onclick="goStep(cur-1)" style="visibility:hidden">← ย้อนกลับ</button>
+      <button class="btn btn-dark" id="btnBack" onclick="goStep(cur-1)" style="visibility:hidden" data-en="← Back">← ย้อนกลับ</button>
       <button class="btn btn-primary" id="btnNext" onclick="next()">ถัดไป →</button>
     </div>
   </div>
@@ -485,14 +492,14 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <section class="about" id="about">
   <div class="wrap about-grid">
     <div>
-      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a">เกี่ยวกับเรา</span>
-      <h2 class="sec-title" style="color:#fff;font-size:clamp(1.45rem,3.2vw,2.2rem);text-wrap:balance">บริษัท ซายน์ มาสเตอร์โปร จำกัด</h2>
-      <p style="color:#aab0bc;margin-top:14px">เริ่มจากการผลิตสื่อโฆษณางานซิลค์สกรีน สติกเกอร์ นามบัตร และงานพิมพ์ทั่วไป
+      <span class="eyebrow" style="background:rgba(255,138,0,.15);color:#ffb27a" data-en="About Us">เกี่ยวกับเรา</span>
+      <h2 class="sec-title" style="color:#fff;font-size:clamp(1.45rem,3.2vw,2.2rem);text-wrap:balance" data-en="Sign Master Pro Co., Ltd.">บริษัท ซายน์ มาสเตอร์โปร จำกัด</h2>
+      <p style="color:#aab0bc;margin-top:14px" data-en="We started out producing silk-screen ads, stickers, business cards and general printing, and grew into a full-service signage center founded in 2007 — printing with high-quality technology backed by a professional installation team.">เริ่มจากการผลิตสื่อโฆษณางานซิลค์สกรีน สติกเกอร์ นามบัตร และงานพิมพ์ทั่วไป
         จนเติบโตเป็นศูนย์ป้ายโฆษณาครบวงจร ก่อตั้งปี 2550 — ผลิตด้วยเทคโนโลยีการพิมพ์คุณภาพสูง พร้อมทีมติดตั้งมืออาชีพ</p>
       <div class="vals">
-        <div class="val"><span class="n">1</span><div><b>ใส่ใจทุกรายละเอียด</b><p>ทุกรายละเอียดถึงแม้เล็กน้อย เราก็ไม่พลาด</p></div></div>
-        <div class="val"><span class="n">2</span><div><b>ตรงต่อเวลา</b><p>การส่งงานตรงเวลาคือสิ่งที่เราให้ความสำคัญเป็นอันดับแรก</p></div></div>
-        <div class="val"><span class="n">3</span><div><b>ครบ + ราคายุติธรรม</b><p>มีครบทุกบริการ พร้อมไอเดียดีๆ ในราคาที่ยุติธรรม</p></div></div>
+        <div class="val"><span class="n">1</span><div><b data-en="Attention to Detail">ใส่ใจทุกรายละเอียด</b><p data-en="We never miss a detail, no matter how small">ทุกรายละเอียดถึงแม้เล็กน้อย เราก็ไม่พลาด</p></div></div>
+        <div class="val"><span class="n">2</span><div><b data-en="On-Time Delivery">ตรงต่อเวลา</b><p data-en="Delivering on time is our top priority">การส่งงานตรงเวลาคือสิ่งที่เราให้ความสำคัญเป็นอันดับแรก</p></div></div>
+        <div class="val"><span class="n">3</span><div><b data-en="Complete & Fair Pricing">ครบ + ราคายุติธรรม</b><p data-en="Every service plus great ideas at a fair price">มีครบทุกบริการ พร้อมไอเดียดีๆ ในราคาที่ยุติธรรม</p></div></div>
       </div>
     </div>
     <img class="about-photo" data-slot="about" src="media/assets/img/service/gallery/sign-background/sign-background1.jpg" alt="สำนักงาน Signmaster Pro" onerror="this.onerror=null;this.src='media/assets/img/service/gallery/sign-background/sign-background1.jpg'">
@@ -505,23 +512,23 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
     <div class="foot-grid">
       <div>
         <div class="brand on-dark" style="margin-bottom:14px"><span class="mark"><span class="sheen"></span><span class="s">S</span><span class="spark">✦</span></span><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
-        <p>รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
+        <p data-en="We produce and install every kind of advertising sign — booths, inkjet, signage and lightboxes — complete, with an AI-powered ordering and quoting system.">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
       </div>
       <div>
-        <h4>ติดต่อเรา</h4>
+        <h4 data-en="Contact Us">ติดต่อเรา</h4>
         <a href="tel:024737050">📞 0-2373-7050-2</a>
-        <a href="tel:0865915313">📱 08-6591-5313 (คุณนก)</a>
-        <a href="tel:0958871222">📱 09-5887-1222 (คุณกิ๊ฟ)</a>
+        <a href="tel:0865915313" data-en="📱 08-6591-5313 (K. Nok)">📱 08-6591-5313 (คุณนก)</a>
+        <a href="tel:0958871222" data-en="📱 09-5887-1222 (K. Gift)">📱 09-5887-1222 (คุณกิ๊ฟ)</a>
         <a href="http://line.me/ti/p/sign_masterpro" target="_blank">💬 LINE: sign_masterpro</a>
         <a href="https://www.facebook.com/signmasterpro/" target="_blank">📘 Facebook: signmasterpro</a>
       </div>
       <div>
-        <h4>ที่อยู่</h4>
-        <p>188/7 ถ.กาญจนาภิเษก<br>แขวงสะพานสูง เขตสะพานสูง<br>กรุงเทพฯ 10250</p>
-        <p>จ–ส 08:00–17:00 น.</p>
+        <h4 data-en="Address">ที่อยู่</h4>
+        <p data-en="188/7 Kanchanaphisek Rd<br>Saphan Sung, Bangkok 10250">188/7 ถ.กาญจนาภิเษก<br>แขวงสะพานสูง เขตสะพานสูง<br>กรุงเทพฯ 10250</p>
+        <p data-en="Mon–Sat 08:00–17:00">จ–ส 08:00–17:00 น.</p>
       </div>
     </div>
-    <div class="copy">© 2550–2569 บริษัท ซายน์ มาสเตอร์โปร จำกัด · เว็บตัวอย่างพัฒนาโดยทีม Neo-S AI</div>
+    <div class="copy" data-en="© 2007–2026 Sign Master Pro Co., Ltd. · Demo site by Neo-S AI">© 2550–2569 บริษัท ซายน์ มาสเตอร์โปร จำกัด · เว็บตัวอย่างพัฒนาโดยทีม Neo-S AI</div>
   </div>
 </footer>
 
@@ -538,18 +545,18 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="authModal">
   <div class="acard">
     <span class="ax" onclick="closeAuth()">×</span>
-    <div class="ahead"><div class="aava">👤</div><h3 id="authTitle">เข้าสู่ระบบ</h3><p>เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
+    <div class="ahead"><div class="aava">👤</div><h3 id="authTitle">เข้าสู่ระบบ</h3><p data-en="Save order history · Track status · Reorder easily">เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
     <div class="aform">
-      <input id="mName" placeholder="ชื่อ-นามสกุล" autocomplete="name" style="display:none">
-      <input id="mEmail" type="email" placeholder="อีเมล" autocomplete="email">
-      <input id="mPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')authSubmit()">
+      <input id="mName" placeholder="ชื่อ-นามสกุล" autocomplete="name" style="display:none" data-en-ph="Full name">
+      <input id="mEmail" type="email" placeholder="อีเมล" autocomplete="email" data-en-ph="Email">
+      <input id="mPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')authSubmit()" data-en-ph="Password">
       <button class="btn btn-primary btn-lg" id="authSubmit" style="justify-content:center" onclick="authSubmit()">เข้าสู่ระบบ</button>
     </div>
     <div class="aerr" id="authErr" style="display:none;color:#dc2626;font-size:.85rem;margin-top:10px;text-align:center;line-height:1.5"></div>
     <div style="text-align:center;margin-top:14px;font-size:.9rem;color:var(--muted)">
       <span id="authSwitchTxt">ยังไม่มีบัญชี?</span> <a href="#" id="authSwitchLink" onclick="toggleAuthMode(event)" style="color:var(--accent-deep);font-weight:700">สมัครสมาชิก</a>
     </div>
-    <p class="anote">🔒 ข้อมูลปลอดภัยใน Supabase · ไม่บังคับสมัคร — สั่งงานแบบไม่ล็อกอินก็ได้ค่ะ</p>
+    <p class="anote" data-en="🔒 Data secured in Supabase · Sign-up optional — you can order without logging in">🔒 ข้อมูลปลอดภัยใน Supabase · ไม่บังคับสมัคร — สั่งงานแบบไม่ล็อกอินก็ได้ค่ะ</p>
   </div>
 </div>
 
@@ -557,7 +564,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="ordersModal">
   <div class="acard">
     <span class="ax" onclick="document.getElementById('ordersModal').classList.remove('open')">×</span>
-    <div class="ahead"><div class="aava">📦</div><h3>ออเดอร์ของฉัน</h3><p id="ordersWho"></p></div>
+    <div class="ahead"><div class="aava">📦</div><h3 data-en="My Orders">ออเดอร์ของฉัน</h3><p id="ordersWho"></p></div>
     <div id="myOrders"></div>
   </div>
 </div>
@@ -566,38 +573,38 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="bulkModal">
   <div class="acard">
     <span class="ax" onclick="closeBulk()">×</span>
-    <div class="ahead"><div class="aava">🎁</div><h3>ขอราคาพิเศษ — งานจำนวนมาก</h3><p>ฝากข้อมูลไว้ ทีมงานติดต่อกลับพร้อมราคาพิเศษค่ะ</p></div>
+    <div class="ahead"><div class="aava">🎁</div><h3 data-en="Special Quote — Bulk Order">ขอราคาพิเศษ — งานจำนวนมาก</h3><p data-en="Leave your details and our team will get back with a special price">ฝากข้อมูลไว้ ทีมงานติดต่อกลับพร้อมราคาพิเศษค่ะ</p></div>
     <div class="aform">
-      <input id="bkName" placeholder="ชื่อ-นามสกุล *" autocomplete="name">
-      <input id="bkPhone" placeholder="เบอร์โทร *" autocomplete="tel" inputmode="tel">
-      <textarea id="bkDetail" placeholder="รายละเอียดงาน + จำนวน (เช่น สติกเกอร์ติดรถ 50 คัน / ไวนิล 200 ตร.ม. / Roll Up 30 ชิ้น)" rows="3" style="font-family:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;outline:0;resize:vertical;width:100%"></textarea>
-      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="submitBulk()">📩 ส่งขอราคาพิเศษ</button>
+      <input id="bkName" placeholder="ชื่อ-นามสกุล *" autocomplete="name" data-en-ph="Full name *">
+      <input id="bkPhone" placeholder="เบอร์โทร *" autocomplete="tel" inputmode="tel" data-en-ph="Phone *">
+      <textarea id="bkDetail" placeholder="รายละเอียดงาน + จำนวน (เช่น สติกเกอร์ติดรถ 50 คัน / ไวนิล 200 ตร.ม. / Roll Up 30 ชิ้น)" rows="3" style="font-family:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;outline:0;resize:vertical;width:100%" data-en-ph="Job details + quantity (e.g. car stickers 50 cars / vinyl 200 sq.m. / Roll Up 30 pcs)"></textarea>
+      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="submitBulk()" data-en="📩 Send Request">📩 ส่งขอราคาพิเศษ</button>
     </div>
-    <p class="anote">🤝 เหมาะกับงานล็อตใหญ่ / สั่งซ้ำประจำ — ราคาพิเศษกว่าหน้าเว็บค่ะ</p>
+    <p class="anote" data-en="🤝 Great for large batches / regular reorders — better than web prices">🤝 เหมาะกับงานล็อตใหญ่ / สั่งซ้ำประจำ — ราคาพิเศษกว่าหน้าเว็บค่ะ</p>
   </div>
 </div>
 
 <!-- น้องอิงค์ — AI Sale flagship -->
 <button class="ink-fab" id="inkFab" onclick="toggleInk()" aria-label="ปรึกษาน้องอิงค์">
-  <span class="ink-ava">🤖</span><span>ปรึกษาน้องอิงค์</span>
+  <span class="ink-ava">🤖</span><span data-en="Ask Ink">ปรึกษาน้องอิงค์</span>
 </button>
 <div class="ink-chat" id="inkChat">
   <div class="ink-head">
     <span class="ink-ava">🤖</span>
-    <div><b>น้องอิงค์</b><small>ผู้ช่วย AI งานป้าย · ออนไลน์ 24 ชม.</small></div>
+    <div><b data-en="Ink">น้องอิงค์</b><small data-en="AI sign assistant · online 24/7">ผู้ช่วย AI งานป้าย · ออนไลน์ 24 ชม.</small></div>
     <span class="ink-x" onclick="toggleInk()">×</span>
   </div>
   <div class="ink-body" id="inkBody">
-    <div class="ink-msg bot">สวัสดีค่ะ 👋 <b>น้องอิงค์</b>เองค่ะ ผู้ช่วย AI ของ Signmaster Pro<br>อยากทำป้ายแบบไหนดีคะ? สอบถามบริการ ขอดูผลงาน หรือประเมินราคาได้เลยค่ะ 🙂</div>
+    <div class="ink-msg bot" data-en="Hi! 👋 I'm <b>Ink</b>, the AI assistant of Signmaster Pro.<br>What kind of sign would you like? Ask about our services, see our work, or get a quote 🙂">สวัสดีค่ะ 👋 <b>น้องอิงค์</b>เองค่ะ ผู้ช่วย AI ของ Signmaster Pro<br>อยากทำป้ายแบบไหนดีคะ? สอบถามบริการ ขอดูผลงาน หรือประเมินราคาได้เลยค่ะ 🙂</div>
   </div>
   <div class="ink-quick">
-    <button onclick="inkAsk('ขอประเมินราคางานป้าย')">💰 ประเมินราคา</button>
-    <button onclick="inkAsk('มีบริการอะไรบ้าง')">🧱 บริการ</button>
-    <button onclick="inkAsk('ขอดูผลงาน')">🖼️ ผลงาน</button>
-    <button onclick="openBulk()">🎁 ราคาพิเศษ (สั่งเยอะ)</button>
+    <button onclick="inkAsk(t('ขอประเมินราคางานป้าย','Get a price quote'))" data-en="💰 Get a Quote">💰 ประเมินราคา</button>
+    <button onclick="inkAsk(t('มีบริการอะไรบ้าง','What services do you offer?'))" data-en="🧱 Services">🧱 บริการ</button>
+    <button onclick="inkAsk(t('ขอดูผลงาน','Show me your portfolio'))" data-en="🖼️ Portfolio">🖼️ ผลงาน</button>
+    <button onclick="openBulk()" data-en="🎁 Special Price (Bulk)">🎁 ราคาพิเศษ (สั่งเยอะ)</button>
   </div>
   <div class="ink-input">
-    <input id="inkText" placeholder="พิมพ์ถึงน้องอิงค์..." onkeydown="if(event.key==='Enter')inkSend()">
+    <input id="inkText" placeholder="พิมพ์ถึงน้องอิงค์..." onkeydown="if(event.key==='Enter')inkSend()" data-en-ph="Message Ink...">
     <button onclick="inkSend()" aria-label="ส่ง">➤</button>
   </div>
 </div>
@@ -607,6 +614,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <script src="price-config.js"></script>
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
+<script src="i18n.js"></script>
 <script>
 /* ---------- NAV ---------- */
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
@@ -614,12 +622,14 @@ function closeNav(){document.getElementById('navLinks').classList.remove('open')
 
 /* ---------- GALLERY ---------- */
 const GROUPS={all:'ทั้งหมด',booth:'🎪 บูธ',sign:'🪧 ป้าย',inkjet:'🖨️ อิงค์เจท',lightbox:'💡 ตู้ไฟ'};
+const GROUPS_EN={all:'All',booth:'🎪 Booth',sign:'🪧 Signs',inkjet:'🖨️ Inkjet',lightbox:'💡 Lightbox'};
 let baseImgs=[],flatImgs=[],lbList=[],lbIdx=0;
 const GRP_LABEL={booth:'บูธ & อีเวนต์',sign:'ป้าย',inkjet:'งานอิงค์เจท',lightbox:'ตู้ไฟ'};
 function buildGallery(){
   const fwrap=document.getElementById('filters');
   Object.entries(GROUPS).forEach(([k,v])=>{
     const b=document.createElement('button');b.textContent=v;b.dataset.g=k;
+    b.setAttribute('data-en',GROUPS_EN[k]||v);   // ป้ายกรอง 2 ภาษา (applyLang สลับให้)
     if(k==='all')b.classList.add('active');
     b.onclick=()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderGallery(k)};
     fwrap.appendChild(b);
@@ -627,7 +637,7 @@ function buildGallery(){
   // flatten (base จาก gallery-data.js · เร็ว/ไม่ล่ม)
   baseImgs=[];
   Object.values(window.GALLERY||{}).forEach(cat=>{
-    cat.imgs.forEach(src=>baseImgs.push({src,group:cat.group,label:cat.label}));
+    cat.imgs.forEach(src=>baseImgs.push({src,group:cat.group,label:cat.label,label_en:cat.label_en}));
   });
   flatImgs=baseImgs.slice();
   renderGallery('all');
@@ -656,15 +666,16 @@ function moreGallery(){
   const end=Math.min(shown+PAGE,lbList.length);
   for(let i=shown;i<end;i++){
     const it=lbList[i];
+    const cap=(SM_LANG==='en'&&it.label_en)?it.label_en:it.label;
     const d=document.createElement('div');d.className='gitem';
-    d.innerHTML=`<img loading="lazy" src="${it.src}" alt="${it.label}"><div class="cap">${it.label}</div>`;
+    d.innerHTML=`<img loading="lazy" src="${it.src}" alt="${cap}"><div class="cap">${cap}</div>`;
     d.onclick=()=>openLB(i);
     grid.appendChild(d);
   }
   shown=end;
   const btn=document.getElementById('moreBtn');
   if(btn)btn.style.display=shown<lbList.length?'inline-flex':'none';
-  if(btn)btn.textContent=`ดูผลงานเพิ่ม (${lbList.length-shown} รูป)`;
+  if(btn)btn.textContent=t('ดูผลงานเพิ่ม','View more')+` (${lbList.length-shown}${t(' รูป',' images')})`;
 }
 function filterTo(g){location.hash='#gallery';setTimeout(()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x.dataset.g===g));renderGallery(g)},250)}
 function openLB(i){lbIdx=i;document.getElementById('lbImg').src=lbList[i].src;document.getElementById('lb').classList.add('open')}
@@ -682,7 +693,7 @@ function pickSource(s){
   document.querySelectorAll('.choice .opt').forEach(o=>o.classList.toggle('sel',o.dataset.src===s));
   document.getElementById('importPane').style.display=s==='import'?'block':'none';
   document.getElementById('aiPane').style.display=s==='ai'?'block':'none';
-  document.getElementById('step2hint').textContent=s==='import'?'อัปโหลดไฟล์แบบของคุณ':'อธิบายไอเดีย แล้วให้ AI สร้างตัวอย่าง';
+  document.getElementById('step2hint').textContent=s==='import'?t('อัปโหลดไฟล์แบบของคุณ','Upload your design file'):t('อธิบายไอเดีย แล้วให้ AI สร้างตัวอย่าง','Describe your idea and let AI create a sample');
 }
 function onFile(e){
   const f=e.target.files[0];if(!f)return;
@@ -702,13 +713,15 @@ function buildMaterials(){
   state.group=document.getElementById('matGroup').value;
   const sel=document.getElementById('material');sel.innerHTML='';
   const mats=PC.materials.filter(m=>m.group===state.group);
+  const LINE_EN={'ป้ายทุกชนิด':'All Sign Types','ตู้ไฟ':'Lightbox'};   // inkjet lines เป็นอังกฤษอยู่แล้ว
   // group by line via optgroup
   const lines=[...new Set(mats.map(m=>m.line))];
   lines.forEach(ln=>{
-    const og=document.createElement('optgroup');og.label=ln;
+    const og=document.createElement('optgroup');og.label=(SM_LANG==='en'&&LINE_EN[ln])?LINE_EN[ln]:ln;
     mats.filter(m=>m.line===ln).forEach(m=>{
       const o=document.createElement('option');o.value=m.id;
-      o.textContent=m.quote?m.name+' — ประเมินหน้างาน':`${m.name} — ${m.price_1_9}฿/ตร.ม.`;
+      const nm=(SM_LANG==='en'&&m.name_en)?m.name_en:m.name;
+      o.textContent=m.quote?nm+t(' — ประเมินหน้างาน',' — on-site quote'):`${nm} — ${m.price_1_9}${t('฿/ตร.ม.','฿/sq.m.')}`;
       og.appendChild(o);
     });
     sel.appendChild(og);
@@ -720,30 +733,35 @@ function curMat(){return PC.materials.find(m=>m.id===document.getElementById('ma
 function area(){return (parseFloat(document.getElementById('w').value)||0)*(parseFloat(document.getElementById('h').value)||0)*(parseInt(document.getElementById('qty').value)||1)}
 function updateArea(){
   const a=area();
-  document.getElementById('areaInfo').textContent='พื้นที่รวม: '+a.toFixed(2)+' ตร.ม.';
+  document.getElementById('areaInfo').textContent=t('พื้นที่รวม: ','Total area: ')+a.toFixed(2)+t(' ตร.ม.',' sq.m.');
 }
 
 function calcQuote(){
   const m=curMat(),a=area();
   const lines=[];let total=0;
-  const fmt=n=>n.toLocaleString('th-TH');
+  const fmt=n=>n.toLocaleString('en-US');
+  const en=SM_LANG==='en';
+  const sqm=t(' ตร.ม.',' sq.m.');
   if(!m||m.quote){
     return {quote:true,html:`<div class="quote">
-      <p style="font-size:1.1rem;font-weight:600">งานกลุ่มนี้ต้องประเมินราคาหน้างาน</p>
-      <p class="muted" style="margin-top:8px">ป้าย/ตู้ไฟ มีรายละเอียดวัสดุ โครงสร้าง และการติดตั้งที่หลากหลาย ทีมงานจะติดต่อกลับเพื่อเสนอราคาที่แม่นยำที่สุดค่ะ</p>
+      <p style="font-size:1.1rem;font-weight:600">${t('งานกลุ่มนี้ต้องประเมินราคาหน้างาน','This service requires an on-site quote')}</p>
+      <p class="muted" style="margin-top:8px">${t('ป้าย/ตู้ไฟ มีรายละเอียดวัสดุ โครงสร้าง และการติดตั้งที่หลากหลาย ทีมงานจะติดต่อกลับเพื่อเสนอราคาที่แม่นยำที่สุดค่ะ','Signs/lightboxes vary widely in materials, structure and installation — our team will contact you with the most accurate price.')}</p>
     </div>`};
   }
+  const nm=(en&&m.name_en)?m.name_en:m.name;
+  const LINE_EN={'ป้ายทุกชนิด':'All Sign Types','ตู้ไฟ':'Lightbox'};
+  const ln=(en&&LINE_EN[m.line])?LINE_EN[m.line]:m.line;
   const unit=a>=10?m.price_10:m.price_1_9;
   const sub=unit*a;total+=sub;
-  lines.push([`${m.name} (${m.line})`,`${a.toFixed(2)} ตร.ม. × ${unit}฿`,sub]);
-  if(a>=10)lines.push([`ส่วนลดปริมาณ (≥10 ตร.ม.)`,'ใช้เรตพิเศษแล้ว',0]);
-  if(document.getElementById('optDesign').checked){const d=PC.options.design_fee.price;total+=d;lines.push([PC.options.design_fee.label,'',d])}
-  if(document.getElementById('optInstall').checked){const ins=PC.options.install_fee.price*a;total+=ins;lines.push([`${PC.options.install_fee.label}`,`${a.toFixed(2)} ตร.ม. × ${PC.options.install_fee.price}฿`,ins])}
+  lines.push([`${nm} (${ln})`,`${a.toFixed(2)}${sqm} × ${unit}฿`,sub]);
+  if(a>=10)lines.push([t('ส่วนลดปริมาณ (≥10 ตร.ม.)','Volume discount (≥10 sq.m.)'),t('ใช้เรตพิเศษแล้ว','special rate applied'),0]);
+  if(document.getElementById('optDesign').checked){const d=PC.options.design_fee.price;total+=d;lines.push([(en&&PC.options.design_fee.label_en)?PC.options.design_fee.label_en:PC.options.design_fee.label,'',d])}
+  if(document.getElementById('optInstall').checked){const ins=PC.options.install_fee.price*a;total+=ins;lines.push([(en&&PC.options.install_fee.label_en)?PC.options.install_fee.label_en:PC.options.install_fee.label,`${a.toFixed(2)}${sqm} × ${PC.options.install_fee.price}฿`,ins])}
   let html='<div class="quote">';
-  if(PC.draft)html+='<div class="draft-badge" style="margin-bottom:14px">⚠️ ราคาประมาณการ — รอยืนยันราคาจริง</div>';
+  if(PC.draft)html+='<div class="draft-badge" style="margin-bottom:14px">'+t('⚠️ ราคาประมาณการ — รอยืนยันราคาจริง','⚠️ Estimated price — pending confirmation')+'</div>';
   lines.forEach(l=>{html+=`<div class="ln"><span>${l[0]}<br><small class="muted">${l[1]}</small></span><span>${l[2]?fmt(l[2])+' ฿':'—'}</span></div>`});
-  html+=`<div class="ln total"><span>ราคาประเมินรวม</span><b>${fmt(Math.round(total))} ฿</b></div>`;
-  html+='<p class="muted" style="margin-top:10px;font-size:.85rem">* ราคายังไม่รวม VAT · เป็นราคาประเมินเบื้องต้น ทีมงานจะยืนยันอีกครั้ง</p></div>';
+  html+=`<div class="ln total"><span>${t('ราคาประเมินรวม','Estimated Total')}</span><b>${fmt(Math.round(total))} ฿</b></div>`;
+  html+='<p class="muted" style="margin-top:10px;font-size:.85rem">'+t('* ราคายังไม่รวม VAT · เป็นราคาประเมินเบื้องต้น ทีมงานจะยืนยันอีกครั้ง','* Prices exclude VAT · This is a preliminary estimate; our team will confirm again.')+'</p></div>';
   return {quote:false,html};
 }
 
@@ -753,11 +771,12 @@ function renderQuote(){
     email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value
   };
   const q=calcQuote();
+  const src=state.source==='ai'?t('🤖 AI ออกแบบ','🤖 AI design'):state.source==='import'?t('📁 อัปโหลดเอง','📁 self-uploaded'):'-';
   let head=`<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:.92rem">
-    <b>${c.name||'-'}</b> · ${c.phone||'-'} ${c.email?'· '+c.email:''}<br>
-    <span class="muted">ที่มาแบบ: ${state.source==='ai'?'🤖 AI ออกแบบ':state.source==='import'?'📁 อัปโหลดเอง':'-'} ${c.note?'· '+c.note:''}</span></div>`;
+    <b>${esc(c.name)||'-'}</b> · ${esc(c.phone)||'-'} ${c.email?'· '+esc(c.email):''}<br>
+    <span class="muted">${t('ที่มาแบบ: ','Design source: ')}${src} ${c.note?'· '+esc(c.note):''}</span></div>`;
   document.getElementById('quoteOut').innerHTML=head+q.html+
-    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">📩 ส่งคำขอใบเสนอราคา</button>`;
+    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">${t('📩 ส่งคำขอใบเสนอราคา','📩 Send Quote Request')}</button>`;
 }
 function submitOrder(){
   const c=state.customer||{}, m=curMat(), a=area();
@@ -779,7 +798,7 @@ function setSteps(){
   });
   document.querySelectorAll('.wz-step').forEach(s=>s.classList.toggle('show',+s.dataset.step===cur));
   document.getElementById('btnBack').style.visibility=cur>1?'visible':'hidden';
-  document.getElementById('btnNext').textContent=cur===6?'✓ เสร็จสิ้น':'ถัดไป →';
+  document.getElementById('btnNext').textContent=cur===6?t('✓ เสร็จสิ้น','✓ Done'):t('ถัดไป →','Next →');
   document.getElementById('btnNext').style.display=cur===6?'none':'inline-flex';
 }
 function validate(){
@@ -793,8 +812,20 @@ function validate(){
 function goStep(n){cur=Math.max(1,Math.min(6,n));if(cur===3&&!document.getElementById('material').options.length)buildMaterials();if(cur===4)updateArea();if(cur===5)prefillMember();if(cur===6)renderQuote();setSteps()}
 function next(){if(!validate())return;if(cur===3)state.matId=document.getElementById('material').value;goStep(cur+1)}
 
-/* ---------- TOAST ---------- */
-let tT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600)}
+/* ---------- TOAST (แปล EN อัตโนมัติจาก dict) ---------- */
+const TOAST_EN={
+  'พิมพ์บรีฟให้ AI ก่อนนะคะ':'Please enter a brief for the AI first.',
+  'เลือกที่มาของแบบก่อนนะคะ':'Please choose a design source first.',
+  'กรอกชื่อก่อนนะคะ':'Please enter your name first.',
+  'กรอกเบอร์โทรก่อนนะคะ':'Please enter your phone number first.',
+  'กรอกชื่อ + เบอร์โทรก่อนนะคะ':'Please enter your name and phone first.',
+  '✅ ส่งคำขอแล้ว! บันทึกเข้าระบบเรียบร้อย ทีมงานจะติดต่อกลับค่ะ 🎉':'✅ Request sent! Saved successfully — our team will contact you. 🎉',
+  '✅ ส่งคำขอแล้ว! (บันทึกออฟไลน์) ทีมงานจะติดต่อกลับค่ะ':'✅ Request sent! (saved offline) Our team will contact you.',
+  '✅ ส่งคำขอแล้ว! ทีมงานจะติดต่อกลับค่ะ':'✅ Request sent! Our team will contact you.',
+  'รับเรื่องแล้วค่ะ 🙏 ทีมงานจะติดต่อกลับเรื่องราคาพิเศษให้เร็วๆ นี้นะคะ 🎁':'Got it! 🙏 Our team will get back to you about the special price soon. 🎁',
+  'ออกจากระบบแล้วค่ะ':'Signed out.'
+};
+let tT;function toast(m){const el=document.getElementById('toast');el.textContent=(SM_LANG==='en'&&TOAST_EN[m])?TOAST_EN[m]:m;el.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('show'),2600)}
 
 /* ---------- น้องอิงค์ (AI Sale) ---------- */
 function toggleInk(){document.getElementById('inkChat').classList.toggle('open');document.getElementById('inkFab').classList.toggle('hide')}
@@ -807,11 +838,11 @@ function inkHistory(){
 }
 async function inkReply(q){
   const hist=inkHistory();
-  inkPush('<i style="opacity:.55">น้องอิงค์กำลังพิมพ์…</i>','bot');
+  inkPush('<i style="opacity:.55">'+t('น้องอิงค์กำลังพิมพ์…','Ink is typing…')+'</i>','bot');
   const typingEl=document.getElementById('inkBody').lastElementChild;
   try{
     const res=await fetch(INK_WORKER+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:q,history:hist,user:(localStorage.getItem('sm_vid')||'web')})});
+      body:JSON.stringify({message:q,history:hist,user:(localStorage.getItem('sm_vid')||'web'),lang:SM_LANG})});
     const data=await res.json();
     if(typingEl)typingEl.remove();
     if(data&&data.answer){
@@ -832,11 +863,11 @@ async function inkReply(q){
 }
 function inkReplyDemo(q){
   let r,go=null;
-  if(/ราคา|ประเมิน|เท่าไ[หร]|กี่บาท/.test(q)){r='ได้เลยค่ะ! น้องอิงค์พาไปประเมินราคาในระบบสั่งทำงานได้เลย — เลือกวัสดุ + ใส่ขนาด แล้วรู้ราคาทันทีค่ะ 💰';go='order'}
-  else if(/บริการ|ทำอะไร|รับงาน/.test(q)){r='เรารับครบวงจรเลยค่ะ 🧱 บูธ·อิงค์เจท·ป้ายทุกชนิด·ตู้ไฟ — น้องอิงค์พาไปดูหัวข้อบริการนะคะ';go='services'}
-  else if(/ผลงาน|ตัวอย่าง|รูป/.test(q)){r='มีผลงานจริงเยอะเลยค่ะ 🖼️ น้องอิงค์พาไปชมแกลเลอรีเลยนะคะ';go='gallery'}
-  else if(/ติดต่อ|เบอร์|line|ไลน์|โทร/i.test(q)){r='ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ';go='contact'}
-  else{r='ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว ทีมงานจะติดต่อกลับนะคะ — ระหว่างนี้ลองกดเมนูด้านล่างได้เลยค่ะ 👇'}
+  if(/ราคา|ประเมิน|เท่าไ[หร]|กี่บาท|price|quote|cost|how much/i.test(q)){r=t('ได้เลยค่ะ! น้องอิงค์พาไปประเมินราคาในระบบสั่งทำงานได้เลย — เลือกวัสดุ + ใส่ขนาด แล้วรู้ราคาทันทีค่ะ 💰','Sure! Let me take you to the order system to get a quote — pick a material, enter the size, and see the price instantly 💰');go='order'}
+  else if(/บริการ|ทำอะไร|รับงาน|service|offer/i.test(q)){r=t('เรารับครบวงจรเลยค่ะ 🧱 บูธ·อิงค์เจท·ป้ายทุกชนิด·ตู้ไฟ — น้องอิงค์พาไปดูหัวข้อบริการนะคะ','We do it all 🧱 booths · inkjet · all sign types · lightboxes — let me show you our services');go='services'}
+  else if(/ผลงาน|ตัวอย่าง|รูป|portfolio|work|sample|gallery/i.test(q)){r=t('มีผลงานจริงเยอะเลยค่ะ 🖼️ น้องอิงค์พาไปชมแกลเลอรีเลยนะคะ','We have lots of real projects 🖼️ let me take you to the gallery');go='gallery'}
+  else if(/ติดต่อ|เบอร์|line|ไลน์|โทร|contact|phone|call/i.test(q)){r=t('ติดต่อทีมงานได้เลยค่ะ 📞 0-2373-7050-2 · LINE: sign_masterpro — น้องอิงค์พาไปหน้าติดต่อนะคะ','Reach our team anytime 📞 0-2373-7050-2 · LINE: sign_masterpro — taking you to the contact section');go='contact'}
+  else{r=t('ขอบคุณค่ะ 🙏 น้องอิงค์รับเรื่องไว้แล้ว ทีมงานจะติดต่อกลับนะคะ — ระหว่างนี้ลองกดเมนูด้านล่างได้เลยค่ะ 👇','Thank you 🙏 I\'ve noted your request and our team will follow up — meanwhile, feel free to tap the menu below 👇')}
   setTimeout(()=>{inkPush(r,'bot');logChat('bot',r);if(go){setTimeout(()=>{document.getElementById(go).scrollIntoView({behavior:'smooth'})},700)}},300);
 }
 function inkShowGallery(group){
@@ -872,53 +903,55 @@ async function refreshMember(){
 }
 function renderMember(){
   const m=CUR_MEMBER,a=document.getElementById('authArea');if(!a)return;
-  if(!m){a.innerHTML='<button class="btn-auth" onclick="openAuth()">👤 เข้าสู่ระบบ</button>';return;}
-  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0].toUpperCase())}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${esc(m.email||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ออเดอร์ของฉัน</div><div class="mi" onclick="logout()">🚪 ออกจากระบบ</div></div></div>`;
+  if(!m){a.innerHTML=`<button class="btn-auth" onclick="openAuth()">👤 ${t('เข้าสู่ระบบ','Sign in')}</button>`;return;}
+  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0].toUpperCase())}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${esc(m.email||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ${t('ออเดอร์ของฉัน','My Orders')}</div><div class="mi" onclick="logout()">🚪 ${t('ออกจากระบบ','Sign out')}</div></div></div>`;
 }
 function openAuth(){closeNav();setAuthMode('login');document.getElementById('authErr').style.display='none';document.getElementById('authModal').classList.add('open');}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');}
 function setAuthMode(mode){authMode=mode;
-  document.getElementById('authTitle').textContent=mode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
+  document.getElementById('authTitle').textContent=mode==='signup'?t('สมัครสมาชิก','Sign up'):t('เข้าสู่ระบบ','Sign in');
   document.getElementById('mName').style.display=mode==='signup'?'':'none';
-  document.getElementById('authSubmit').textContent=mode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
-  document.getElementById('authSwitchTxt').textContent=mode==='signup'?'มีบัญชีแล้ว?':'ยังไม่มีบัญชี?';
-  document.getElementById('authSwitchLink').textContent=mode==='signup'?'เข้าสู่ระบบ':'สมัครสมาชิก';
+  document.getElementById('authSubmit').textContent=mode==='signup'?t('สมัครสมาชิก','Sign up'):t('เข้าสู่ระบบ','Sign in');
+  document.getElementById('authSwitchTxt').textContent=mode==='signup'?t('มีบัญชีแล้ว?','Already have an account?'):t('ยังไม่มีบัญชี?','No account yet?');
+  document.getElementById('authSwitchLink').textContent=mode==='signup'?t('เข้าสู่ระบบ','Sign in'):t('สมัครสมาชิก','Sign up');
 }
 function toggleAuthMode(e){if(e)e.preventDefault();document.getElementById('authErr').style.display='none';setAuthMode(authMode==='login'?'signup':'login');}
 function authErr(m){const e=document.getElementById('authErr');e.textContent=m;e.style.display='block';}
 async function authSubmit(){
-  if(!window.SB){authErr('ระบบล็อกอินยังไม่พร้อม ลองรีเฟรชค่ะ');return;}
+  if(!window.SB){authErr(t('ระบบล็อกอินยังไม่พร้อม ลองรีเฟรชค่ะ','Login is not ready yet — please refresh.'));return;}
   const email=(document.getElementById('mEmail').value||'').trim().toLowerCase();
   const pass=document.getElementById('mPass').value||'';
   const name=(document.getElementById('mName').value||'').trim();
   document.getElementById('authErr').style.display='none';
-  if(!email||!pass){authErr('กรอกอีเมลและรหัสผ่านก่อนค่ะ');return;}
-  if(authMode==='signup'&&!name){authErr('กรอกชื่อ-นามสกุลก่อนค่ะ');return;}
-  if(authMode==='signup'&&pass.length<6){authErr('รหัสผ่านอย่างน้อย 6 ตัวอักษรค่ะ');return;}
-  const btn=document.getElementById('authSubmit');btn.disabled=true;const old=btn.textContent;btn.textContent='กำลังดำเนินการ...';
+  if(!email||!pass){authErr(t('กรอกอีเมลและรหัสผ่านก่อนค่ะ','Please enter your email and password.'));return;}
+  if(authMode==='signup'&&!name){authErr(t('กรอกชื่อ-นามสกุลก่อนค่ะ','Please enter your full name.'));return;}
+  if(authMode==='signup'&&pass.length<6){authErr(t('รหัสผ่านอย่างน้อย 6 ตัวอักษรค่ะ','Password must be at least 6 characters.'));return;}
+  const btn=document.getElementById('authSubmit');btn.disabled=true;const old=btn.textContent;btn.textContent=t('กำลังดำเนินการ...','Processing...');
   const res=authMode==='signup'
     ? await SB.auth.signUp({email,password:pass,options:{data:{name:name}}})
     : await SB.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent=old;
   if(res.error){const msg=res.error.message||'';
-    if(/already|exists/i.test(msg))authErr('อีเมลนี้มีบัญชีแล้ว ลองเข้าสู่ระบบแทนค่ะ');
-    else if(/invalid login/i.test(msg))authErr('อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ');
+    if(/already|exists/i.test(msg))authErr(t('อีเมลนี้มีบัญชีแล้ว ลองเข้าสู่ระบบแทนค่ะ','This email already has an account — try signing in.'));
+    else if(/invalid login/i.test(msg))authErr(t('อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ','Incorrect email or password.'));
     else authErr(msg);return;}
   await refreshMember();
-  if(!CUR_MEMBER){authErr('สมัครแล้วค่ะ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');return;}
+  if(!CUR_MEMBER){authErr(t('สมัครแล้วค่ะ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ','Signed up! Please confirm your email before signing in.'));return;}
   try{await SB.from('sm_customers').upsert({customer_id:'M-'+CUR_MEMBER.id,name:CUR_MEMBER.name,email:CUR_MEMBER.email},{onConflict:'customer_id'});}catch(e){}
-  closeAuth();renderMember();toast(`สวัสดีค่ะ ${esc(CUR_MEMBER.name)} 🎉 เข้าสู่ระบบแล้ว`);
+  closeAuth();renderMember();toast(t('สวัสดีค่ะ '+CUR_MEMBER.name+' 🎉 เข้าสู่ระบบแล้ว','Welcome, '+CUR_MEMBER.name+'! 🎉 Signed in'));
 }
 async function logout(){const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');if(window.SB){try{await SB.auth.signOut();}catch(e){}}CUR_MEMBER=null;renderMember();toast('ออกจากระบบแล้วค่ะ');}
 async function openMyOrders(){
   const m=CUR_MEMBER;if(!m)return;const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');
   document.getElementById('ordersWho').textContent=m.name;
-  document.getElementById('myOrders').innerHTML='<p class="anote">กำลังโหลด...</p>';
+  document.getElementById('myOrders').innerHTML='<p class="anote">'+t('กำลังโหลด...','Loading...')+'</p>';
   document.getElementById('ordersModal').classList.add('open');
   let rows=[];
   try{const {data}=await SB.from('sm_orders').select('*').eq('customer_id','M-'+m.id).order('created_at',{ascending:false});rows=data||[];}catch(e){}
-  const ST={new:['ออเดอร์ใหม่','#3b82f6'],prod:['กำลังผลิต','#f59e0b'],wait:['รอชำระ','#ef4444'],done:['ส่งมอบแล้ว','#16a34a']};
-  document.getElementById('myOrders').innerHTML=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];return `<div class="ord-card"><div class="oh"><b>${esc(o.job||'งาน')}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?'ยอด ฿'+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}</div></div>`;}).join(''):'<p class="anote">ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊</p>';
+  const ST=SM_LANG==='en'
+    ? {new:['New','#3b82f6'],prod:['In Production','#f59e0b'],wait:['Awaiting Payment','#ef4444'],done:['Delivered','#16a34a']}
+    : {new:['ออเดอร์ใหม่','#3b82f6'],prod:['กำลังผลิต','#f59e0b'],wait:['รอชำระ','#ef4444'],done:['ส่งมอบแล้ว','#16a34a']};
+  document.getElementById('myOrders').innerHTML=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];return `<div class="ord-card"><div class="oh"><b>${esc(o.job||t('งาน','Job'))}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?t('ยอด ฿','Total ฿')+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}</div></div>`;}).join(''):'<p class="anote">'+t('ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊','No orders yet — place your first order! 😊')+'</p>';
 }
 function prefillMember(){const m=CUR_MEMBER;if(!m)return;const n=document.getElementById('cName'),e=document.getElementById('cEmail');if(n&&!n.value&&m.name)n.value=m.name;if(e&&!e.value&&m.email)e.value=m.email;}
 document.addEventListener('click',e=>{const mb=document.getElementById('memberBox');if(mb&&!mb.contains(e.target))mb.classList.remove('open');});
@@ -949,6 +982,17 @@ function logChat(role,msg){
   if(!window.SB)return;const m=getMember();
   try{SB.from('sm_chat_logs').insert({customer_key:(localStorage.getItem('sm_vid')||'web'),customer_name:(m?m.name:'ผู้เยี่ยมชม'),role:role,message:msg}).then(()=>{},()=>{});}catch(e){}
 }
+
+/* ---------- i18n: re-render เนื้อหา dynamic เมื่อสลับภาษา ---------- */
+window.onLangChange=function(){
+  try{const mv=document.getElementById('material').value;buildMaterials();const sel=document.getElementById('material');if(mv&&[...sel.options].some(o=>o.value===mv))sel.value=mv;}catch(e){}
+  try{renderGallery(curG);}catch(e){}
+  try{updateArea();}catch(e){}
+  try{setSteps();}catch(e){}
+  try{renderMember();}catch(e){}
+  try{setAuthMode(authMode);}catch(e){}
+  if(cur===6){try{renderQuote();}catch(e){}}
+};
 
 /* ---------- INIT ---------- */
 applyImages();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
