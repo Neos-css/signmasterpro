@@ -4,6 +4,7 @@ _*.html
 *.yml
 *.yaml
 *-proxy.js
+*.txt
 คู่มือ_*.md
 ข้อมูลลูกค้า_*.md
 _devserver.ps1
