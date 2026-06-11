@@ -397,6 +397,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 <script src="supabase-config.js"></script>
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
+<script src="quote.js"></script>
 <script>
 /* ===== AUTH (Supabase · อีเมล+รหัสผ่าน) ===== */
 let CURRENT_USER=null;   // {email, role, name}
@@ -465,7 +466,8 @@ const SRC_META={fb:['📘','Facebook'],google:['🔍','Google'],direct:['🔗','
 const VIP_THRESHOLD=40000;
 const MON12=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 // แปลงสถานะออเดอร์ DB → [class, label, สีจุดคิว]
-const OSTAT={new:['t-new','ออเดอร์ใหม่','#3b82f6'],prod:['t-prod','กำลังผลิต','#f59e0b'],wait:['t-wait','รอชำระ','#ef4444'],done:['t-done','ส่งมอบแล้ว','#16a34a']};
+const OSTAT={new:['t-new','ออเดอร์ใหม่','#3b82f6'],prod:['t-prod','กำลังผลิต/จัดทำ','#f59e0b'],wait:['t-wait','รอชำระเงิน','#ef4444'],done:['t-done','เสร็จแล้ว','#16a34a']};
+const OSTAT_ORDER=[['new','ออเดอร์ใหม่'],['prod','กำลังผลิต/จัดทำ'],['wait','รอชำระเงิน'],['done','เสร็จแล้ว']];
 // แปลง source → ป้ายช่องทาง (สำหรับตาราง Lead)
 const SRC_LABEL={ink:'💬 น้องอิงค์',web:'🌐 เว็บไซต์',bulk:'🎁 ราคาพิเศษ',facebook:'📘 Facebook',fb:'📘 Facebook',line:'💬 LINE',phone:'📞 โทร',google:'🔍 Google',tiktok:'🎵 TikTok',ig:'📷 IG',instagram:'📷 IG'};
 // แปลง source → key กราฟผู้เข้าชม
@@ -482,7 +484,7 @@ async function loadOrders(){
   const {data,error}=await SB.from('sm_orders').select('*').order('created_at',{ascending:false});
   if(error){console.warn('orders',error);return;}
   ORDERS=(data||[]).map(o=>{const m=OSTAT[o.status]||['t-new',o.status||'—','#3b82f6'];const amt=Number(o.amount)||0;
-    return {cid:o.customer_id||null,c:o.customer_name||'(ไม่ระบุ)',job:[o.job,o.material,o.size].filter(Boolean).join(' · ')||'—',
+    return {id:o.id,cid:o.customer_id||null,c:o.customer_name||'(ไม่ระบุ)',job:[o.job,o.material,o.size].filter(Boolean).join(' · ')||'—',
       amount:amt,amt:o.amount!=null?'฿'+amt.toLocaleString():'—',due:o.due_date?fmt(new Date(o.due_date)):'—',
       status:o.status,stc:m[0],st:m[1],dot:m[2],phone:o.phone||'',note:o.note||'',created:o.created_at?new Date(o.created_at):null};});
 }
@@ -624,13 +626,40 @@ function renderCustomers(){
   document.getElementById('custSum').textContent=`${list.length} ราย · 💎 สมาชิก ${mem} · ⭐ VIP ${vip}`;
 }
 function orderDetail(el){
-  document.getElementById('ordDetailBody').textContent=el.getAttribute('data-d')||'—';
+  document.getElementById('ordDetailBody').textContent=((el.getAttribute('data-d')||'—').split('\n@Q=')[0]);
   document.getElementById('ordDetailModal').style.display='grid';
+}
+/* เปลี่ยนสถานะออเดอร์ (คน/ลายลินสั่งได้) → sync ไปฝั่งลูกค้า "ออเดอร์ของฉัน" */
+async function setOrderStatus(id,status){
+  if(!window.SB){toast('ยังไม่เชื่อม Supabase');return;}
+  try{
+    const {error}=await SB.from('sm_orders').update({status:status}).eq('id',id);
+    if(error)throw error;
+    const o=ORDERS.find(x=>x.id===id); if(o){const m=OSTAT[status]||['t-new',status,'#888'];o.status=status;o.stc=m[0];o.st=m[1];o.dot=m[2];}
+    toast('✅ อัปเดตสถานะ → '+(OSTAT[status]?OSTAT[status][1]:status)+' (ลูกค้าเห็นทันที)');
+    try{renderDash&&renderDash();}catch(e){}
+  }catch(e){toast('อัปเดตไม่สำเร็จ: '+(e.message||e));}
+}
+/* เปิดใบเสนอราคา (พิมพ์ PDF) จากข้อมูลที่บันทึกในออเดอร์ */
+function viewQuote(el){
+  try{
+    const p=JSON.parse(el.getAttribute('data-q'));
+    if(typeof window.printSignmasterQuote==='function')window.printSignmasterQuote({customer:p.customer,items:p.items,vatRate:0.07,quoteNo:p.quoteNo});
+    else toast('ระบบใบเสนอราคายังไม่พร้อม ลองรีเฟรช');
+  }catch(e){toast('ออเดอร์นี้ไม่มีข้อมูลใบเสนอราคา (อาจเป็นงานประเมินหน้างาน)');}
 }
 function renderOrders(){
   const q=(document.getElementById('ordSearch').value||'').toLowerCase(),s=document.getElementById('ordStatus').value;
   const list=ORDERS.filter(o=>(o.c.toLowerCase().includes(q)||o.job.toLowerCase().includes(q))&&(!s||o.stc===s));
-  document.getElementById('ordBody').innerHTML=list.length?list.map(o=>`<tr><td><b>${esc(o.c)}</b></td><td>${esc(o.job)}</td><td><b>${o.amt}</b></td><td>${o.phone?'<a href="tel:'+esc(o.phone)+'" style="color:var(--accent,#e63900);font-weight:600">📞 '+esc(o.phone)+'</a>':'—'}</td><td>${o.due}</td><td><span class="tag ${o.stc}">${o.st}</span></td><td>${o.note?'<button class="btn btn-ghost" style="padding:5px 10px;font-size:.8rem" onclick="orderDetail(this)" data-d="'+esc(o.note)+'">🔍 ดู</button>':''}</td></tr>`).join(''):'<tr><td colspan="7"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
+  document.getElementById('ordBody').innerHTML=list.length?list.map(o=>{
+    const selStyle='padding:4px 8px;border-radius:8px;border:1px solid #e7e9ee;font-family:inherit;font-size:.82rem;cursor:pointer';
+    const sel='<select style="'+selStyle+'" onchange="setOrderStatus(\''+o.id+'\',this.value)">'+OSTAT_ORDER.map(p=>'<option value="'+p[0]+'"'+(o.status===p[0]?' selected':'')+'>'+p[1]+'</option>').join('')+'</select>';
+    const qjson=(o.note||'').split('\n@Q=')[1]||'';
+    const bStyle='padding:5px 9px;font-size:.78rem';
+    const qbtn=qjson?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="viewQuote(this)" data-q="'+esc(qjson)+'">📄 ใบเสนอราคา</button> ':'';
+    const dbtn=o.note?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="orderDetail(this)" data-d="'+esc(o.note)+'">🔍 ดู</button>':'';
+    return '<tr><td><b>'+esc(o.c)+'</b></td><td>'+esc(o.job)+'</td><td><b>'+o.amt+'</b></td><td>'+(o.phone?'<a href="tel:'+esc(o.phone)+'" style="color:#e63900;font-weight:600">📞 '+esc(o.phone)+'</a>':'—')+'</td><td>'+o.due+'</td><td>'+sel+'</td><td style="white-space:nowrap">'+qbtn+dbtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="7"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
   document.getElementById('ordSum').textContent=`${list.length} ออเดอร์`;
 }
 function renderChat(){

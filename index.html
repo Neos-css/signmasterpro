@@ -872,7 +872,8 @@ function submitWork(){
   const detail=`เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} ชิ้น (${d.a.toFixed(2)} ตร.ม.) · ${d.itemsText} · รวมทั้งสิ้น ${d.grandTxt}${d.priced?' (รวม VAT)':''}${d.c.note?' · '+d.c.note:''}`;
   if(window.SB){
     const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:detail,source:'web',status:'new'};
-    const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:d.c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:d.c.phone||null,job:d.jobName,material:d.jobName,size:d.w+'x'+d.h+' ม.',qty:d.qty,area_sqm:d.a,amount:d.priced?d.grand:null,status:'new',note:detail};
+    const qp=d.priced?('\n@Q='+JSON.stringify({customer:{name:d.c.name,phone:d.c.phone,email:d.c.email,note:d.c.note},items:d.items,quoteNo:no})):'';
+    const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:d.c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:d.c.phone||null,job:d.jobName,material:d.jobName,size:d.w+'x'+d.h+' ม.',qty:d.qty,area_sqm:d.a,amount:d.priced?d.grand:null,status:'new',note:detail+qp};
     Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)]).then(()=>{},()=>{});
   }
   emailOrder('🧾 ออเดอร์ใหม่ '+no+' · '+(d.c.name||'ลูกค้า'),{'เลขที่ใบเสนอราคา':no,'ลูกค้า':d.c.name||'-','เบอร์โทร':d.c.phone||'-','อีเมล':d.c.email||'-','งาน':d.jobName,'ขนาด':d.w+'×'+d.h+' ม. × '+d.qty+' ชิ้น ('+d.a.toFixed(2)+' ตร.ม.)','รายการ':d.itemsText,'รวมทั้งสิ้น':d.grandTxt+(d.priced?' (รวม VAT)':''),'หมายเหตุ':d.c.note||'-'});
@@ -1056,8 +1057,8 @@ async function openMyOrders(){
   let rows=[];
   try{const {data}=await SB.from('sm_orders').select('*').eq('customer_id','M-'+m.id).order('created_at',{ascending:false});rows=data||[];}catch(e){}
   const ST=SM_LANG==='en'
-    ? {new:['New','#3b82f6'],prod:['In Production','#f59e0b'],wait:['Awaiting Payment','#ef4444'],done:['Delivered','#16a34a']}
-    : {new:['ออเดอร์ใหม่','#3b82f6'],prod:['กำลังผลิต','#f59e0b'],wait:['รอชำระ','#ef4444'],done:['ส่งมอบแล้ว','#16a34a']};
+    ? {new:['🟦 Received · queued','#3b82f6'],prod:['🛠️ In production','#f59e0b'],wait:['💳 Awaiting payment','#ef4444'],done:['✅ Completed','#16a34a']}
+    : {new:['🟦 รับออเดอร์แล้ว · รอเริ่มผลิต','#3b82f6'],prod:['🛠️ กำลังผลิต/จัดทำ','#f59e0b'],wait:['💳 รอชำระเงิน','#ef4444'],done:['✅ เสร็จแล้ว','#16a34a']};
   document.getElementById('myOrders').innerHTML=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];return `<div class="ord-card"><div class="oh"><b>${esc(o.job||t('งาน','Job'))}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?t('ยอด ฿','Total ฿')+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}</div></div>`;}).join(''):'<p class="anote">'+t('ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊','No orders yet — place your first order! 😊')+'</p>';
 }
 function prefillMember(){const m=CUR_MEMBER;if(!m)return;const n=document.getElementById('cName'),e=document.getElementById('cEmail');if(n&&!n.value&&m.name)n.value=m.name;if(e&&!e.value&&m.email)e.value=m.email;}
