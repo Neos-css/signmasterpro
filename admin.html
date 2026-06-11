@@ -681,14 +681,10 @@ function _persistSiteLocal(){const out={};IMG_ORDER.forEach(k=>{out[k]={src:STAG
 async function saveImages(){
   ensureStaged();
   if(!window.SB){_persistSiteLocal();renderImages();toast('💾 บันทึกในเครื่องนี้แล้วค่ะ (ยังไม่เชื่อม Supabase → เครื่องอื่นยังไม่เห็น)');return;}
-  const DEF=window.SITE_IMAGES_DEFAULT;
   toast('⏳ กำลังบันทึกรูปขึ้นระบบ (ให้เห็นทุกเครื่อง)...');
   try{
+    const rows=[];
     for(const k of IMG_ORDER){
-      const isOverride = STAGED[k].src!==DEF[k].src || (STAGED[k].pos||'')!==(DEF[k].pos||'');
-      // ลบ override เดิมของ slot นี้ก่อนเสมอ (กันค้าง + รองรับการกดคืนค่าเดิม)
-      await SB.from('sm_gallery').delete().eq('action','site').eq('grp',k);
-      if(!isOverride) continue;
       let src=STAGED[k].src;
       if(/^data:/.test(src)){            // รูปที่อัปโหลดเอง (base64) → ขึ้น Supabase Storage
         const blob=await (await fetch(src)).blob();
@@ -698,9 +694,10 @@ async function saveImages(){
         src=SB.storage.from('gallery').getPublicUrl(path).data.publicUrl;
         STAGED[k].src=src;
       }
-      const ins=await SB.from('sm_gallery').insert({action:'site',grp:k,src:src,title:(STAGED[k].pos||'center')});
-      if(ins.error) throw ins.error;
+      rows.push({slot:k,src:src,pos:(STAGED[k].pos||'center')});
     }
+    const {error}=await SB.from('sm_site_images').upsert(rows,{onConflict:'slot'});   // slot = PK
+    if(error) throw error;
     _persistSiteLocal();renderImages();
     toast('💾 บันทึกขึ้นระบบแล้วค่ะ! ทุกเครื่องจะเห็นรูปใหม่ (รีเฟรชหน้าเว็บ) 🎉');
   }catch(e){

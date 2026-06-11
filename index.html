@@ -977,13 +977,13 @@ function applyImages(){
     if(s&&s.src){img.src=s.src;if(s.pos)img.style.objectPosition=s.pos;}
   });
 }
-async function applySiteImagesOverlay(){   // ดึง override รูปหน้าเว็บจาก Supabase (เห็นทุกเครื่อง · async ไม่ block)
+async function applySiteImagesOverlay(){   // ดึงรูปหน้าเว็บจาก Supabase sm_site_images (เห็นทุกเครื่อง · async ไม่ block)
   if(!window.SB)return;
   try{
-    const {data,error}=await SB.from('sm_gallery').select('*').eq('action','site').order('created_at',{ascending:true});
+    const {data,error}=await SB.from('sm_site_images').select('*');
     if(error||!data)return;
     const bySlot={};
-    data.forEach(r=>{bySlot[r.grp]={src:r.src,pos:r.title};});   // เรียง asc → ตัวล่าสุดทับ
+    data.forEach(r=>{bySlot[r.slot]={src:r.src,pos:r.pos};});
     document.querySelectorAll('[data-slot]').forEach(img=>{
       const s=bySlot[img.dataset.slot];
       if(s&&s.src){img.src=s.src;if(s.pos)img.style.objectPosition=s.pos;}
