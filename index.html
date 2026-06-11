@@ -815,45 +815,86 @@ function calcQuote(){
   return {quote:false,html};
 }
 
+function genQuoteNo(){const d=new Date(),p=x=>('0'+x).slice(-2);return 'SMW'+String(d.getFullYear()+543).slice(-2)+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes());}
+/* รวมข้อมูล wizard เป็นชุดเดียว ใช้ร่วมกัน: พิมพ์ใบ / ส่งงาน / ตัดสินใจก่อน */
+function quoteData(){
+  const m=curMat(),a=area();
+  const w=document.getElementById('w').value,h=document.getElementById('h').value,qty=parseInt(document.getElementById('qty').value)||1;
+  const c={name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value};
+  const priced=!(!m||m.quote);
+  const items=[];
+  if(priced){
+    const unit=a>=10?m.price_10:m.price_1_9;
+    items.push({desc:`${m.name} (${m.line})`,subs:[`ขนาด ${w}×${h} ม. × ${qty} ชิ้น = ${a.toFixed(2)} ตร.ม.`],qty:a.toFixed(2),unit:'ตร.ม.',price:unit});
+    if(document.getElementById('optDesign').checked)items.push({desc:PC.options.design_fee.label,qty:1,unit:'งาน',price:PC.options.design_fee.price});
+    if(document.getElementById('optInstall').checked)items.push({desc:PC.options.install_fee.label,qty:a.toFixed(2),unit:'ตร.ม.',price:PC.options.install_fee.price});
+  }
+  const total=items.reduce((s,it)=>s+Number(it.price)*Number(it.qty),0);
+  const grand=Math.round(total*1.07);
+  const jobName=m?m.name:'';
+  const itemsText=priced?items.map(it=>`${it.desc} ${it.qty}${it.unit}×${it.price}฿`).join(' + '):'ประเมินหน้างาน';
+  const grandTxt=priced?('฿'+grand.toLocaleString()):'ประเมินหน้างาน';
+  return {m,a,w,h,qty,c,priced,items,total,grand,jobName,itemsText,grandTxt};
+}
 function renderQuote(){
-  const c=state.customer={
-    name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,
-    email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value
-  };
-  const q=calcQuote();
+  state.customer={name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value};
+  if(!state.quoteNo)state.quoteNo=genQuoteNo();
+  const c=state.customer,q=calcQuote();
   const src=state.source==='ai'?t('🤖 AI ออกแบบ','🤖 AI design'):state.source==='import'?t('📁 อัปโหลดเอง','📁 self-uploaded'):'-';
   let head=`<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:.92rem">
     <b>${esc(c.name)||'-'}</b> · ${esc(c.phone)||'-'} ${c.email?'· '+esc(c.email):''}<br>
-    <span class="muted">${t('ที่มาแบบ: ','Design source: ')}${src} ${c.note?'· '+esc(c.note):''}</span></div>`;
-  const printBtn = q.quote ? '' :
-    `<button class="btn btn-dark btn-lg" style="margin-top:10px;width:100%" onclick="openQuoteDoc()">${t('📄 พิมพ์ใบเสนอราคา (PDF)','📄 Print Quotation (PDF)')}</button>`;
-  document.getElementById('quoteOut').innerHTML=head+q.html+
-    `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitOrder()">${t('📩 ส่งคำขอใบเสนอราคา','📩 Send Quote Request')}</button>`+printBtn;
+    <span class="muted">${t('เลขที่ใบเสนอราคา: ','Quote No.: ')}<b style="color:var(--accent-deep)">${state.quoteNo}</b> · ${t('ที่มาแบบ: ','Design: ')}${src} ${c.note?'· '+esc(c.note):''}</span></div>`;
+  const acts = q.quote
+    ? `<button class="btn btn-primary btn-lg" style="margin-top:18px;width:100%" onclick="submitWork()">${t('📩 ส่งให้ทีมประเมิน + ติดต่อกลับ','📩 Send for on-site quote')}</button>`
+    : `<button class="btn btn-dark btn-lg" style="margin-top:14px;width:100%" onclick="openQuoteDoc()">${t('📄 พิมพ์ใบเสนอราคา (PDF)','📄 Print Quotation (PDF)')}</button>
+       <div style="display:flex;gap:10px;margin-top:12px">
+         <button class="btn btn-lg" style="flex:1;background:#475569;color:#fff" onclick="decideLater()">${t('🤔 ขอตัดสินใจก่อน','🤔 Decide later')}</button>
+         <button class="btn btn-primary btn-lg" style="flex:1" onclick="submitWork()">${t('✅ ส่งทำงาน','✅ Place Order')}</button>
+       </div>`;
+  document.getElementById('quoteOut').innerHTML=head+q.html+acts;
 }
-/* สร้างใบเสนอราคา A4 จากข้อมูล wizard → quote.js เปิดแท็บใหม่ + พิมพ์ PDF */
+/* พิมพ์ใบเสนอราคา A4 (quote.js) — ใช้เลขเดียวกับที่บันทึก */
 function openQuoteDoc(){
-  const m=curMat(),a=area();
-  if(!m||m.quote){toast(t('งานกลุ่มนี้ประเมินหน้างานค่ะ','This group is quoted on-site'));return;}
   if(typeof window.printSignmasterQuote!=='function'){toast('ระบบใบเสนอราคายังไม่พร้อม ลองรีเฟรชค่ะ');return;}
-  const w=document.getElementById('w').value,h=document.getElementById('h').value,qty=parseInt(document.getElementById('qty').value)||1;
-  const unit=a>=10?m.price_10:m.price_1_9;
-  const items=[{desc:`${m.name} (${m.line})`,subs:[`ขนาด ${w}×${h} ม. × ${qty} ชิ้น = ${a.toFixed(2)} ตร.ม.`],qty:a.toFixed(2),unit:'ตร.ม.',price:unit}];
-  if(document.getElementById('optDesign').checked)items.push({desc:PC.options.design_fee.label,qty:1,unit:'งาน',price:PC.options.design_fee.price});
-  if(document.getElementById('optInstall').checked)items.push({desc:PC.options.install_fee.label,qty:a.toFixed(2),unit:'ตร.ม.',price:PC.options.install_fee.price});
-  const c=state.customer||{name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value};
-  window.printSignmasterQuote({customer:c,items:items,vatRate:0.07});
+  const d=quoteData();
+  if(!d.priced){toast(t('งานกลุ่มนี้ประเมินหน้างานค่ะ','This group is quoted on-site'));return;}
+  if(!state.quoteNo)state.quoteNo=genQuoteNo();
+  window.printSignmasterQuote({customer:d.c,items:d.items,vatRate:0.07,quoteNo:state.quoteNo});
 }
-function submitOrder(){
-  const c=state.customer||{}, m=curMat(), a=area();
-  const w=document.getElementById('w').value, h=document.getElementById('h').value, qty=parseInt(document.getElementById('qty').value)||1;
-  const jobName=m?m.name:'';
+/* ส่ง backup เข้าอีเมล (ช่องทางอิสระจาก Supabase — กันพลาดออเดอร์) ผ่าน FormSubmit */
+function emailOrder(subject,fields){
+  try{fetch('https://formsubmit.co/ajax/signmasterpro07@gmail.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({_subject:subject,_template:'table'},fields))}).then(()=>{},()=>{});}catch(e){}
+}
+function submitWork(){
+  if(!state.quoteNo)state.quoteNo=genQuoteNo();
+  const d=quoteData(),no=state.quoteNo;
+  const detail=`เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} ชิ้น (${d.a.toFixed(2)} ตร.ม.) · ${d.itemsText} · รวมทั้งสิ้น ${d.grandTxt}${d.priced?' (รวม VAT)':''}${d.c.note?' · '+d.c.note:''}`;
   if(window.SB){
-    const lead={name:c.name||null,phone:c.phone||null,email:c.email||null,job_type:jobName,detail:(c.note||''),source:'web',status:'new'};
-    const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:c.phone||null,job:jobName,material:jobName,size:w+'x'+h+' ม.',qty:qty,area_sqm:a,status:'new',note:(c.note||null)};
-    Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)])
-      .then(()=>toast('✅ ส่งคำขอแล้ว! บันทึกเข้าระบบเรียบร้อย ทีมงานจะติดต่อกลับค่ะ 🎉'))
-      .catch(()=>toast('✅ ส่งคำขอแล้ว! (บันทึกออฟไลน์) ทีมงานจะติดต่อกลับค่ะ'));
-  } else { toast('✅ ส่งคำขอแล้ว! ทีมงานจะติดต่อกลับค่ะ'); }
+    const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:detail,source:'web',status:'new'};
+    const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:d.c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:d.c.phone||null,job:d.jobName,material:d.jobName,size:d.w+'x'+d.h+' ม.',qty:d.qty,area_sqm:d.a,amount:d.priced?d.grand:null,status:'new',note:detail};
+    Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)]).then(()=>{},()=>{});
+  }
+  emailOrder('🧾 ออเดอร์ใหม่ '+no+' · '+(d.c.name||'ลูกค้า'),{'เลขที่ใบเสนอราคา':no,'ลูกค้า':d.c.name||'-','เบอร์โทร':d.c.phone||'-','อีเมล':d.c.email||'-','งาน':d.jobName,'ขนาด':d.w+'×'+d.h+' ม. × '+d.qty+' ชิ้น ('+d.a.toFixed(2)+' ตร.ม.)','รายการ':d.itemsText,'รวมทั้งสิ้น':d.grandTxt+(d.priced?' (รวม VAT)':''),'หมายเหตุ':d.c.note||'-'});
+  const reprint=d.priced?`<button class="btn btn-dark" style="margin-top:14px" onclick="openQuoteDoc()">${t('📄 พิมพ์ใบเสนอราคาอีกครั้ง','📄 Print quotation again')}</button>`:'';
+  document.getElementById('quoteOut').innerHTML=`<div class="quote" style="text-align:center">
+    <div style="font-size:2.6rem">✅</div>
+    <p style="font-size:1.25rem;font-weight:700;color:var(--good)">${t('Signmaster Pro รับงานแล้ว!','Signmaster Pro received your order!')}</p>
+    <p class="muted" style="margin:6px 0 14px">${t('เลขที่ใบเสนอราคา','Quote No.')} <b style="color:var(--accent-deep)">${no}</b></p>
+    <div style="text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.92rem;line-height:1.7">
+      <b>${esc(d.c.name||'-')}</b> · ${esc(d.c.phone||'-')}<br><span class="muted">${esc(detail)}</span></div>
+    <p class="muted" style="margin-top:14px;font-size:.9rem">${t('ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียดโดยเร็วค่ะ 🙏 เก็บเลขที่ใบเสนอราคาไว้อ้างอิงนะคะ','Our team will contact you to confirm shortly 🙏 Please keep your quote number for reference.')}</p>
+    ${reprint}</div>`;
+  toast(t('ส่งงานเรียบร้อย! 🎉','Order placed! 🎉'));
+}
+function decideLater(){
+  if(!state.quoteNo)state.quoteNo=genQuoteNo();
+  const d=quoteData(),no=state.quoteNo;
+  if(window.SB){
+    const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:`[ขอตัดสินใจก่อน] เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} · รวม ${d.grandTxt}${d.c.note?' · '+d.c.note:''}`,source:'web',status:'new'};
+    SB.from('sm_leads').insert(lead).then(()=>{},()=>{});
+  }
+  emailOrder('🤔 ลูกค้าขอตัดสินใจก่อน '+no+' · '+(d.c.name||''),{'สถานะ':'ขอตัดสินใจก่อน','เลขที่ใบเสนอราคา':no,'ลูกค้า':d.c.name||'-','เบอร์โทร':d.c.phone||'-','งาน':d.jobName,'รวมทั้งสิ้น':d.grandTxt,'หมายเหตุ':d.c.note||'-'});
+  toast(t('บันทึกไว้ให้แล้วค่ะ 🙏 ทีมงานจะติดต่อกลับ · อ้างอิง '+no,'Saved! Our team will follow up · Ref '+no));
 }
 
 /* ---------- STEP NAV ---------- */

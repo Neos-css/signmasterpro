@@ -37,6 +37,7 @@
 
   function buildQuoteHTML(d){
     var now = new Date();
+    var qno = d.quoteNo || quoteNo(now);   // ใช้เลขเดียวกับที่ระบบบันทึก/ส่งเมล
     var items = Array.isArray(d.items) ? d.items : [];
     var vatRate = (d.vatRate != null) ? d.vatRate : 0.07;
     var rows = items.map(function(it,i){
@@ -53,7 +54,7 @@
     var lead = d.leadTime || 'ประมาณ 7–15 วันทำการ (ขึ้นกับปริมาณงาน)';
     var valid = d.validDays || 15;
 
-    return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ใบเสนอราคา Signmaster Pro · '+quoteNo(now)+'</title>'
+    return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ใบเสนอราคา Signmaster Pro · '+qno+'</title>'
     + '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">'
     + '<style>'
     + '*{box-sizing:border-box;margin:0;padding:0}body{font-family:Sarabun,sans-serif;color:#1a1a1a;background:#e8e8e8;font-size:14px}'
@@ -81,7 +82,7 @@
     + '<div class="title">ใบเสนอราคา / QUOTATION</div>'
     + '<div class="onlinebadge">🌐 ฉบับออนไลน์ · ประเมินเบื้องต้น (Online Estimate) — ฉบับสมบูรณ์/มีลายเซ็น-ตราประทับ ออกโดยทีมงาน Signmaster Pro หน้าร้านอีกครั้ง</div>'
     + '<div class="meta"><div><b>เรียน / To:</b> <span class="fill">'+esc(c.name||'-')+'</span><br><b>ติดต่อ / Tel:</b> <span class="fill">'+esc([c.phone,c.email].filter(Boolean).join(' · ')||'-')+'</span>'+(c.note?'<br><b>หมายเหตุ:</b> '+esc(c.note):'')+'</div>'
-    +   '<div style="text-align:right"><b>เลขที่ / No.:</b> <span class="fill">'+quoteNo(now)+'</span><br><b>วันที่ / Date:</b> <span class="fill">'+thaiDate(now)+'</span><br><b>พนักงานขาย:</b> '+CO.seller+'</div></div>'
+    +   '<div style="text-align:right"><b>เลขที่ / No.:</b> <span class="fill">'+qno+'</span><br><b>วันที่ / Date:</b> <span class="fill">'+thaiDate(now)+'</span><br><b>พนักงานขาย:</b> '+CO.seller+'</div></div>'
     + '<table><thead><tr><th class="c-no">ลำดับ<br>Item</th><th class="c-desc">รายการ<br>Description</th><th class="c-qty">จำนวน<br>Qty</th><th class="c-unit">หน่วย<br>Unit</th><th class="c-price">ราคา/หน่วย<br>Unit Price</th><th class="c-amt">ราคารวม<br>Amount</th></tr></thead><tbody>'+rows
     +   '<tr><td colspan="4" rowspan="3" style="vertical-align:top;font-size:11.5px;color:#555"><b>หมายเหตุ:</b><br>• ราคานี้เป็นราคาประเมินจากข้อมูลที่ลูกค้าระบุบนเว็บ<br>• ยังไม่รวมค่าออกแบบ/ติดตั้ง (ถ้ามี จะแจ้งแยก)<br>• งานป้าย/ตู้ไฟบางประเภทประเมินหน้างานอีกครั้ง</td>'
     +     '<td class="sum-label">รวมเป็นเงิน / TOTAL</td><td class="sum-val">'+baht(total)+'</td></tr>'
