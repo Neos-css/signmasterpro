@@ -67,6 +67,8 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .nav-links a:hover{color:var(--accent-deep)}
 .nav-cta{display:flex;gap:10px;align-items:center}
 .burger{display:none;background:none;border:0;cursor:pointer;font-size:1.6rem;color:var(--ink)}
+.brandlogo{height:46px;width:auto;display:block;flex:none}
+@media(max-width:560px){.brandlogo{height:40px}}
 .langtoggle{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
 .langbtn{font-family:inherit;font-weight:700;font-size:.78rem;padding:6px 11px;border:0;background:#fff;color:var(--muted);cursor:pointer;transition:.15s;line-height:1}
 .langbtn.on{background:var(--grad);color:#fff}
@@ -291,7 +293,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <header class="nav">
   <div class="wrap nav-in">
     <a href="#top" class="brand">
-      <span class="mark"><span class="sheen"></span><span class="s">S</span><span class="spark">✦</span></span>
+      <img class="brandlogo" src="logo-mark.svg" alt="Signmaster Pro">
       <span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
     </a>
     <nav class="nav-links" id="navLinks">
@@ -523,7 +525,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="brand on-dark" style="margin-bottom:14px"><span class="mark"><span class="sheen"></span><span class="s">S</span><span class="spark">✦</span></span><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
+        <div class="brand on-dark" style="margin-bottom:14px"><img class="brandlogo" src="logo-mark.svg" alt="Signmaster Pro"><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
         <p data-en="We produce and install every kind of advertising sign — booths, inkjet, signage and lightboxes — complete, with an AI-powered ordering and quoting system.">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
       </div>
       <div>
