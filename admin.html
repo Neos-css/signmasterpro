@@ -928,7 +928,11 @@ function renderCustomers(){
   document.getElementById('custSum').textContent=`${list.length} ราย · 💎 สมาชิก ${mem} · ⭐ VIP ${vip}`;
 }
 function orderDetail(el){
-  document.getElementById('ordDetailBody').textContent=((el.getAttribute('data-d')||'—').split('\n@Q=')[0]);
+  const raw=el.getAttribute('data-d')||'—';
+  const txt=raw.split('\n@Q=')[0].split('\n@IMG=')[0];
+  const img=((raw.split('\n@IMG=')[1]||'').split('\n')[0]).trim();
+  document.getElementById('ordDetailBody').innerHTML=esc(txt).replace(/\n/g,'<br>')
+    +(img?('<div style="margin-top:12px"><div class="csub" style="margin-bottom:6px">🎨 แบบที่ลูกค้า Gen ไว้:</div><img src="'+esc(img)+'" alt="mockup" style="max-width:100%;border-radius:10px;border:1px solid var(--line)"></div>'):'');
   document.getElementById('ordDetailModal').style.display='grid';
 }
 /* เปลี่ยนสถานะออเดอร์ (คน/ลายลินสั่งได้) → sync ไปฝั่งลูกค้า "ออเดอร์ของฉัน" */
