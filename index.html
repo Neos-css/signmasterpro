@@ -69,6 +69,14 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .burger{display:none;background:none;border:0;cursor:pointer;font-size:1.6rem;color:var(--ink)}
 .brandlogo{height:46px;width:auto;display:block;flex:none}
 @media(max-width:560px){.brandlogo{height:40px}}
+/* แสงวิ่งโลโก้ (CSS keyframes — เชื่อถือได้กว่า SMIL · preview เล่นได้) */
+.logo-shine{animation:smShine 4.5s ease-in-out infinite;will-change:transform}
+@keyframes smShine{
+  0%{transform:translateX(-230px)}
+  55%{transform:translateX(-230px)}
+  100%{transform:translateX(480px)}
+}
+@media(prefers-reduced-motion:reduce){.logo-shine{animation:none}}
 .sheen{opacity:.5;animation:smsweep 4.2s ease-in-out infinite}
 @keyframes smsweep{0%,55%{transform:translateX(-180px)}100%{transform:translateX(430px)}}
 @media(prefers-reduced-motion:reduce){.sheen{display:none}}
@@ -319,6 +327,13 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 </g>
 </g>
 <clipPath id="smclip"><use href="#smart"/></clipPath>
+<!-- แสงวิ่ง: mask alpha = เงาโลโก้เป๊ะ (รับ <g> ได้ · ไม่สนสีส้ม/แดง) + gradient ให้แสงนุ่ม -->
+<mask id="smmask" maskUnits="userSpaceOnUse" style="mask-type:alpha"><use href="#smart"/></mask>
+<linearGradient id="smShineGrad" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+  <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
+  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</linearGradient>
 </defs></svg>
 
 <!-- DEMO banner -->
@@ -328,7 +343,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <header class="nav">
   <div class="wrap nav-in">
     <a href="#top" class="brand">
-      <svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g clip-path="url(#smclip)"><g><animateTransform attributeName="transform" attributeType="XML" type="translate" values="-180,0;-180,0;430,0" keyTimes="0;0.5;1" dur="4.2s" repeatCount="indefinite"/><rect x="120" y="150" width="52" height="226" transform="skewX(-20)" fill="#fff" opacity="0.5"/></g></g></svg>
+      <svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="130" y="148" width="66" height="230" transform="skewX(-18)" fill="url(#smShineGrad)"/></g></g></svg>
       <span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
     </a>
     <nav class="nav-links" id="navLinks">
@@ -560,7 +575,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="brand on-dark" style="margin-bottom:14px"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g clip-path="url(#smclip)"><g><animateTransform attributeName="transform" attributeType="XML" type="translate" values="-180,0;-180,0;430,0" keyTimes="0;0.5;1" dur="4.2s" repeatCount="indefinite"/><rect x="120" y="150" width="52" height="226" transform="skewX(-20)" fill="#fff" opacity="0.5"/></g></g></svg><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
+        <div class="brand on-dark" style="margin-bottom:14px"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="130" y="148" width="66" height="230" transform="skewX(-18)" fill="url(#smShineGrad)"/></g></g></svg><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
         <p data-en="We produce and install every kind of advertising sign — booths, inkjet, signage and lightboxes — complete, with an AI-powered ordering and quoting system.">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
       </div>
       <div>
