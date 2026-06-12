@@ -245,6 +245,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="customers"><span class="em">👥</span> ลูกค้า</a>
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
+      <a data-v="marketing"><span class="em">📣</span> AI Marketing</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -322,6 +323,30 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <div class="card">
         <div class="toolbar"><input class="search" id="chatSearch" placeholder="🔍 ค้นหาชื่อลูกค้า..." oninput="renderChat()"><span class="sum">บทสนทนาน้องอิงค์ ↔ ลูกค้า</span></div>
         <div class="chat-list" id="chatList"></div>
+      </div>
+    </section>
+
+    <!-- ===== AI MARKETING ===== -->
+    <section class="view" id="view-marketing">
+      <div class="lailin"><div class="ava">📣</div><div class="tx"><b>AI Marketing</b><span class="role">ผู้ช่วยการตลาด · ร่างคอนเทนต์/แคปชั่น/แคมเปญ</span><p>เลือกชนิดงาน ใส่หัวข้อหรือโปรที่อยากดัน แล้วกดให้ AI ร่างให้ได้เลยค่ะ — หรือกดวิเคราะห์งานขายดีเพื่อให้แนะนำว่าควรโปรโมตอะไร</p></div></div>
+      <div class="card">
+        <h3>📝 สร้างคอนเทนต์การตลาด</h3><div class="csub">เลือกชนิด → ใส่หัวข้อ/โปร → ให้ AI ร่าง</div>
+        <div class="imgtabs" id="mktKinds">
+          <button class="imgtab on" data-k="promo" onclick="mktKind(this)">🔥 โพสต์โปรโมชั่น</button>
+          <button class="imgtab" data-k="caption" onclick="mktKind(this)">✨ แคปชั่น FB/IG</button>
+          <button class="imgtab" data-k="line" onclick="mktKind(this)">💬 ข้อความ LINE</button>
+          <button class="imgtab" data-k="campaign" onclick="mktKind(this)">💡 ไอเดียแคมเปญ</button>
+        </div>
+        <input id="mktTopic" placeholder="หัวข้อ/โปรที่อยากดัน เช่น ป้ายไวนิลลด 20% เดือนนี้" style="width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;margin-top:4px" onkeydown="if(event.key==='Enter')askMarketing()">
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-line" onclick="askMarketing(false)" id="mktGo">✍️ ให้ AI ร่าง</button>
+          <button class="btn btn-ghost" onclick="askMarketing(true)">📊 วิเคราะห์งานขายดี → แนะนำสิ่งที่ควรดัน</button>
+        </div>
+      </div>
+      <div class="card" id="mktOutCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">📄 ผลงานที่ AI ร่างให้</h3><button class="btn btn-ghost" onclick="copyMkt()">📋 ก๊อป</button></div>
+        <div id="mktOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
+        <div id="mktSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
     </section>
 
@@ -566,7 +591,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -574,8 +599,38 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
+
+/* ===== AI Marketing ===== */
+const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
+let MKT_KIND='promo';
+function renderMarketing(){/* แผงพร้อมใช้ ไม่ต้องโหลดอะไรเพิ่ม (ORDERS โหลดไว้แล้ว) */}
+function mktKind(btn){MKT_KIND=btn.dataset.k;document.querySelectorAll('#mktKinds .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
+/* สรุปงานขายดีจาก ORDERS จริง → context ให้ AI */
+function topJobsContext(){
+  const cnt={},rev={};
+  ORDERS.forEach(o=>{const jt=((o.job||'').split(' · ')[0]||'อื่นๆ').trim();cnt[jt]=(cnt[jt]||0)+1;rev[jt]=(rev[jt]||0)+(o.amount||0);});
+  const rows=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,5);
+  if(!rows.length)return '';
+  return 'งานขายดี (จากออเดอร์จริง):\n'+rows.map((j,i)=>`${i+1}. ${j} — ${cnt[j]} ออเดอร์ · ยอดรวม ฿${(rev[j]||0).toLocaleString()}`).join('\n');
+}
+async function askMarketing(analyze){
+  const out=document.getElementById('mktOut'),card=document.getElementById('mktOutCard'),src=document.getElementById('mktSrc'),go=document.getElementById('mktGo');
+  let topic=document.getElementById('mktTopic').value.trim(),context='';
+  if(analyze){context=topJobsContext();if(!context){toast('ยังไม่มีออเดอร์ให้วิเคราะห์ค่ะ');return;}if(!topic)topic='โปรโมตงานที่ขายดีที่สุดของร้าน';}
+  card.style.display='';out.textContent='✍️ AI กำลังร่างให้...';src.textContent='';if(go)go.disabled=true;
+  try{
+    const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:MKT_KIND,topic,context})});
+    const d=await r.json();
+    out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
+    src.textContent=d.source==='dify'?'⚡ ร่างโดย AI (Dify)':'📋 เทมเพลตเริ่มต้น (ยังไม่เชื่อม Dify — ร่างสดได้เมื่อเชื่อมแล้ว)';
+  }catch(e){
+    out.textContent='⚠️ เชื่อมต่อ AI ไม่ได้ (worker ยังไม่ deploy หรือเน็ตมีปัญหา)\n'+e;
+    src.textContent='';
+  }finally{if(go)go.disabled=false;}
+}
+function copyMkt(){const t=document.getElementById('mktOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== role ===== */
 function setRole(r,btn){
