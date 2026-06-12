@@ -237,7 +237,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
 <div class="app" id="app" style="display:none">
   <aside class="side" id="side">
-    <div class="brand"><img src="logo-mark.svg" alt="Signmaster" style="width:44px;height:44px;flex:none;object-fit:contain"><div><b>SIGNMASTER</b><small>หลังบ้าน · Admin</small></div></div>
+    <div class="brand"><img src="logo-mark.svg" alt="Signmaster" style="width:44px;height:44px;flex:none;object-fit:contain"><div><b style="font-size:.78rem;letter-spacing:.6px">SIGNMASTER PRO</b><small>หลังบ้าน · Admin</small></div></div>
     <div class="rolebadge" id="roleBadge">👑 Admin · ดู/แก้ไขได้ทั้งหมด</div>
     <div class="lbl">เมนู</div>
     <nav class="nav" id="nav">
@@ -245,8 +245,8 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="customers"><span class="em">👥</span> ลูกค้า</a>
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
-      <a data-v="airoom"><span class="em">🤖</span> ห้องทำงาน AI</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
+      <a data-v="airoom"><span class="em">🤖</span> ห้องทำงาน AI</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
     </nav>
@@ -285,7 +285,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div class="card"><h3>📲 ช่องทางที่มา</h3><div class="csub">ลูกค้าเข้าเว็บผ่านช่องทางไหน</div><div id="sources"></div></div>
       </div>
       <div class="row">
-        <div class="card"><h3 id="salesTitle">💵 ยอดขายรายเดือน</h3><div class="csub">หน่วย: พันบาท · ตามช่วงที่เลือกด้านบน</div><div class="bars" id="bars"></div></div>
+        <div class="card"><h3>💵 ยอดขาย</h3><div class="csub" id="salesSub">ตามช่วงที่เลือกด้านบน · หน่วย: พันบาท</div><div class="bars" id="bars"></div></div>
         <div class="card queue"><h3>🏭 คิวงานผลิต</h3><div class="csub">งานที่กำลังดำเนินการ</div><div id="queue"></div></div>
       </div>
       <div class="card"><h3>🤖 Lead จากน้องอิงค์</h3><div class="csub" id="leadSub"></div>
@@ -457,13 +457,13 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           </div>
         </div>
       </div>
-      <div class="card editor-only">
-        <h3>💎 แพ็กเกจเครดิต AI</h3><div class="csub">ซื้อเครดิตเพิ่ม — ยิ่งซื้อเยอะ ยิ่งคุ้ม</div>
-        <div id="pkgGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-top:12px"></div>
-        <div class="csub" style="margin-top:12px;line-height:1.7">💳 <b>โอนตรง:</b> SCB <b>211-207922-2</b> · บจ.ซายน์ มาสเตอร์โปร<br>โอนแล้วกดแพ็กเกจ + ใส่รหัสจัดการเพื่อเติมเครดิต (หรือแจ้งทีมงาน Neo-S)</div>
+      <div class="card">
+        <h3>🤖 การใช้พลัง AI (รายการล่าสุด)</h3>
+        <div class="csub" style="margin-bottom:18px">สรุปจากประวัติ 25 รายการล่าสุด</div>
+        <div id="pwrBars" style="display:flex;flex-direction:column;gap:18px">
+          <div class="empty">กำลังโหลด...</div>
+        </div>
       </div>
-      <div class="card"><h3>📜 ประวัติการใช้เครดิต (ล่าสุด)</h3><div class="csub">เครดิตถูกใช้/เติมไปกับอะไรบ้าง · ต้นทุนจริงเห็นเฉพาะเจ้าของ</div>
-        <table><thead><tr><th>เวลา</th><th>รายการ</th><th>แผนก</th><th>เครดิต</th></tr></thead><tbody id="pwrLog"></tbody></table></div>
     </section>
 
     <!-- ===== USERS ===== -->
@@ -913,7 +913,7 @@ function renderDash(){
   const st=Object.values(agg).reduce((a,b)=>a+b,0)||1;
   document.getElementById('sources').innerHTML=Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,val])=>{const pc=Math.round(val/st*100);return `<div class="src-row"><div class="si">${SRC_META[k][0]}</div><div class="sb"><div class="l"><span>${SRC_META[k][1]}</span><span class="pc">${pc}% · ${val} คน</span></div><div class="track"><i style="width:${pc}%"></i></div></div></div>`;}).join('');
   const rev=salesBars(from,to),mx=Math.max(1,...rev.vals);
-  const stEl=document.getElementById('salesTitle');if(stEl)stEl.textContent='💵 ยอดขายราย'+rev.unit;
+  const stEl=document.getElementById('salesSub');if(stEl)stEl.textContent='แสดงราย'+rev.unit+' · หน่วย: พันบาท · ตามช่วงที่เลือก';
   document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในช่วงนี้</div>';
   const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,6);
   document.getElementById('queue').innerHTML=q.length?q.map(o=>`<div class="q"><span class="dot" style="background:${o.dot}"></span><div><div class="nm">${esc(o.c)} · ${esc(o.job)}</div><div class="meta">${o.due!=='—'?'กำหนดส่ง '+o.due:'ยังไม่กำหนดส่ง'} · ${o.amt}</div></div><span class="st ${o.stc}">${o.st}</span></div>`).join(''):'<div class="empty">ไม่มีงานในคิว</div>';
@@ -994,45 +994,50 @@ function renderChat(){
 }
 function openChat(i){const c=CHATS[i];document.getElementById('cmName').textContent=c.nm;document.getElementById('cmBody').innerHTML=c.msgs.map(m=>`<div class="msg ${m.r}">${esc(m.m)}<span class="t">${m.t}</span></div>`).join('');document.getElementById('chatModal').classList.add('open');}
 async function renderPower(){
-  const balEl=document.getElementById('pwrBalance'),subEl=document.getElementById('pwrBalSub'),logEl=document.getElementById('pwrLog'),alertEl=document.getElementById('pwrAlert');
-  if(!balEl)return; renderPackages(); balEl.textContent='...'; if(logEl)logEl.innerHTML='';
+  const balEl=document.getElementById('pwrBalance'),subEl=document.getElementById('pwrBalSub'),barsEl=document.getElementById('pwrBars'),alertEl=document.getElementById('pwrAlert');
+  if(!balEl)return;
+  balEl.textContent='...';
+  if(barsEl)barsEl.innerHTML='<div class="empty">กำลังโหลด...</div>';
   let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ balEl.textContent='—'; if(subEl)subEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; return; }
   const bal=Number(w.balance)||0, low=Number(w.low_threshold)||50;
   balEl.textContent=bal.toLocaleString()+' เครดิต';
   subEl.textContent=bal<=low?('🔴 ต่ำกว่าเกณฑ์เตือน '+low+' — ควรเติม'):('🟢 เพียงพอ (เกณฑ์เตือน '+low+')');
-  // ลายลิน แจ้งเตือน
   const A = bal<=0 ? ['lv-crit','🚨','เครดิต AI หมดแล้วค่ะ!! 💔 AI หยุดทำงานชั่วคราว รีบเติมด่วนเลยนะคะ 🙏']
     : bal<=low ? ['lv-warn','⚠️','เครดิต AI เหลือ <b>'+bal.toLocaleString()+'</b> แล้วค่ะ เริ่มน้อย 🖋️ แนะนำเติมเร็ว ๆ นี้ เดี๋ยวงานสะดุดนะคะ']
     : ['lv-ok','💚','เครดิต AI ยังเหลือเฟือ ('+bal.toLocaleString()+') น้องอิงค์กับลายลินทำงานได้ลื่น ๆ เลยค่ะ 😊'];
   alertEl.className='pwr-alert '+A[0];
   alertEl.innerHTML='<div class="a">'+A[1]+'</div><div><b>ลายลิน แจ้งเตือน</b> · พลัง AI<br>'+A[2]+'</div>';
   const badge=document.getElementById('pwrBadge');if(badge)badge.style.display=bal<=low?'inline-block':'none';
-  // ประวัติ ledger
-  const NAME={marketing:'การตลาด',inventory:'สต็อก',finance:'การเงิน',manager:'ลายลิน',ink:'น้องอิงค์',image:'Gen ภาพ'};
-  const led=Array.isArray(w.ledger)?w.ledger:[];
-  logEl.innerHTML=led.length?led.map(r=>{const t=(r.created_at||'').replace('T',' ').slice(5,16);const top=r.kind==='topup';const c=(top?'+':'−')+r.credits;const col=top?'#16a34a':'#dc2626';return `<tr><td style="color:var(--muted)">${esc(t)}</td><td>${top?'💰 เติมเครดิต':'🤖 ใช้ AI'}</td><td>${esc(top?(r.note||'-'):(NAME[r.agent]||r.agent||'-'))}</td><td><b style="color:${col}">${c}</b></td></tr>`;}).join(''):'<tr><td colspan="4"><div class="empty">ยังไม่มีรายการ</div></td></tr>';
-}
-/* แพ็กเกจเครดิต (ราคา/จำนวน ปรับได้ที่นี่) */
-const PACKAGES=[
-  {credits:500,  price:500},
-  {credits:1200, price:1000, tag:'🔥 +200 ฟรี'},
-  {credits:3000, price:2500, tag:'คุ้ม'},
-  {credits:7000, price:5000, tag:'⭐ คุ้มสุด'},
-];
-function renderPackages(){
-  const g=document.getElementById('pkgGrid');if(!g)return;
-  g.innerHTML=PACKAGES.map((p,i)=>{const rate=(p.price/p.credits).toFixed(2);
-    return `<div style="border:1.5px solid ${p.tag?'#e63900':'var(--line)'};border-radius:12px;padding:12px;text-align:center;background:#fff">`
-      +`${p.tag?`<div style="font-size:.72rem;color:#e63900;font-weight:700">${p.tag}</div>`:'<div style="height:.95rem"></div>'}`
-      +`<div style="font-size:1.35rem;font-weight:800;color:var(--accent-deep);line-height:1.1">${p.credits.toLocaleString()}</div>`
-      +`<div style="font-size:.76rem;color:var(--muted)">เครดิต</div>`
-      +`<div style="font-size:1.05rem;font-weight:700;margin-top:4px">฿${p.price.toLocaleString()}</div>`
-      +`<div style="font-size:.7rem;color:var(--muted)">฿${rate}/เครดิต</div>`
-      +`<button class="btn btn-line" style="margin-top:8px;width:100%;padding:7px" onclick="buyPackage(${i})">ซื้อ</button></div>`;}).join('');
-}
-function buyPackage(i){const p=PACKAGES[i];
-  if(!confirm('แพ็กเกจ '+p.credits.toLocaleString()+' เครดิต · ฿'+p.price.toLocaleString()+'\n\nโอนเงินตามบัญชีด้านล่างก่อน แล้วกด OK เพื่อเติมเครดิต (ต้องมีรหัสจัดการ)'))return;
-  doTopup(p.credits,'แพ็กเกจ ฿'+p.price);
+  // รวม usage ต่อกลุ่ม agent จาก ledger
+  const led=Array.isArray(w.ledger)?w.ledger.filter(r=>r.kind==='use'):[];
+  const used={manager:0,ink:0,mif:0,image:0};
+  led.forEach(r=>{
+    const a=r.agent||'';const c=Number(r.credits)||0;
+    if(a==='manager') used.manager+=c;
+    else if(a==='ink') used.ink+=c;
+    else if(['marketing','inventory','finance'].includes(a)) used.mif+=c;
+    else if(a==='image') used.image+=c;
+  });
+  const total=used.manager+used.ink+used.mif+used.image||1;
+  const BARS=[
+    {label:'👩‍💼 ลายลิน',      sub:'Manager · Sonnet 4.6',                  color:'#7c3aed', val:used.manager},
+    {label:'💬 น้องอิงค์',     sub:'AI Sale · Sonnet 4.6',                  color:'#0891b2', val:used.ink},
+    {label:'📣 Marketing + Inventory + Finance', sub:'Haiku 4.5',           color:'#059669', val:used.mif},
+    {label:'🎨 Graphic Design', sub:'FLUX · fal.ai',                        color:'#d97706', val:used.image},
+  ];
+  if(barsEl) barsEl.innerHTML=BARS.map(b=>{
+    const pct=total>1?Math.round(b.val/total*100):0;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div><span style="font-weight:700;font-size:.95rem">${b.label}</span>&nbsp;<span class="csub" style="font-size:.73rem">${b.sub}</span></div>
+        <span style="font-size:.85rem;font-weight:700;color:${b.color}">${b.val.toLocaleString()} เครดิต</span>
+      </div>
+      <div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden">
+        <div style="background:${b.color};width:${pct}%;height:100%;border-radius:99px;transition:width .7s ease;min-width:${b.val>0?'4px':'0'}"></div>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:3px;text-align:right">${pct}% ของรายการล่าสุด</div>
+    </div>`;
+  }).join('');
 }
 function doTopup(credits,note){
   let tok=localStorage.getItem('sm_admin_token')||'';
@@ -1045,22 +1050,6 @@ function doTopup(credits,note){
     }).catch(()=>toast('เชื่อมต่อไม่ได้'));
 }
 function topupCredit(){const amt=parseInt(prompt('เติมกี่เครดิต? (กำหนดเอง)','500'),10);if(!amt||amt<=0)return;doTopup(amt,'เติมเอง');}
-function usePower(i,amt){
-  const l=LLMS[i],before=remPct(l);l.used=Math.min(l.cap,l.used+amt);const after=remPct(l);
-  // เตือนตอน "ข้ามลง" แต่ละขีด · ครั้งเดียว/ขีด
-  function cross(th){return before>th&&after<=th;}
-  if(cross(1)&&!l.warned.c){l.warned.c=1;lailinPing('crit',l,after);}
-  else if(cross(20)&&!l.warned.w){l.warned.w=1;lailinPing('warn',l,after);}
-  else if(cross(50)&&!l.warned.h){l.warned.h=1;lailinPing('heads',l,after);}
-  renderPower();
-}
-function lailinPing(lv,l,p){
-  const M={heads:`🖊️ <b>ลายลิน:</b> หมึก AI ของ ${l.name} ใช้ไปครึ่งทางแล้วค่ะ ยังเหลือเฟือ ทำงานต่อได้เลยนะคะ 😊`,
-    warn:`⚠️ <b>ลายลิน:</b> หมึก AI ของ ${l.name} เหลือ ${p}% แล้วค่ะ เริ่มจางๆ 🖋️ เติมพลังเร็วๆ นี้นะคะ`,
-    crit:`🚨 <b>ลายลิน:</b> หมึก AI ของ ${l.name} เกือบหมดแล้วค่ะ!! 💔 รีบเติมด่วนเลยนะคะ 🙏`}[lv];
-  toast(M);
-}
-function topup(i){const l=LLMS[i];l.used=0;l.warned={};renderPower();toast(`⚡ <b>ลายลิน:</b> เติมหมึก AI ${l.name} เต็มถังแล้วค่ะ! ขอบคุณนะคะ 🎉 (เดโม)`);}
 function renderUsers(){
   document.getElementById('userBody').innerHTML=USERS.map((u,i)=>{const rt={admin:'👑 Admin',staff:'✏️ Staff',viewer:'👁️ Viewer'}[u.r];const del=u.r==='admin'?'<span style="color:#9aa1ad;font-size:.8rem">—</span>':`<button class="btn btn-ghost" style="padding:6px 11px;font-size:.8rem;color:#dc2626;border-color:#fecaca" onclick="delUser(${i})">ลบ</button>`;return `<tr><td><b>${esc(u.d)}</b></td><td>${esc(u.u)}</td><td>${rt}</td><td>${del}</td></tr>`;}).join('');
 }
