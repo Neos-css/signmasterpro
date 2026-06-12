@@ -703,7 +703,8 @@ function salesBars(from,to){
     while(d<=to){idx[d.getFullYear()+'-'+d.getMonth()]=vals.length;vals.push(0);labs.push(MON12[d.getMonth()]);d=new Date(d.getFullYear(),d.getMonth()+1,1);}
     ORDERS.forEach(o=>{if(!o.created)return;const k=o.created.getFullYear()+'-'+o.created.getMonth();if(idx[k]!=null)vals[idx[k]]+=(o.amount||0);});
   }
-  return {vals:vals.map(v=>Math.round(v/1000)),labs,unit:byDay?'วัน':'เดือน'};}
+  const rawMax=Math.max(0,...vals);const useThou=rawMax>=1000;
+  return {vals:vals.map(v=>useThou?Math.round(v/1000):Math.round(v)),labs,unit:byDay?'วัน':'เดือน',unitLbl:useThou?'พันบาท':'บาท',sfx:useThou?'k':'฿'};}
 // พลัง AI — หมึก AI ต่อ LLM
 const LLMS=[
   {key:'gpt',name:'GPT-4o-mini',sub:'น้องอิงค์ คุยลูกค้า',emoji:'🟢',cap:500,used:205,warned:{}},
@@ -950,8 +951,8 @@ function renderDash(){
   const st=Object.values(agg).reduce((a,b)=>a+b,0)||1;
   document.getElementById('sources').innerHTML=Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,val])=>{const pc=Math.round(val/st*100);return `<div class="src-row"><div class="si">${SRC_META[k][0]}</div><div class="sb"><div class="l"><span>${SRC_META[k][1]}</span><span class="pc">${pc}% · ${val} คน</span></div><div class="track"><i style="width:${pc}%"></i></div></div></div>`;}).join('');
   const rev=salesBars(from,to),mx=Math.max(1,...rev.vals);
-  const stEl=document.getElementById('salesSub');if(stEl)stEl.textContent='แสดงราย'+rev.unit+' · หน่วย: พันบาท · ตามช่วงที่เลือก';
-  document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในช่วงนี้</div>';
+  const stEl=document.getElementById('salesSub');if(stEl)stEl.textContent='แสดงราย'+rev.unit+' · หน่วย: '+rev.unitLbl+' · ตามช่วงที่เลือก';
+  document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${rev.sfx==='฿'?'฿'+v:v+'k'}</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในช่วงนี้</div>';
   const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,6);
   document.getElementById('queue').innerHTML=q.length?q.map(o=>`<div class="q"><span class="dot" style="background:${o.dot}"></span><div><div class="nm">${esc(o.c)} · ${esc(o.job)}</div><div class="meta">${o.due!=='—'?'กำหนดส่ง '+o.due:'ยังไม่กำหนดส่ง'} · ${o.amt}</div></div><span class="st ${o.stc}">${o.st}</span></div>`).join(''):'<div class="empty">ไม่มีงานในคิว</div>';
   document.getElementById('leadSub').textContent=`${leads.length} ราย ในช่วง ${fmt(from)}${RANGE==='today'?'':' – '+fmt(to)}`;
