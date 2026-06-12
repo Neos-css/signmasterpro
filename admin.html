@@ -444,9 +444,21 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
     <!-- ===== POWER (พลัง AI) ===== -->
     <section class="view" id="view-power">
       <div class="pwr-alert" id="pwrAlert"></div>
-      <div class="pwr-grid" id="pwrGrid"></div>
-      <div class="card"><h3>📜 ประวัติการใช้พลัง (ล่าสุด)</h3><div class="csub">หมึก AI ถูกใช้ไปกับงานอะไรบ้าง</div>
-        <table><thead><tr><th>เวลา</th><th>งาน</th><th>โมเดล</th><th>ใช้ไป</th></tr></thead><tbody id="pwrLog"></tbody></table></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="csub">⚡ เครดิต AI คงเหลือ (พลัง AI)</div>
+            <div id="pwrBalance" style="font-size:2.5rem;font-weight:800;color:var(--accent-deep);line-height:1.1">—</div>
+            <div class="csub" id="pwrBalSub"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" class="editor-only">
+            <button class="btn btn-line" onclick="topupCredit()">⚡ เติมเครดิต</button>
+            <button class="btn btn-ghost" onclick="renderPower()">🔄 รีเฟรช</button>
+          </div>
+        </div>
+      </div>
+      <div class="card"><h3>📜 ประวัติการใช้เครดิต (ล่าสุด)</h3><div class="csub">เครดิตถูกใช้/เติมไปกับอะไรบ้าง · ต้นทุนจริงเห็นเฉพาะเจ้าของ</div>
+        <table><thead><tr><th>เวลา</th><th>รายการ</th><th>แผนก</th><th>เครดิต</th></tr></thead><tbody id="pwrLog"></tbody></table></div>
     </section>
 
     <!-- ===== USERS ===== -->
@@ -475,7 +487,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
-    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม = <b>ข้อมูลจริงจาก Supabase</b> · พลัง AI &amp; จัดการภาพ = เดโม (ต่อ Worker/Storage ภายหลัง)</div>
+    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม / <b>พลัง AI (เครดิต)</b> = <b>ข้อมูลจริงจาก Supabase</b> · สต็อก &amp; จัดการภาพ = เดโม (ต่อภายหลัง)</div>
   </main>
 </div>
 
@@ -947,16 +959,36 @@ function renderChat(){
   document.getElementById('chatList').innerHTML=list.length?list.map((c,i)=>{const last=c.msgs[c.msgs.length-1];return `<div class="ci" onclick="openChat(${CHATS.indexOf(c)})"><div class="av">${esc(c.nm[0])}</div><div style="min-width:0"><div class="nm">${esc(c.nm)}</div><div class="pv">${esc(last.m)}</div></div><div class="meta">${c.when}<br><span class="cnt">${c.msgs.length} ข้อความ</span></div></div>`;}).join(''):'<div class="empty">ไม่พบบทสนทนา</div>';
 }
 function openChat(i){const c=CHATS[i];document.getElementById('cmName').textContent=c.nm;document.getElementById('cmBody').innerHTML=c.msgs.map(m=>`<div class="msg ${m.r}">${esc(m.m)}<span class="t">${m.t}</span></div>`).join('');document.getElementById('chatModal').classList.add('open');}
-function renderPower(){
-  document.getElementById('pwrGrid').innerHTML=LLMS.map((l,i)=>{const p=remPct(l),col=pwrColor(p),lv=pwrLevel(l.used/l.cap>=.5?p:p);const lvtag={ok:['🟢 ปกติ','#16a34a'],heads:['🟡 ครึ่งทาง','#f59e0b'],warn:['🟠 ใกล้หมด','#fb923c'],crit:['🔴 เกือบหมด','#ef4444']}[pwrLevel(p)];return `<div class="pwr"><div class="h"><div class="e">${l.emoji}</div><div><b>${l.name}</b><small>${l.sub}</small></div><span class="lv-tag" style="background:${lvtag[1]}22;color:${lvtag[1]}">${lvtag[0]}</span></div><div class="pct" style="color:${col}">${p}<small>% เหลือ</small></div><div class="pwr-track"><i style="width:${p}%;background:${col}"></i></div><div class="meta">ใช้ไป ฿${l.used} / ฿${l.cap}</div><div class="acts editor-only"><button onclick="usePower(${i},5)">🔮 จำลองใช้ +฿5</button><button onclick="topup(${i})">⚡ เติมพลัง</button></div></div>`;}).join('');
-  // alert = ตัวที่วิกฤตสุด
-  const worst=LLMS.slice().sort((a,b)=>remPct(a)-remPct(b))[0],p=remPct(worst);
-  const A={ok:['lv-ok','💚',`หมึก AI ทุกตัวยังเต็มเปี่ยม น้องอิงค์กับลายลินทำงานได้ลื่นๆ เลยค่ะ 😊`],heads:['lv-heads','🖊️',`หมึก AI ของ <b>${worst.name}</b> ใช้ไปครึ่งทางแล้วค่ะ — ยังเหลือเฟือ ทำงานต่อได้สบายๆ นะคะ`],warn:['lv-warn','⚠️',`หมึก AI ของ <b>${worst.name}</b> เหลือ <b>${p}%</b> แล้วค่ะ เริ่มจางๆ 🖋️ แนะนำเติมพลังเร็วๆ นี้ เดี๋ยวงานสะดุดนะคะ`],crit:['lv-crit','🚨',`หมึก AI ของ <b>${worst.name}</b> เกือบหมดแล้วค่ะ!! 💔 อีกนิดเดียว "${worst.sub}" จะทำงานไม่ได้ รีบเติมด่วนเลยนะคะ 🙏`]}[pwrLevel(p)];
-  document.getElementById('pwrAlert').className='pwr-alert '+A[0];
-  document.getElementById('pwrAlert').innerHTML=`<div class="a">${A[1]}</div><div><b>ลายลิน แจ้งเตือน</b> · พลัง AI<br>${A[2]}</div>`;
-  document.getElementById('pwrLog').innerHTML=PWR_LOG.map(r=>`<tr><td style="color:var(--muted)">${r[0]}</td><td>${esc(r[1])}</td><td>${r[2]}</td><td><b>${r[3]}</b></td></tr>`).join('');
-  // badge ในเมนู
-  const anyLow=LLMS.some(l=>remPct(l)<=20);document.getElementById('pwrBadge').style.display=anyLow?'inline-block':'none';
+async function renderPower(){
+  const balEl=document.getElementById('pwrBalance'),subEl=document.getElementById('pwrBalSub'),logEl=document.getElementById('pwrLog'),alertEl=document.getElementById('pwrAlert');
+  if(!balEl)return; balEl.textContent='...'; if(logEl)logEl.innerHTML='';
+  let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ balEl.textContent='—'; if(subEl)subEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; return; }
+  const bal=Number(w.balance)||0, low=Number(w.low_threshold)||50;
+  balEl.textContent=bal.toLocaleString()+' เครดิต';
+  subEl.textContent=bal<=low?('🔴 ต่ำกว่าเกณฑ์เตือน '+low+' — ควรเติม'):('🟢 เพียงพอ (เกณฑ์เตือน '+low+')');
+  // ลายลิน แจ้งเตือน
+  const A = bal<=0 ? ['lv-crit','🚨','เครดิต AI หมดแล้วค่ะ!! 💔 AI หยุดทำงานชั่วคราว รีบเติมด่วนเลยนะคะ 🙏']
+    : bal<=low ? ['lv-warn','⚠️','เครดิต AI เหลือ <b>'+bal.toLocaleString()+'</b> แล้วค่ะ เริ่มน้อย 🖋️ แนะนำเติมเร็ว ๆ นี้ เดี๋ยวงานสะดุดนะคะ']
+    : ['lv-ok','💚','เครดิต AI ยังเหลือเฟือ ('+bal.toLocaleString()+') น้องอิงค์กับลายลินทำงานได้ลื่น ๆ เลยค่ะ 😊'];
+  alertEl.className='pwr-alert '+A[0];
+  alertEl.innerHTML='<div class="a">'+A[1]+'</div><div><b>ลายลิน แจ้งเตือน</b> · พลัง AI<br>'+A[2]+'</div>';
+  const badge=document.getElementById('pwrBadge');if(badge)badge.style.display=bal<=low?'inline-block':'none';
+  // ประวัติ ledger
+  const NAME={marketing:'การตลาด',inventory:'สต็อก',finance:'การเงิน',manager:'ลายลิน',ink:'น้องอิงค์',image:'Gen ภาพ'};
+  const led=Array.isArray(w.ledger)?w.ledger:[];
+  logEl.innerHTML=led.length?led.map(r=>{const t=(r.created_at||'').replace('T',' ').slice(5,16);const top=r.kind==='topup';const c=(top?'+':'−')+r.credits;const col=top?'#16a34a':'#dc2626';return `<tr><td style="color:var(--muted)">${esc(t)}</td><td>${top?'💰 เติมเครดิต':'🤖 ใช้ AI'}</td><td>${esc(top?(r.note||'-'):(NAME[r.agent]||r.agent||'-'))}</td><td><b style="color:${col}">${c}</b></td></tr>`;}).join(''):'<tr><td colspan="4"><div class="empty">ยังไม่มีรายการ</div></td></tr>';
+}
+function topupCredit(){
+  const amt=parseInt(prompt('เติมกี่เครดิต?','500'),10);if(!amt||amt<=0)return;
+  let tok=localStorage.getItem('sm_admin_token')||'';
+  tok=(prompt('ใส่รหัสเติมเครดิต (ADMIN_TOKEN):',tok)||'').trim();if(!tok)return;
+  localStorage.setItem('sm_admin_token',tok);
+  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({credits:amt,note:'เติมจาก admin'})})
+    .then(r=>r.json().then(d=>({s:r.status,d}))).then(({s,d})=>{
+      if(s===401){toast('รหัสเติมเครดิตไม่ถูกต้องค่ะ 🔒');return;}
+      if(d&&d.ok){toast('⚡ เติม '+amt.toLocaleString()+' เครดิตแล้ว! ยอดใหม่ '+Number(d.balance).toLocaleString());renderPower();}
+      else toast('เติมไม่สำเร็จค่ะ');
+    }).catch(()=>toast('เชื่อมต่อไม่ได้'));
 }
 function usePower(i,amt){
   const l=LLMS[i],before=remPct(l);l.used=Math.min(l.cap,l.used+amt);const after=remPct(l);
