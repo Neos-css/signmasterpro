@@ -248,6 +248,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="marketing"><span class="em">📣</span> AI Marketing</a>
       <a data-v="inventory"><span class="em">📦</span> AI Inventory</a>
       <a data-v="finance"><span class="em">💰</span> AI Finance</a>
+      <a data-v="manager"><span class="em">👩‍💼</span> ลายลิน (Manager)</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -392,6 +393,25 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🧠 บทวิเคราะห์จาก AI</h3><button class="btn btn-ghost" onclick="copyFin()">📋 ก๊อป</button></div>
         <div id="finOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="finSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- ===== AI MANAGER (ลายลิน) ===== -->
+    <section class="view" id="view-manager">
+      <div class="lailin"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน · AI Manager</b><span class="role">ศูนย์รวม — สรุปภาพรวมร้าน + ตอบทุกเรื่องในร้าน</span><p>ลายลินดึงข้อมูลจากทุกแผนก (ขาย/สต็อก/การเงิน/Lead) มาสรุปให้ในที่เดียว · ถามอะไรก็ได้เกี่ยวกับร้านค่ะ</p></div></div>
+      <div class="card">
+        <h3 style="margin:0 0 4px">🏪 ภาพรวมร้าน ณ ตอนนี้</h3><div class="csub">รวมจากทุกแผนก — ออเดอร์/การเงิน/Lead = จริง · สต็อก = เดโม</div>
+        <div id="mgrChips" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px"></div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <input id="mgrAsk" placeholder="ถามลายลินเกี่ยวกับร้าน เช่น วันนี้ควรโฟกัสอะไร" style="flex:1;min-width:200px;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem" onkeydown="if(event.key==='Enter')askManager()">
+          <button class="btn btn-line" id="mgrGo" onclick="askManager()">💬 ถามลายลิน</button>
+          <button class="btn btn-ghost" onclick="askManager('สรุปภาพรวมร้านตอนนี้ + สิ่งที่ควรโฟกัส')">📋 สรุปภาพรวม</button>
+        </div>
+      </div>
+      <div class="card" id="mgrOutCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">👩‍💼 ลายลินตอบ</h3><button class="btn btn-ghost" onclick="copyMgr()">📋 ก๊อป</button></div>
+        <div id="mgrOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
+        <div id="mgrSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
     </section>
 
@@ -636,7 +656,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],finance:['💰 AI Finance','การเงิน — รายได้ กำไร เงินรอเก็บ + AI วิเคราะห์'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],finance:['💰 AI Finance','การเงิน — รายได้ กำไร เงินรอเก็บ + AI วิเคราะห์'],manager:['👩‍💼 ลายลิน · AI Manager','ศูนย์รวม — สรุปภาพรวมร้าน + ตอบทุกเรื่อง'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -644,7 +664,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='finance')renderFinance();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='finance')renderFinance();else if(v==='manager')renderManager();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
 
 /* ===== AI Marketing ===== */
@@ -754,6 +774,48 @@ async function askFinance(){
   finally{if(go)go.disabled=false;}
 }
 function copyFin(){const t=document.getElementById('finOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
+
+/* ===== AI Manager (ลายลิน — ศูนย์รวมข้าม agent) ===== */
+function mgrSnapshot(){
+  const c={new:0,prod:0,wait:0,done:0};ORDERS.forEach(o=>{if(c[o.status]!=null)c[o.status]++;});
+  const fin=financeStats();
+  const low=(typeof INVENTORY!=='undefined'?INVENTORY.filter(m=>m.q<=m.min):[]);
+  const leads=(typeof LEADS!=='undefined'?LEADS.length:0);
+  return {c,fin,low,leads,total:ORDERS.length};
+}
+function renderManager(){
+  const s=mgrSnapshot();const box=document.getElementById('mgrChips');if(!box)return;
+  const chips=[
+    ['🆕','ออเดอร์ใหม่',s.c.new,'#2563eb'],
+    ['🏭','กำลังทำ',s.c.prod,'#7c3aed'],
+    ['⏳','รอเก็บเงิน',fmtB(s.fin.waiting),'#d97706'],
+    ['💰','รายได้งานเสร็จ',fmtB(s.fin.realized),'#16a34a'],
+    ['📦','ของใกล้หมด',s.low.length+' รายการ',s.low.length?'#dc2626':'#16a34a'],
+    ['🤝','Lead ใหม่',s.leads,'#0891b2'],
+  ];
+  box.innerHTML=chips.map(c=>`<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:#fff"><div style="font-size:.8rem;color:var(--muted)">${c[0]} ${c[1]}</div><div style="font-size:1.15rem;font-weight:800;color:${c[3]};margin-top:3px">${c[2]}</div></div>`).join('');
+}
+function managerContext(){
+  const s=mgrSnapshot();const lowNames=s.low.map(m=>m.n).join(', ')||'-';
+  return `ภาพรวมร้าน ณ ตอนนี้:\n`
+    +`- ออเดอร์: ทั้งหมด ${s.total} (ใหม่ ${s.c.new} · กำลังทำ ${s.c.prod} · รอชำระ ${s.c.wait} · เสร็จ ${s.c.done})\n`
+    +`- การเงิน: รายได้งานเสร็จ ${fmtB(s.fin.realized)} · รอเก็บเงิน ${fmtB(s.fin.waiting)} · งานกำลังทำ ${fmtB(s.fin.pipeline)}\n`
+    +`- สต็อก: ของใกล้หมด ${s.low.length} รายการ (${lowNames})\n`
+    +`- Lead ใหม่: ${s.leads} รายการ`;
+}
+async function askManager(q){
+  const out=document.getElementById('mgrOut'),card=document.getElementById('mgrOutCard'),src=document.getElementById('mgrSrc'),go=document.getElementById('mgrGo');
+  const topic=(typeof q==='string'?q:(document.getElementById('mgrAsk').value||'').trim());
+  card.style.display='';out.textContent='👩‍💼 ลายลินกำลังดูข้อมูลร้าน...';src.textContent='';if(go)go.disabled=true;
+  try{
+    const r=await fetch(AGENTS_WORKER+'/manager',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,context:managerContext()})});
+    const d=await r.json();
+    out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
+    src.textContent=d.source==='dify'?'⚡ ตอบโดยลายลิน (Dify)':'📋 สรุปเทมเพลต (เชื่อม Dify แล้วลายลินจะตอบคำถามอิสระได้)';
+  }catch(e){out.textContent='⚠️ เชื่อมต่อ AI ไม่ได้ (worker ยังไม่ deploy หรือเน็ตมีปัญหา)\n'+e;src.textContent='';}
+  finally{if(go)go.disabled=false;}
+}
+function copyMgr(){const t=document.getElementById('mgrOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== role ===== */
 function setRole(r,btn){
