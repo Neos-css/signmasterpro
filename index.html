@@ -325,11 +325,6 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <clipPath id="smclip"><use href="#smart"/></clipPath>
 <!-- แสงวิ่ง: mask alpha = เงาโลโก้เป๊ะ (รับ <g> ได้ · ไม่สนสีส้ม/แดง) + gradient ให้แสงนุ่ม -->
 <mask id="smmask" maskUnits="userSpaceOnUse" style="mask-type:alpha"><use href="#smart"/></mask>
-<linearGradient id="smShineGrad" x1="0" y1="0" x2="1" y2="0">
-  <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-  <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
-  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-</linearGradient>
 </defs></svg>
 
 <!-- DEMO banner -->
@@ -339,7 +334,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <header class="nav">
   <div class="wrap nav-in">
     <a href="#top" class="brand">
-      <svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="120" y="148" width="80" height="230" transform="skewX(-18)" fill="url(#smShineGrad)"/></g></g></svg>
+      <svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><defs><linearGradient id="smSG1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".85"/><stop offset=".65" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="120" y="148" width="80" height="230" transform="skewX(-18)" fill="url(#smSG1)"/></g></g></svg>
       <span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span>
     </a>
     <nav class="nav-links" id="navLinks">
@@ -571,7 +566,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="brand on-dark" style="margin-bottom:14px"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="120" y="148" width="80" height="230" transform="skewX(-18)" fill="url(#smShineGrad)"/></g></g></svg><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
+        <div class="brand on-dark" style="margin-bottom:14px"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><defs><linearGradient id="smSG2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".85"/><stop offset=".65" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><use href="#smart"/><g mask="url(#smmask)"><g class="logo-shine"><rect x="120" y="148" width="80" height="230" transform="skewX(-18)" fill="url(#smSG2)"/></g></g></svg><span class="wm"><span class="wm-main">SIGNMASTER PRO</span><small>ศูนย์ป้ายโฆษณาครบวงจร</small></span></div>
         <p data-en="We produce and install every kind of advertising sign — booths, inkjet, signage and lightboxes — complete, with an AI-powered ordering and quoting system.">รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด — บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งงาน + ประเมินราคาด้วย AI</p>
       </div>
       <div>
