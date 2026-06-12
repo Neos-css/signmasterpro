@@ -237,7 +237,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
 <div class="app" id="app" style="display:none">
   <aside class="side" id="side">
-    <div class="brand"><span class="mk"><span>S</span></span><div><b>SIGNMASTER</b><small>หลังบ้าน · Admin</small></div></div>
+    <div class="brand"><img src="logo-mark.svg" alt="Signmaster" style="width:44px;height:44px;flex:none;object-fit:contain"><div><b>SIGNMASTER</b><small>หลังบ้าน · Admin</small></div></div>
     <div class="rolebadge" id="roleBadge">👑 Admin · ดู/แก้ไขได้ทั้งหมด</div>
     <div class="lbl">เมนู</div>
     <nav class="nav" id="nav">
@@ -245,10 +245,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="customers"><span class="em">👥</span> ลูกค้า</a>
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
-      <a data-v="marketing"><span class="em">📣</span> AI Marketing</a>
-      <a data-v="inventory"><span class="em">📦</span> AI Inventory</a>
-      <a data-v="finance"><span class="em">💰</span> AI Finance</a>
-      <a data-v="manager"><span class="em">👩‍💼</span> ลายลิน (Manager)</a>
+      <a data-v="airoom"><span class="em">🤖</span> ห้องทำงาน AI</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -288,7 +285,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div class="card"><h3>📲 ช่องทางที่มา</h3><div class="csub">ลูกค้าเข้าเว็บผ่านช่องทางไหน</div><div id="sources"></div></div>
       </div>
       <div class="row">
-        <div class="card"><h3>💵 ยอดขาย 6 เดือนล่าสุด</h3><div class="csub">หน่วย: พันบาท · จากออเดอร์จริงในระบบ</div><div class="bars" id="bars"></div></div>
+        <div class="card"><h3 id="salesTitle">💵 ยอดขายรายเดือน</h3><div class="csub">หน่วย: พันบาท · ตามช่วงที่เลือกด้านบน</div><div class="bars" id="bars"></div></div>
         <div class="card queue"><h3>🏭 คิวงานผลิต</h3><div class="csub">งานที่กำลังดำเนินการ</div><div id="queue"></div></div>
       </div>
       <div class="card"><h3>🤖 Lead จากน้องอิงค์</h3><div class="csub" id="leadSub"></div>
@@ -330,7 +327,14 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
     </section>
 
     <!-- ===== AI MARKETING ===== -->
-    <section class="view" id="view-marketing">
+    <section class="view" id="view-airoom">
+      <div class="imgtabs" id="aiTabs" style="margin-bottom:6px">
+        <button class="imgtab on" onclick="aiTab('marketing',this)">📣 การตลาด</button>
+        <button class="imgtab" onclick="aiTab('inventory',this)">📦 สต็อก</button>
+        <button class="imgtab" onclick="aiTab('finance',this)">💰 การเงิน</button>
+        <button class="imgtab" onclick="aiTab('manager',this)">👩‍💼 ลายลิน</button>
+      </div>
+      <div class="ai-panel" id="ai-marketing">
       <div class="lailin"><div class="ava">📣</div><div class="tx"><b>AI Marketing</b><span class="role">ผู้ช่วยการตลาด · ร่างคอนเทนต์/แคปชั่น/แคมเปญ</span><p>เลือกชนิดงาน ใส่หัวข้อหรือโปรที่อยากดัน แล้วกดให้ AI ร่างให้ได้เลยค่ะ — หรือกดวิเคราะห์งานขายดีเพื่อให้แนะนำว่าควรโปรโมตอะไร</p></div></div>
       <div class="card">
         <h3>📝 สร้างคอนเทนต์การตลาด</h3><div class="csub">เลือกชนิด → ใส่หัวข้อ/โปร → ให้ AI ร่าง</div>
@@ -351,10 +355,10 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div id="mktOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="mktSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- ===== AI INVENTORY ===== -->
-    <section class="view" id="view-inventory">
+    <!-- ===== AI INVENTORY (แท็บ) ===== -->
+    <div class="ai-panel" id="ai-inventory" style="display:none">
       <div class="lailin"><div class="ava">📦</div><div class="tx"><b>AI Inventory</b><span class="role">จัดการสต็อกวัสดุ · เตือนของใกล้หมด + แนะนำสั่งซื้อ</span><p>แก้จำนวนคงเหลือได้ในตาราง · ของที่ต่ำกว่าจุดสั่งซื้อจะขึ้น 🔴 แล้วกดให้ AI แนะนำว่าควรสั่งอะไรก่อนค่ะ</p></div></div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
@@ -372,10 +376,10 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div id="invOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="invSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- ===== AI FINANCE ===== -->
-    <section class="view" id="view-finance">
+    <!-- ===== AI FINANCE (แท็บ) ===== -->
+    <div class="ai-panel" id="ai-finance" style="display:none">
       <div class="lailin"><div class="ava">💰</div><div class="tx"><b>AI Finance</b><span class="role">การเงิน — รายได้ กำไร เงินรอเก็บ จากออเดอร์จริง</span><p>ตัวเลขคำนวณจากออเดอร์จริงในระบบ · ปรับ % กำไรขั้นต้นเพื่อประเมินกำไร แล้วกดให้ AI สรุป+แนะนำค่ะ</p></div></div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
@@ -394,10 +398,10 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div id="finOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="finSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- ===== AI MANAGER (ลายลิน) ===== -->
-    <section class="view" id="view-manager">
+    <!-- ===== AI MANAGER (ลายลิน · แท็บ) ===== -->
+    <div class="ai-panel" id="ai-manager" style="display:none">
       <div class="lailin"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน · AI Manager</b><span class="role">ศูนย์รวม — สรุปภาพรวมร้าน + ตอบทุกเรื่องในร้าน</span><p>ลายลินดึงข้อมูลจากทุกแผนก (ขาย/สต็อก/การเงิน/Lead) มาสรุปให้ในที่เดียว · ถามอะไรก็ได้เกี่ยวกับร้านค่ะ</p></div></div>
       <div class="card">
         <h3 style="margin:0 0 4px">🏪 ภาพรวมร้าน ณ ตอนนี้</h3><div class="csub">รวมจากทุกแผนก — ออเดอร์/การเงิน/Lead = จริง · สต็อก = เดโม</div>
@@ -413,6 +417,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div id="mgrOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="mgrSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
+    </div>
     </section>
 
     <!-- ===== IMAGE MANAGER ===== -->
@@ -617,16 +622,34 @@ async function loadUsers(){
 async function loadAll(){
   if(!window.SB)return;
   await Promise.all([loadOrders(),loadLeads(),loadCustomers(),loadChats(),loadVisits(),loadUsers()]);
-  // นับจำนวนออเดอร์ต่อลูกค้า (จาก customer_id)
+  // guest order: ออเดอร์ไม่ล็อกอิน (ไม่มี customer_id) → ผูกเข้าบัญชีลูกค้าด้วยเบอร์โทร
+  const byPhone={};CUSTOMERS.forEach(c=>{const p=normPhone(c.tel);if(p)byPhone[p]=c.cid;});
+  ORDERS.forEach(o=>{if(!o.cid&&o.phone){const p=normPhone(o.phone);if(p&&byPhone[p]){o.cid=byPhone[p];o.guestMatched=true;}}});
+  // นับจำนวนออเดอร์ต่อลูกค้า (รวม guest ที่ผูกแล้ว)
   const cnt={};ORDERS.forEach(o=>{if(o.cid)cnt[o.cid]=(cnt[o.cid]||0)+1;});
   CUSTOMERS.forEach(c=>{c.orders=cnt[c.cid]||0;});
 }
+// normalize เบอร์โทร (เอาเฉพาะตัวเลข 9 หลักท้าย) สำหรับจับคู่ guest order ↔ ลูกค้า
+function normPhone(s){const d=(s||'').replace(/\D/g,'');return d.length>=9?d.slice(-9):'';}
 // ยอดขายรายเดือน 6 เดือนล่าสุด (จากออเดอร์จริง · หน่วยพันบาท)
 function revByMonth(){const now=new Date(),vals=[],labs=[];
   for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labs.push(MON12[d.getMonth()]);
     const sum=ORDERS.filter(o=>o.created&&o.created.getFullYear()===d.getFullYear()&&o.created.getMonth()===d.getMonth()).reduce((a,o)=>a+o.amount,0);
     vals.push(Math.round(sum/1000));}
   return {vals,labs};}
+// ยอดขายตามช่วงที่เลือก: ≤62 วัน = รายวัน · เกินนั้น = รายเดือน (หน่วยพันบาท)
+function salesBars(from,to){
+  const DAY=86400000, span=Math.round((midnight(to)-midnight(from))/DAY)+1, byDay=span<=62;
+  const vals=[],labs=[],idx={};
+  if(byDay){
+    for(let t=midnight(from).getTime();t<=to.getTime();t+=DAY){const d=new Date(t);idx[midnight(d).getTime()]=vals.length;vals.push(0);labs.push(d.getDate());}
+    ORDERS.forEach(o=>{if(!o.created)return;const k=midnight(o.created).getTime();if(idx[k]!=null)vals[idx[k]]+=(o.amount||0);});
+  }else{
+    let d=new Date(from.getFullYear(),from.getMonth(),1);
+    while(d<=to){idx[d.getFullYear()+'-'+d.getMonth()]=vals.length;vals.push(0);labs.push(MON12[d.getMonth()]);d=new Date(d.getFullYear(),d.getMonth()+1,1);}
+    ORDERS.forEach(o=>{if(!o.created)return;const k=o.created.getFullYear()+'-'+o.created.getMonth();if(idx[k]!=null)vals[idx[k]]+=(o.amount||0);});
+  }
+  return {vals:vals.map(v=>Math.round(v/1000)),labs,unit:byDay?'วัน':'เดือน'};}
 // พลัง AI — หมึก AI ต่อ LLM
 const LLMS=[
   {key:'gpt',name:'GPT-4o-mini',sub:'น้องอิงค์ คุยลูกค้า',emoji:'🟢',cap:500,used:205,warned:{}},
@@ -656,7 +679,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],finance:['💰 AI Finance','การเงิน — รายได้ กำไร เงินรอเก็บ + AI วิเคราะห์'],manager:['👩‍💼 ลายลิน · AI Manager','ศูนย์รวม — สรุปภาพรวมร้าน + ตอบทุกเรื่อง'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -664,7 +687,22 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='finance')renderFinance();else if(v==='manager')renderManager();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+}
+
+/* ===== ห้องทำงาน AI (รวม 4 แผนกเป็นแท็บในวิวเดียว) ===== */
+let AI_TAB='marketing';
+const AI_RENDER={marketing:function(){renderMarketing();},inventory:function(){renderInventory();},finance:function(){renderFinance();},manager:function(){renderManager();}};
+function aiTab(key,btn){
+  AI_TAB=key;
+  document.querySelectorAll('#aiTabs .imgtab').forEach(b=>b.classList.toggle('on',b===btn));
+  ['marketing','inventory','finance','manager'].forEach(k=>{const p=document.getElementById('ai-'+k);if(p)p.style.display=k===key?'':'none';});
+  (AI_RENDER[key]||function(){})();
+}
+function renderAIRoom(){
+  const btns=document.querySelectorAll('#aiTabs .imgtab');let btn=btns[0];
+  btns.forEach(b=>{const oc=b.getAttribute('onclick')||'';if(oc.indexOf("'"+AI_TAB+"'")>=0)btn=b;});
+  aiTab(AI_TAB,btn);
 }
 
 /* ===== AI Marketing ===== */
@@ -851,8 +889,9 @@ function renderDash(){
   document.getElementById('visitSub').textContent=`รวม ${totalVisit.toLocaleString()} คน · ${vis.length} วัน`;
   const st=Object.values(agg).reduce((a,b)=>a+b,0)||1;
   document.getElementById('sources').innerHTML=Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,val])=>{const pc=Math.round(val/st*100);return `<div class="src-row"><div class="si">${SRC_META[k][0]}</div><div class="sb"><div class="l"><span>${SRC_META[k][1]}</span><span class="pc">${pc}% · ${val} คน</span></div><div class="track"><i style="width:${pc}%"></i></div></div></div>`;}).join('');
-  const rev=revByMonth(),mx=Math.max(1,...rev.vals);
-  document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในระบบ</div>';
+  const rev=salesBars(from,to),mx=Math.max(1,...rev.vals);
+  const stEl=document.getElementById('salesTitle');if(stEl)stEl.textContent='💵 ยอดขายราย'+rev.unit;
+  document.getElementById('bars').innerHTML=rev.vals.some(v=>v>0)?rev.vals.map((v,i)=>`<div class="b"><span class="val">${v}k</span><div class="bar" style="height:${Math.round(v/mx*100)}%"></div><small>${rev.labs[i]}</small></div>`).join(''):'<div class="empty">ยังไม่มียอดขายในช่วงนี้</div>';
   const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,6);
   document.getElementById('queue').innerHTML=q.length?q.map(o=>`<div class="q"><span class="dot" style="background:${o.dot}"></span><div><div class="nm">${esc(o.c)} · ${esc(o.job)}</div><div class="meta">${o.due!=='—'?'กำหนดส่ง '+o.due:'ยังไม่กำหนดส่ง'} · ${o.amt}</div></div><span class="st ${o.stc}">${o.st}</span></div>`).join(''):'<div class="empty">ไม่มีงานในคิว</div>';
   document.getElementById('leadSub').textContent=`${leads.length} ราย ในช่วง ${fmt(from)}${RANGE==='today'?'':' – '+fmt(to)}`;
