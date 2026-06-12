@@ -897,7 +897,7 @@ async function submitWork(){
   if(window.SB){
     // ลูกค้า Gen ภาพ mockup ไว้ → เก็บเข้าระบบเรา (Supabase Storage) แนบกับออเดอร์
     let imgTag='';
-    if(window.SM_MOCKUP){try{const sr=await fetch('https://signmaster-agents.neos-css01.workers.dev/save-mockup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:window.SM_MOCKUP,ref:no})});const sd=await sr.json();if(sd.url)imgTag='\n@IMG='+sd.url;}catch(e){}}
+    if(window.SM_MOCKUP){try{const sr=await fetch('https://signmaster-agents.neos-css01.workers.dev/save-mockup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:window.SM_MOCKUP,ref:no})});const sd=await sr.json();if(sd.path)imgTag='\n@IMG='+sd.path;}catch(e){}}
     const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:detail,source:'web',status:'new'};
     const qp=d.priced?('\n@Q='+JSON.stringify({customer:{name:d.c.name,phone:d.c.phone,email:d.c.email,note:d.c.note},items:d.items,quoteNo:no})):'';
     const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:d.c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:d.c.phone||null,job:d.jobName,material:d.jobName,size:d.w+'x'+d.h+' ม.',qty:d.qty,area_sqm:d.a,amount:d.priced?d.grand:null,status:'new',note:detail+qp+imgTag};

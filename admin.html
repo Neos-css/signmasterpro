@@ -928,12 +928,31 @@ function renderCustomers(){
   document.getElementById('custSum').textContent=`${list.length} ราย · 💎 สมาชิก ${mem} · ⭐ VIP ${vip}`;
 }
 function orderDetail(el){
-  const raw=el.getAttribute('data-d')||'—';
+  const raw=el.getAttribute('data-d')||'—', id=el.getAttribute('data-id')||'';
   const txt=raw.split('\n@Q=')[0].split('\n@IMG=')[0];
-  const img=((raw.split('\n@IMG=')[1]||'').split('\n')[0]).trim();
-  document.getElementById('ordDetailBody').innerHTML=esc(txt).replace(/\n/g,'<br>')
-    +(img?('<div style="margin-top:12px"><div class="csub" style="margin-bottom:6px">🎨 แบบที่ลูกค้า Gen ไว้:</div><img src="'+esc(img)+'" alt="mockup" style="max-width:100%;border-radius:10px;border:1px solid var(--line)"></div>'):'');
+  const p=((raw.split('\n@IMG=')[1]||'').split('\n')[0]).trim();
+  let html=esc(txt).replace(/\n/g,'<br>');
+  if(p){const view=AGENTS_WORKER+'/mockup?p='+encodeURIComponent(p);
+    html+='<div style="margin-top:12px"><div class="csub" style="margin-bottom:6px">🎨 แบบที่ลูกค้า Gen ไว้ (เห็นเฉพาะแอดมิน):</div>'
+      +'<img src="'+view+'" alt="mockup" style="max-width:100%;border-radius:10px;border:1px solid var(--line)">'
+      +'<div style="display:flex;gap:8px;margin-top:8px"><a class="btn btn-ghost" href="'+view+'&dl=1" style="text-decoration:none">⬇️ โหลดเข้าเครื่อง</a>'
+      +'<button class="btn btn-ghost" onclick="delMockup(\''+esc(id)+'\',\''+esc(p)+'\')">🗑️ ลบรูป</button></div></div>';
+  }
+  document.getElementById('ordDetailBody').innerHTML=html;
   document.getElementById('ordDetailModal').style.display='grid';
+}
+async function delMockup(id,p){
+  if(!confirm('ลบรูป mockup นี้ออกจากระบบ?'))return;
+  let tok=localStorage.getItem('sm_admin_token')||'';
+  if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
+  try{
+    const r=await fetch(AGENTS_WORKER+'/mockup-del',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({p:p})});
+    if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
+    const d=await r.json();if(!d.ok){toast('ลบไฟล์ไม่สำเร็จค่ะ');return;}
+    if(id&&window.SB){const ord=ORDERS.find(x=>String(x.id)===String(id));
+      if(ord){const nn=(ord.note||'').replace(/\n@IMG=[^\n]*/,'');try{await SB.from('sm_orders').update({note:nn}).eq('id',id);ord.note=nn;}catch(e){}}}
+    toast('ลบรูปแล้วค่ะ 🗑️');document.getElementById('ordDetailModal').style.display='none';renderOrders();
+  }catch(e){toast('เชื่อมต่อไม่ได้');}
 }
 /* เปลี่ยนสถานะออเดอร์ (คน/ลายลินสั่งได้) → sync ไปฝั่งลูกค้า "ออเดอร์ของฉัน" */
 async function setOrderStatus(id,status){
@@ -963,7 +982,7 @@ function renderOrders(){
     const qjson=(o.note||'').split('\n@Q=')[1]||'';
     const bStyle='padding:5px 9px;font-size:.78rem';
     const qbtn=qjson?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="viewQuote(this)" data-q="'+esc(qjson)+'">📄 ใบเสนอราคา</button> ':'';
-    const dbtn=o.note?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="orderDetail(this)" data-d="'+esc(o.note)+'">🔍 ดู</button>':'';
+    const dbtn=o.note?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="orderDetail(this)" data-id="'+esc(o.id)+'" data-d="'+esc(o.note)+'">🔍 ดู</button>':'';
     return '<tr><td><b>'+esc(o.c)+'</b></td><td>'+esc(o.job)+'</td><td><b>'+o.amt+'</b></td><td>'+(o.phone?'<a href="tel:'+esc(o.phone)+'" style="color:#e63900;font-weight:600">📞 '+esc(o.phone)+'</a>':'—')+'</td><td>'+o.due+'</td><td>'+sel+'</td><td style="white-space:nowrap">'+qbtn+dbtn+'</td></tr>';
   }).join(''):'<tr><td colspan="7"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
   document.getElementById('ordSum').textContent=`${list.length} ออเดอร์`;
