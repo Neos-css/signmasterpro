@@ -487,7 +487,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
           <div class="field"><label data-en="Describe the design you want (brief for AI)">อธิบายแบบที่ต้องการ (บรีฟให้ AI)</label>
             <input id="aiPrompt" placeholder="เช่น ป้ายร้านกาแฟ โทนน้ำตาล มินิมอล มีโลโก้แก้วกาแฟ" data-en-ph="e.g. Coffee shop sign, brown tone, minimal, with a coffee-cup logo"></div>
           <div class="preview-box" id="aiPreview">
-            <div data-en="🤖<br><b>The AI design sample will appear here</b><br><small>* Demo: Ink will generate real images via AI once the backend (Gemini) is connected</small>">🤖<br><b>ตัวอย่างแบบจากน้องอิงค์จะแสดงตรงนี้</b><br><small>* เดโม: น้องอิงค์จะ Gen ภาพจริงด้วย AI เมื่อต่อ backend (Gemini)</small></div>
+            <div data-en="🤖<br><b>The AI design sample will appear here</b><br><small>Enter a brief and your phone — our team will follow up with a sample</small>">🤖<br><b>ตัวอย่างแบบจากน้องอิงค์จะแสดงตรงนี้</b><br><small>ใส่บรีฟ + เบอร์โทร แล้วกดสร้าง · ทีมงานจะติดต่อกลับพร้อมตัวอย่าง</small></div>
           </div>
           <button class="btn btn-dark" style="margin-top:14px" onclick="mockGen()" data-en="✨ Try AI sample">✨ ลองให้ AI สร้างตัวอย่าง</button>
         </div>
@@ -766,12 +766,21 @@ function onFile(e){
   r.onload=ev=>{state.img=ev.target.result;document.getElementById('previewBox').innerHTML=`<img src="${ev.target.result}">`};
   r.readAsDataURL(f);
 }
-function mockGen(){
+async function mockGen(){
   const p=(document.getElementById('aiPrompt').value||'').trim();
   if(!p){toast('พิมพ์บรีฟให้ AI ก่อนนะคะ');return}
+  // กันสแปม: ต้องมีเบอร์ (ดึงจากฟอร์ม หรือถามก่อน)
+  let phone=((document.getElementById('cPhone')||{}).value||'').trim();
+  if(!phone){phone=(prompt(t('กรอกเบอร์โทรเพื่อรับตัวอย่าง (ทีมงานจะติดต่อกลับค่ะ):','Enter your phone to get a sample (our team will follow up):'),'')||'').trim();if(!phone)return;}
   const box=document.getElementById('aiPreview');
-  box.innerHTML='<div>⏳ กำลังจินตนาการแบบ...</div>';
-  setTimeout(()=>{box.innerHTML='<div>🤖<br><b>ตัวอย่าง (เดโม)</b><br><small>บรีฟ: “'+p+'”<br>ระบบ Gen ภาพจริงด้วย Gemini จะเชื่อมตอนต่อ backend</small></div>'},900);
+  box.innerHTML='<div>⏳ '+t('กำลังจินตนาการแบบ...','Imagining your design...')+'</div>';
+  try{
+    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brief:p,phone:phone})});
+    const d=await r.json();
+    if(d.url){box.innerHTML='<img src="'+d.url+'" alt="ตัวอย่างแบบป้าย" style="max-width:100%;border-radius:10px">'+(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');}
+    else if(d.message){box.innerHTML='<div style="padding:6px">🤖<br><b>'+esc(d.message)+'</b></div>';}
+    else{box.innerHTML='<div>⚠️ '+t('สร้างภาพไม่สำเร็จ ลองใหม่นะคะ','Failed, please try again')+'</div>';}
+  }catch(e){box.innerHTML='<div>⚠️ '+t('เชื่อมต่อไม่ได้ ลองใหม่นะคะ','Connection error, try again')+'</div>';}
 }
 
 function buildMaterials(){
