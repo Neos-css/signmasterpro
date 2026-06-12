@@ -20,6 +20,10 @@ Account Sign.jpg
 Sign V2.svg
 signature.*
 stamp.*
+_sign-stamp.*
+*sign-stamp*
+_sign*.png*
+_sign*.jpg*
 
 # ===== OS / junk =====
 Thumbs.db
