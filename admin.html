@@ -247,6 +247,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
       <a data-v="marketing"><span class="em">📣</span> AI Marketing</a>
       <a data-v="inventory"><span class="em">📦</span> AI Inventory</a>
+      <a data-v="finance"><span class="em">💰</span> AI Finance</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -369,6 +370,28 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🧠 คำแนะนำจาก AI</h3><button class="btn btn-ghost" onclick="copyInv()">📋 ก๊อป</button></div>
         <div id="invOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="invSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- ===== AI FINANCE ===== -->
+    <section class="view" id="view-finance">
+      <div class="lailin"><div class="ava">💰</div><div class="tx"><b>AI Finance</b><span class="role">การเงิน — รายได้ กำไร เงินรอเก็บ จากออเดอร์จริง</span><p>ตัวเลขคำนวณจากออเดอร์จริงในระบบ · ปรับ % กำไรขั้นต้นเพื่อประเมินกำไร แล้วกดให้ AI สรุป+แนะนำค่ะ</p></div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0">📊 ภาพรวมการเงิน</h3>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label style="font-size:.85rem;color:var(--muted)">กำไรขั้นต้น %</label>
+            <input type="number" id="finMargin" value="40" min="0" max="100" style="width:62px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;text-align:center" onchange="renderFinance()">
+            <button class="btn btn-line" id="finGo" onclick="askFinance()">🤖 วิเคราะห์ + คำแนะนำ</button>
+          </div>
+        </div>
+        <div class="csub">รายได้ = ยอดออเดอร์ (รวม VAT) · ปรับ % กำไรเพื่อประเมินกำไรขั้นต้น</div>
+        <div id="finKpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-top:12px"></div>
+      </div>
+      <div class="card" id="finOutCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🧠 บทวิเคราะห์จาก AI</h3><button class="btn btn-ghost" onclick="copyFin()">📋 ก๊อป</button></div>
+        <div id="finOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
+        <div id="finSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
     </section>
 
@@ -613,7 +636,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],finance:['💰 AI Finance','การเงิน — รายได้ กำไร เงินรอเก็บ + AI วิเคราะห์'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -621,7 +644,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='finance')renderFinance();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
 
 /* ===== AI Marketing ===== */
@@ -689,6 +712,48 @@ async function askInventory(){
   finally{if(go)go.disabled=false;}
 }
 function copyInv(){const t=document.getElementById('invOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
+
+/* ===== AI Finance (คำนวณจากออเดอร์จริง ORDERS) ===== */
+function fmtB(n){return '฿'+Math.round(n||0).toLocaleString();}
+function financeStats(){
+  let realized=0,waiting=0,pipeline=0,all=0,cnt=0;
+  ORDERS.forEach(o=>{const a=o.amount||0;if(a){all+=a;cnt++;}
+    if(o.status==='done')realized+=a;else if(o.status==='wait')waiting+=a;else if(o.status==='new'||o.status==='prod')pipeline+=a;});
+  const mEl=document.getElementById('finMargin');
+  const margin=Math.min(100,Math.max(0,parseInt(mEl?mEl.value:40,10)||40))/100;
+  return {realized,waiting,pipeline,all,cnt,avg:cnt?all/cnt:0,profit:realized*margin,marginPct:margin*100};
+}
+function renderFinance(){
+  const s=financeStats();const box=document.getElementById('finKpis');if(!box)return;
+  const cards=[
+    ['💰','รายได้ (งานเสร็จ)',fmtB(s.realized),'#16a34a'],
+    ['⏳','รอเก็บเงิน',fmtB(s.waiting),'#d97706'],
+    ['🏭','งานกำลังทำ',fmtB(s.pipeline),'#2563eb'],
+    ['📈','กำไรประมาณ ('+s.marginPct.toFixed(0)+'%)',fmtB(s.profit),'#7c3aed'],
+  ];
+  box.innerHTML=cards.map(c=>`<div style="border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff"><div style="font-size:1.35rem">${c[0]}</div><div style="font-size:1.45rem;font-weight:800;color:${c[3]};margin-top:4px">${c[2]}</div><div style="font-size:.82rem;color:var(--muted);margin-top:2px">${c[1]}</div></div>`).join('');
+}
+function financeContext(){
+  const s=financeStats();
+  return `ข้อมูลการเงิน (จากออเดอร์จริง ${s.cnt} รายการ):\n`
+    +`- รายได้ที่รับแล้ว (งานเสร็จ): ${fmtB(s.realized)}\n`
+    +`- เงินรอชำระ (รอเก็บเงิน): ${fmtB(s.waiting)}\n`
+    +`- มูลค่างานกำลังทำ: ${fmtB(s.pipeline)}\n`
+    +`- ออเดอร์เฉลี่ย/รายการ: ${fmtB(s.avg)}\n`
+    +`- กำไรขั้นต้นประมาณ (${s.marginPct.toFixed(0)}%): ${fmtB(s.profit)}`;
+}
+async function askFinance(){
+  const out=document.getElementById('finOut'),card=document.getElementById('finOutCard'),src=document.getElementById('finSrc'),go=document.getElementById('finGo');
+  card.style.display='';out.textContent='🤖 AI กำลังวิเคราะห์การเงิน...';src.textContent='';if(go)go.disabled=true;
+  try{
+    const r=await fetch(AGENTS_WORKER+'/finance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:'',context:financeContext()})});
+    const d=await r.json();
+    out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
+    src.textContent=d.source==='dify'?'⚡ วิเคราะห์โดย AI (Dify)':'📋 เทมเพลตเริ่มต้น (เชื่อม Dify แล้วจะวิเคราะห์แนวโน้มเชิงลึก)';
+  }catch(e){out.textContent='⚠️ เชื่อมต่อ AI ไม่ได้ (worker ยังไม่ deploy หรือเน็ตมีปัญหา)\n'+e;src.textContent='';}
+  finally{if(go)go.disabled=false;}
+}
+function copyFin(){const t=document.getElementById('finOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== role ===== */
 function setRole(r,btn){
