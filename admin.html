@@ -368,7 +368,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
             <button class="btn btn-line" onclick="askInventory()" id="invGo">🤖 วิเคราะห์ + แนะนำสั่งซื้อ</button>
           </div>
         </div>
-        <div class="csub">ข้อมูลตัวอย่าง (เดโม) — ต่อ Supabase <code>sm_inventory</code> ภายหลัง · แก้คงเหลือได้เลย</div>
+        <div class="csub">ข้อมูลจริงจาก Supabase <code>sm_inventory</code> · แก้คงเหลือ/เพิ่ม/ลบได้ (ใช้รหัสจัดการ)</div>
         <table style="margin-top:10px"><thead><tr><th style="text-align:left">วัสดุ</th><th>หน่วย</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th><th>สถานะ</th></tr></thead><tbody id="invBody"></tbody></table>
       </div>
       <div class="card" id="invOutCard" style="display:none">
@@ -487,7 +487,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
-    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม / <b>พลัง AI (เครดิต)</b> = <b>ข้อมูลจริงจาก Supabase</b> · สต็อก &amp; จัดการภาพ = เดโม (ต่อภายหลัง)</div>
+    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม / <b>พลัง AI (เครดิต)</b> / <b>สต็อกวัสดุ</b> = <b>ข้อมูลจริงจาก Supabase</b> · จัดการภาพ = เดโม (ต่อ Storage ภายหลัง)</div>
   </main>
 </div>
 
@@ -748,27 +748,33 @@ async function askMarketing(analyze){
 function copyMkt(){const t=document.getElementById('mktOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== AI Inventory (เดโม client-side · ต่อ Supabase sm_inventory ภายหลัง) ===== */
-let INVENTORY=[
-  {n:'ไวนิล (Vinyl)',u:'ม้วน',q:8,min:5},
-  {n:'สติกเกอร์ PVC',u:'ม้วน',q:3,min:4},
-  {n:'หมึก Eco-Solvent',u:'ลิตร',q:6,min:3},
-  {n:'พลาสวูด 5มม.',u:'แผ่น',q:12,min:6},
-  {n:'อะคริลิคใส 3มม.',u:'แผ่น',q:2,min:5},
-  {n:'ฟิวเจอร์บอร์ด',u:'แผ่น',q:40,min:20},
-  {n:'อะลูมิเนียมคอมโพสิต',u:'แผ่น',q:7,min:6},
-];
-function renderInventory(){
-  const tb=document.getElementById('invBody');if(!tb)return;let low=0;
-  tb.innerHTML=INVENTORY.map((m,i)=>{const isLow=m.q<=m.min;if(isLow)low++;
+let INVENTORY=[];  // โหลดจริงจาก Supabase ผ่าน worker /inv
+async function renderInventory(){
+  const tb=document.getElementById('invBody');if(!tb)return;
+  tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px">กำลังโหลด...</td></tr>';
+  try{ const d=await (await fetch(AGENTS_WORKER+'/inv')).json(); INVENTORY=(d.items||[]).map(it=>({id:it.id,n:it.name,u:it.unit,q:it.qty,min:it.min_qty})); }
+  catch(e){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:14px">โหลดสต็อกไม่ได้</td></tr>'; return; }
+  let low=0;
+  tb.innerHTML=INVENTORY.map(m=>{const isLow=m.q<=m.min;if(isLow)low++;
     return `<tr style="${isLow?'background:#fff1f0':''}"><td style="text-align:left">${esc(m.n)}</td>`
       +`<td style="text-align:center">${esc(m.u)}</td>`
-      +`<td style="text-align:center"><input type="number" value="${m.q}" min="0" style="width:62px;padding:5px 7px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;text-align:center" onchange="invSet(${i},this.value)"></td>`
+      +`<td style="text-align:center"><input type="number" value="${m.q}" min="0" style="width:62px;padding:5px 7px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;text-align:center" onchange="invSet(${m.id},this.value)"></td>`
       +`<td style="text-align:center">${m.min}</td>`
-      +`<td style="text-align:center">${isLow?'🔴 ใกล้หมด':'🟢 พอ'}</td></tr>`;}).join('');
+      +`<td style="text-align:center">${isLow?'🔴 ใกล้หมด':'🟢 พอ'} <button onclick="invDel(${m.id})" title="ลบ" style="border:none;background:none;cursor:pointer;color:#cbd0d8;margin-left:6px;font-size:.85rem">✕</button></td></tr>`;}).join('')
+    || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px">ยังไม่มีวัสดุ — กดเพิ่มได้เลย</td></tr>';
   const b=document.getElementById('invLowBadge');if(b)b.textContent=low?`🔴 ${low} รายการใกล้หมด`:'';
 }
-function invSet(i,v){INVENTORY[i].q=Math.max(0,parseInt(v,10)||0);renderInventory();}
-function addMaterial(){const n=(prompt('ชื่อวัสดุ')||'').trim();if(!n)return;const u=(prompt('หน่วย (เช่น แผ่น/ม้วน/ลิตร)','ชิ้น')||'ชิ้น').trim();const q=parseInt(prompt('คงเหลือ','0'),10)||0;const min=parseInt(prompt('จุดสั่งซื้อ (ต่ำกว่านี้ = เตือน)','5'),10)||5;INVENTORY.push({n,u,q,min});renderInventory();toast('เพิ่มวัสดุแล้วค่ะ (เดโม)');}
+/* เขียนสต็อก (guard ด้วย ADMIN_TOKEN เดียวกับเติมเครดิต) */
+async function invPost(body){
+  let t=localStorage.getItem('sm_admin_token')||'';
+  if(!t){t=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!t)return false;localStorage.setItem('sm_admin_token',t);}
+  const r=await fetch(AGENTS_WORKER+'/inv',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':t},body:JSON.stringify(body)});
+  if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return false;}
+  const d=await r.json().catch(()=>({}));return !!d.ok;
+}
+async function invSet(id,v){const ok=await invPost({op:'set',id:id,qty:Math.max(0,parseInt(v,10)||0)});if(ok)toast('บันทึกแล้วค่ะ ✅');renderInventory();}
+async function addMaterial(){const n=(prompt('ชื่อวัสดุ')||'').trim();if(!n)return;const u=(prompt('หน่วย (เช่น แผ่น/ม้วน/ลิตร)','ชิ้น')||'ชิ้น').trim();const q=parseInt(prompt('คงเหลือ','0'),10)||0;const min=parseInt(prompt('จุดสั่งซื้อ (ต่ำกว่านี้ = เตือน)','5'),10)||5;const ok=await invPost({op:'add',name:n,unit:u,qty:q,min:min});if(ok){toast('เพิ่มวัสดุแล้วค่ะ ✅');renderInventory();}}
+async function invDel(id){if(!confirm('ลบวัสดุนี้?'))return;const ok=await invPost({op:'del',id:id});if(ok){toast('ลบแล้วค่ะ');renderInventory();}}
 function invContext(){return 'สต็อกวัสดุปัจจุบัน:\n'+INVENTORY.map(m=>`${m.q<=m.min?'🔴':'🟢'} ${m.n}: คงเหลือ ${m.q} ${m.u} (จุดสั่งซื้อ ${m.min})`).join('\n');}
 async function askInventory(){
   const out=document.getElementById('invOut'),card=document.getElementById('invOutCard'),src=document.getElementById('invSrc'),go=document.getElementById('invGo');
