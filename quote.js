@@ -50,7 +50,14 @@
     var total = items.reduce(function(s,it){ return s+Number(it.price||0)*Number(it.qty||1); },0);
     var vat = total*vatRate, grand = total+vat;
     var c = d.customer||{};
-    var pay = d.paymentNote || 'มัดจำ 50% ก่อนเริ่มผลิต · ส่วนที่เหลือชำระก่อนส่งมอบ/ติดตั้ง';
+    var pay = d.paymentNote || 'ชำระก่อนส่งมอบ/ติดตั้งงาน';
+    // ลายเซ็น+ตราประทับบริษัท: ฉีดผ่าน window.SM_SIGN_IMG หรือ d.signImg (URL/base64)
+    //   — ไม่ฝังลงไฟล์ quote.js (committed/public) กันลายเซ็น-ตราหลุด · ใส่จากไฟล์ gitignored/worker เฉพาะที่ปลอดภัย
+    var signImg = d.signImg || (typeof window!=='undefined' && window.SM_SIGN_IMG) || '';
+    var signBlock = signImg
+      ? '<div style="height:106px;display:flex;align-items:flex-end;justify-content:center;margin:2px 0">'
+        + '<img src="'+signImg+'" alt="ลายเซ็นและตราประทับบริษัท" style="max-height:106px;max-width:215px;object-fit:contain"></div>'
+      : '<div class="sign-line"></div>';
     var lead = d.leadTime || 'ประมาณ 7–15 วันทำการ (ขึ้นกับปริมาณงาน)';
     var valid = d.validDays || 15;
 
@@ -92,7 +99,7 @@
     + '<div class="terms"><div class="col"><h4>เงื่อนไข / Terms</h4>• ระยะเวลาการผลิต: '+esc(lead)+'<br>• ยืนราคา: '+esc(valid)+' วัน นับจากวันที่เสนอราคา<br>• กำหนดการชำระเงิน: '+esc(pay)+'</div>'
     +   '<div class="col"><h4>ชำระเงิน / Payment (โอนตรง)</h4>'+CO.bankName+' '+CO.bankBranch+'<br>ชื่อบัญชี: <b>'+CO.bankAcc+'</b><br>เลขที่บัญชี: <b>'+CO.bankNo+'</b><div class="warn">⚠️ โอนเข้าบัญชีชื่อบริษัทเท่านั้น · ส่งหลักฐานการโอนให้ทีมงานยืนยัน</div></div></div>'
     + '<div class="signs"><div class="sign-box"><div style="font-weight:600;font-size:12.5px;margin-bottom:6px">ยืนยันการสั่งซื้อตามเอกสารฉบับนี้</div><div style="font-size:10.5px;color:#777;margin-bottom:16px">Purchase approved per this quotation</div><div class="sign-line"></div><div class="sign-role">ผู้สั่งซื้อ / Customer</div><div class="sign-date">วันที่ ......./......./.......</div></div>'
-    +   '<div class="sign-box"><div style="font-weight:600;font-size:12.5px;margin-bottom:6px">ขอแสดงความนับถือ</div><div style="font-size:11.5px;color:#444;margin-bottom:8px">'+CO.name+'</div><div class="sign-line"></div><div class="sign-role">( '+CO.signer+' )</div><div class="sign-date">'+CO.signerRole+'</div></div></div>'
+    +   '<div class="sign-box"><div style="font-weight:600;font-size:12.5px;margin-bottom:6px">ขอแสดงความนับถือ</div><div style="font-size:11.5px;color:#444;margin-bottom:4px">'+CO.name+'</div>'+signBlock+'<div class="sign-role">( '+CO.signer+' )</div><div class="sign-date">'+CO.signerRole+'</div></div></div>'
     + '</div></body></html>';
   }
 
