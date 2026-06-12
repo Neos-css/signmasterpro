@@ -246,6 +246,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
       <a data-v="marketing"><span class="em">📣</span> AI Marketing</a>
+      <a data-v="inventory"><span class="em">📦</span> AI Inventory</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -347,6 +348,27 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">📄 ผลงานที่ AI ร่างให้</h3><button class="btn btn-ghost" onclick="copyMkt()">📋 ก๊อป</button></div>
         <div id="mktOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="mktSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- ===== AI INVENTORY ===== -->
+    <section class="view" id="view-inventory">
+      <div class="lailin"><div class="ava">📦</div><div class="tx"><b>AI Inventory</b><span class="role">จัดการสต็อกวัสดุ · เตือนของใกล้หมด + แนะนำสั่งซื้อ</span><p>แก้จำนวนคงเหลือได้ในตาราง · ของที่ต่ำกว่าจุดสั่งซื้อจะขึ้น 🔴 แล้วกดให้ AI แนะนำว่าควรสั่งอะไรก่อนค่ะ</p></div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0">📦 วัสดุคงคลัง <span id="invLowBadge" style="font-size:.8rem;color:#dc2626;font-weight:600;margin-left:6px"></span></h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="addMaterial()">➕ เพิ่มวัสดุ</button>
+            <button class="btn btn-line" onclick="askInventory()" id="invGo">🤖 วิเคราะห์ + แนะนำสั่งซื้อ</button>
+          </div>
+        </div>
+        <div class="csub">ข้อมูลตัวอย่าง (เดโม) — ต่อ Supabase <code>sm_inventory</code> ภายหลัง · แก้คงเหลือได้เลย</div>
+        <table style="margin-top:10px"><thead><tr><th style="text-align:left">วัสดุ</th><th>หน่วย</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th><th>สถานะ</th></tr></thead><tbody id="invBody"></tbody></table>
+      </div>
+      <div class="card" id="invOutCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">🧠 คำแนะนำจาก AI</h3><button class="btn btn-ghost" onclick="copyInv()">📋 ก๊อป</button></div>
+        <div id="invOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
+        <div id="invSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
     </section>
 
@@ -591,7 +613,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],marketing:['📣 AI Marketing','ผู้ช่วยการตลาด — ร่างคอนเทนต์ แคปชั่น แคมเปญ'],inventory:['📦 AI Inventory','จัดการสต็อกวัสดุ — เตือนของใกล้หมด + แนะนำสั่งซื้อ'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -599,7 +621,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='marketing')renderMarketing();else if(v==='inventory')renderInventory();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
 
 /* ===== AI Marketing ===== */
@@ -631,6 +653,42 @@ async function askMarketing(analyze){
   }finally{if(go)go.disabled=false;}
 }
 function copyMkt(){const t=document.getElementById('mktOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
+
+/* ===== AI Inventory (เดโม client-side · ต่อ Supabase sm_inventory ภายหลัง) ===== */
+let INVENTORY=[
+  {n:'ไวนิล (Vinyl)',u:'ม้วน',q:8,min:5},
+  {n:'สติกเกอร์ PVC',u:'ม้วน',q:3,min:4},
+  {n:'หมึก Eco-Solvent',u:'ลิตร',q:6,min:3},
+  {n:'พลาสวูด 5มม.',u:'แผ่น',q:12,min:6},
+  {n:'อะคริลิคใส 3มม.',u:'แผ่น',q:2,min:5},
+  {n:'ฟิวเจอร์บอร์ด',u:'แผ่น',q:40,min:20},
+  {n:'อะลูมิเนียมคอมโพสิต',u:'แผ่น',q:7,min:6},
+];
+function renderInventory(){
+  const tb=document.getElementById('invBody');if(!tb)return;let low=0;
+  tb.innerHTML=INVENTORY.map((m,i)=>{const isLow=m.q<=m.min;if(isLow)low++;
+    return `<tr style="${isLow?'background:#fff1f0':''}"><td style="text-align:left">${esc(m.n)}</td>`
+      +`<td style="text-align:center">${esc(m.u)}</td>`
+      +`<td style="text-align:center"><input type="number" value="${m.q}" min="0" style="width:62px;padding:5px 7px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;text-align:center" onchange="invSet(${i},this.value)"></td>`
+      +`<td style="text-align:center">${m.min}</td>`
+      +`<td style="text-align:center">${isLow?'🔴 ใกล้หมด':'🟢 พอ'}</td></tr>`;}).join('');
+  const b=document.getElementById('invLowBadge');if(b)b.textContent=low?`🔴 ${low} รายการใกล้หมด`:'';
+}
+function invSet(i,v){INVENTORY[i].q=Math.max(0,parseInt(v,10)||0);renderInventory();}
+function addMaterial(){const n=(prompt('ชื่อวัสดุ')||'').trim();if(!n)return;const u=(prompt('หน่วย (เช่น แผ่น/ม้วน/ลิตร)','ชิ้น')||'ชิ้น').trim();const q=parseInt(prompt('คงเหลือ','0'),10)||0;const min=parseInt(prompt('จุดสั่งซื้อ (ต่ำกว่านี้ = เตือน)','5'),10)||5;INVENTORY.push({n,u,q,min});renderInventory();toast('เพิ่มวัสดุแล้วค่ะ (เดโม)');}
+function invContext(){return 'สต็อกวัสดุปัจจุบัน:\n'+INVENTORY.map(m=>`${m.q<=m.min?'🔴':'🟢'} ${m.n}: คงเหลือ ${m.q} ${m.u} (จุดสั่งซื้อ ${m.min})`).join('\n');}
+async function askInventory(){
+  const out=document.getElementById('invOut'),card=document.getElementById('invOutCard'),src=document.getElementById('invSrc'),go=document.getElementById('invGo');
+  card.style.display='';out.textContent='🤖 AI กำลังวิเคราะห์สต็อก...';src.textContent='';if(go)go.disabled=true;
+  try{
+    const r=await fetch(AGENTS_WORKER+'/inventory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:'',context:invContext()})});
+    const d=await r.json();
+    out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
+    src.textContent=d.source==='dify'?'⚡ วิเคราะห์โดย AI (Dify)':'📋 เทมเพลตเริ่มต้น (เชื่อม Dify แล้วจะคาดการณ์การใช้จากออเดอร์จริง)';
+  }catch(e){out.textContent='⚠️ เชื่อมต่อ AI ไม่ได้ (worker ยังไม่ deploy หรือเน็ตมีปัญหา)\n'+e;src.textContent='';}
+  finally{if(go)go.disabled=false;}
+}
+function copyInv(){const t=document.getElementById('invOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== role ===== */
 function setRole(r,btn){
