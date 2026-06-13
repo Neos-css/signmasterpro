@@ -656,8 +656,12 @@ async function afterAuth(){
   if(error||!data){await SB.auth.signOut();return false;}   // ไม่อยู่ใน sm_admin_users = เด้งออก
   CURRENT_USER={email, role:data.role||'admin', name:data.name||email};
   try{localStorage.setItem('sm_admin_email',email);}catch(e){}
-  try{SB.rpc('sm_touch_admin',{p_event:'login'});}catch(e){}
-  if(!window._hbTimer)window._hbTimer=setInterval(()=>{try{SB.rpc('sm_touch_admin',{p_event:'heartbeat'});}catch(e){}},60000);
+  try{await SB.rpc('sm_touch_admin',{p_event:'login'});}catch(e){}   // await → DB เขียน last_login/last_seen เสร็จ "ก่อน" loadUsers อ่าน
+  if(!window._hbTimer)window._hbTimer=setInterval(async()=>{
+    try{await SB.rpc('sm_touch_admin',{p_event:'heartbeat'});}catch(e){}
+    // refresh ตารางผู้ใช้เป็นระยะ → ออนไลน์/ออฟไลน์ของทุกคนอัปเดตเองโดยไม่ต้องรีเฟรชหน้า
+    try{await loadUsers();if(((document.querySelector('#nav a.active')||{}).dataset||{}).v==='users')renderUsers();}catch(e){}
+  },60000);
   await enterApp();
   return true;
 }
@@ -1373,7 +1377,7 @@ function _fmtDT(s){if(!s)return '<span style="color:#aab">—</span>';const d=ne
 function _isOnline(ls){return ls&&(Date.now()-new Date(ls).getTime())<3*60000;}
 function renderUsers(){
   document.getElementById('userBody').innerHTML=USERS.map((u,i)=>{const rt={admin:'👑 Admin',staff:'✏️ Staff',viewer:'👁️ Viewer'}[u.r];
-    const online=_isOnline(u.ls);
+    const online=(CURRENT_USER&&u.u&&u.u.toLowerCase()===CURRENT_USER.email)||_isOnline(u.ls);  // คนที่กำลังเปิดหน้านี้อยู่ = ออนไลน์เสมอ
     const st=online?'<span class="tag" style="background:#dcfce7;color:#16a34a">🟢 ออนไลน์</span>':'<span class="tag" style="background:#eef1f5;color:#64748b">⚪ ออฟไลน์</span>';
     const del=u.r==='admin'?'<span style="color:#9aa1ad;font-size:.8rem">—</span>':`<button class="btn btn-ghost" style="padding:6px 11px;font-size:.8rem;color:#dc2626;border-color:#fecaca" onclick="delUser(${i})">ลบ</button>`;
     return `<tr><td><b>${esc(u.d)}</b></td><td>${esc(u.u)}</td><td>${rt}</td><td>${st}</td><td style="font-size:.84rem;color:#475569">${_fmtDT(u.ll)}</td><td style="font-size:.84rem;color:#475569">${_fmtDT(u.lo)}</td><td>${del}</td></tr>`;}).join('');
