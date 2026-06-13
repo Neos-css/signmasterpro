@@ -74,6 +74,7 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 .logo-wrap::after{content:'';position:absolute;top:-15%;bottom:-15%;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8) 50%,transparent);transform:skewX(-15deg);pointer-events:none;animation:logoFlash 4.2s ease-in-out infinite}
 @keyframes logoFlash{0%,50%{left:-55%}100%{left:160%}}
 @media(prefers-reduced-motion:reduce){.logo-wrap::after{animation:none}}
+.brand.on-dark .logo-wrap::after{mix-blend-mode:overlay}  /* footer พื้นดำ: จำกัด flash เฉพาะตัวโลโก้ ไม่ล้นพื้นดำ */
 .langtoggle{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
 .langbtn{font-family:inherit;font-weight:700;font-size:.78rem;padding:6px 11px;border:0;background:#fff;color:var(--muted);cursor:pointer;transition:.15s;line-height:1}
 .langbtn.on{background:var(--grad);color:#fff}
@@ -257,6 +258,12 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 .ord-card .oh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .ord-card .oh b{font-size:.96rem}.ord-card .ost{font-size:.74rem;font-weight:600;padding:3px 10px;border-radius:999px}
 .ord-card .om{font-size:.84rem;color:var(--muted)}
+.ord-card{cursor:pointer;transition:border-color .15s}.ord-card:hover{border-color:var(--accent)}
+.ord-card .otoggle{float:right;color:#94a3b8;font-size:.78rem}
+.ord-card .ord-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:.82rem;color:#475569;line-height:1.6;white-space:pre-wrap}
+.ord-card.open .ord-detail{display:block}.ord-card.open .otoggle{display:none}
+.perks-banner{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:11px 13px;margin-bottom:14px;background:#fff8f4;font-size:.84rem;line-height:1.6}
+.perks-banner b{display:block;margin-bottom:4px;font-size:.9rem}
 
 /* น้องอิงค์ — AI Sale flagship chat widget */
 .ink-fab{position:fixed;bottom:18px;right:18px;z-index:120;display:flex;align-items:center;gap:7px;border:0;cursor:pointer;
@@ -625,7 +632,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="authModal">
   <div class="acard">
     <span class="ax" onclick="closeAuth()">×</span>
-    <div class="ahead"><div class="aava">👤</div><h3 id="authTitle">เข้าสู่ระบบ</h3><p data-en="Save order history · Track status · Reorder easily">เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
+    <div class="ahead"><div class="brand auth-brand" style="justify-content:center;margin-bottom:14px"><span class="logo-wrap"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/></svg></span><span class="wm"><span class="wm-main">SIGNMASTER PRO</span></span></div><h3 id="authTitle">เข้าสู่ระบบ</h3><p data-en="Save order history · Track status · Reorder easily">เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
     <div class="aform">
       <input id="mName" placeholder="ชื่อ-นามสกุล" autocomplete="name" style="display:none" data-en-ph="Full name">
       <input id="mEmail" type="email" placeholder="อีเมล" autocomplete="email" data-en-ph="Email">
@@ -1175,7 +1182,18 @@ async function openMyOrders(){
   const ST=SM_LANG==='en'
     ? {new:['🟦 Received · queued','#3b82f6'],prod:['🛠️ In production','#f59e0b'],wait:['💳 Awaiting payment','#ef4444'],done:['✅ Completed','#16a34a']}
     : {new:['🟦 รับออเดอร์แล้ว · รอเริ่มผลิต','#3b82f6'],prod:['🛠️ กำลังผลิต/จัดทำ','#f59e0b'],wait:['💳 รอชำระเงิน','#ef4444'],done:['✅ เสร็จแล้ว','#16a34a']};
-  document.getElementById('myOrders').innerHTML=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];return `<div class="ord-card"><div class="oh"><b>${esc(o.job||t('งาน','Job'))}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?t('ยอด ฿','Total ฿')+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}</div></div>`;}).join(''):'<p class="anote">'+t('ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊','No orders yet — place your first order! 😊')+'</p>';
+  // แถบสิทธิพิเศษสมาชิก (โชว์ให้ลูกค้าเห็นว่าได้อะไร)
+  let perksBanner='';
+  const ti=m.tier;
+  if(ti){
+    const perks=(ti.perks||'').trim();
+    const perksList=perks?perks.split(/\n+/).map(p=>'• '+esc(p.replace(/^[-•·]\s*/,''))).join('<br>'):t('(เจ้าของร้านกำลังจัดสิทธิพิเศษให้เร็วๆ นี้ค่ะ)','(Perks coming soon)');
+    perksBanner=`<div class="perks-banner" style="border-left-color:${esc(ti.color)}"><b>${esc(ti.emoji||'')} ${t('สิทธิพิเศษสมาชิก','Member perks')} ${esc(ti.label)}</b>${perksList}</div>`;
+  }
+  const cards=rows.length?rows.map(o=>{const s=ST[o.status]||['—','#888'];
+    const detail=esc(((o.note||'').split('\n@Q=')[0].split('\n@IMG=')[0]||'').trim())||t('ไม่มีรายละเอียดเพิ่มเติม','No extra details');
+    return `<div class="ord-card" onclick="this.classList.toggle('open')"><div class="oh"><b>${esc(o.job||t('งาน','Job'))}</b><span class="ost" style="background:${s[1]}22;color:${s[1]}">${s[0]}</span></div><div class="om">${o.amount!=null?t('ยอด ฿','Total ฿')+Number(o.amount).toLocaleString()+' · ':''}${esc(o.size||'')}<span class="otoggle">▾ ${t('ดูรายการที่สั่ง','View items')}</span></div><div class="ord-detail">${detail}</div></div>`;}).join(''):'<p class="anote">'+t('ยังไม่มีออเดอร์ค่ะ — เริ่มสั่งงานแรกได้เลย 😊','No orders yet — place your first order! 😊')+'</p>';
+  document.getElementById('myOrders').innerHTML=perksBanner+cards;
 }
 function prefillMember(){const m=CUR_MEMBER;if(!m)return;const n=document.getElementById('cName'),e=document.getElementById('cEmail');if(n&&!n.value&&m.name)n.value=m.name;if(e&&!e.value&&m.email)e.value=m.email;}
 document.addEventListener('click',e=>{const mb=document.getElementById('memberBox');if(mb&&!mb.contains(e.target))mb.classList.remove('open');});

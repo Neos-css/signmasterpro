@@ -362,9 +362,13 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div class="toolbar">
           <input class="search" id="ordSearch" placeholder="🔍 ค้นหาลูกค้า/งาน..." oninput="renderOrders()">
           <select id="ordStatus" onchange="renderOrders()"><option value="">ทุกสถานะ</option><option value="t-new">ออเดอร์ใหม่</option><option value="t-prod">กำลังผลิต</option><option value="t-wait">รอชำระ</option><option value="t-done">ส่งมอบแล้ว</option></select>
+          <input type="date" id="ordFrom" onchange="renderOrders()" title="ตั้งแต่วันที่" style="padding:6px 8px;border-radius:8px;border:1px solid #e7e9ee;font:inherit;font-size:.82rem">
+          <span style="color:var(--muted);font-size:.82rem">ถึง</span>
+          <input type="date" id="ordTo" onchange="renderOrders()" title="ถึงวันที่" style="padding:6px 8px;border-radius:8px;border:1px solid #e7e9ee;font:inherit;font-size:.82rem">
+          <button class="btn btn-ghost" style="padding:6px 10px;font-size:.8rem" onclick="document.getElementById('ordFrom').value='';document.getElementById('ordTo').value='';renderOrders()">ล้างวันที่</button>
           <span class="sum" id="ordSum"></span>
         </div>
-        <table><thead><tr><th>ลูกค้า</th><th>งาน</th><th>ยอด</th><th>เบอร์โทร</th><th>กำหนดส่ง</th><th>สถานะ</th><th></th></tr></thead><tbody id="ordBody"></tbody></table>
+        <table><thead><tr><th>ลูกค้า</th><th>งาน</th><th>ยอด</th><th>เบอร์โทร</th><th>กำหนดส่ง</th><th>สถานะ</th><th>ใบเสนอราคา</th><th></th></tr></thead><tbody id="ordBody"></tbody></table>
       </div>
       <div id="ordDetailModal" style="display:none;position:fixed;inset:0;background:rgba(8,10,14,.6);z-index:200;place-items:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
         <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.3)">
@@ -1066,16 +1070,18 @@ function viewQuote(el){
 }
 function renderOrders(){
   const q=(document.getElementById('ordSearch').value||'').toLowerCase(),s=document.getElementById('ordStatus').value;
-  const list=ORDERS.filter(o=>(o.c.toLowerCase().includes(q)||o.job.toLowerCase().includes(q))&&(!s||o.stc===s));
+  const fromV=(document.getElementById('ordFrom')||{}).value||'',toV=(document.getElementById('ordTo')||{}).value||'';
+  const fromD=fromV?new Date(fromV+'T00:00:00'):null,toD=toV?new Date(toV+'T23:59:59'):null;
+  const list=ORDERS.filter(o=>(o.c.toLowerCase().includes(q)||o.job.toLowerCase().includes(q))&&(!s||o.stc===s)&&(!fromD||(o.created&&o.created>=fromD))&&(!toD||(o.created&&o.created<=toD)));
   document.getElementById('ordBody').innerHTML=list.length?list.map(o=>{
     const selStyle='padding:4px 8px;border-radius:8px;border:1px solid #e7e9ee;font-family:inherit;font-size:.82rem;cursor:pointer';
     const sel='<select style="'+selStyle+'" onchange="setOrderStatus(\''+o.id+'\',this.value)">'+OSTAT_ORDER.map(p=>'<option value="'+p[0]+'"'+(o.status===p[0]?' selected':'')+'>'+p[1]+'</option>').join('')+'</select>';
     const qjson=(o.note||'').split('\n@Q=')[1]||'';
     const bStyle='padding:5px 9px;font-size:.78rem';
-    const qbtn=qjson?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="viewQuote(this)" data-q="'+esc(qjson)+'">📄 ใบเสนอราคา</button> ':'';
+    const qbtn=qjson?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="viewQuote(this)" data-q="'+esc(qjson)+'">📄 ใบเสนอราคา</button>':'<span style="color:#b6bcc6">—</span>';
     const dbtn=o.note?'<button class="btn btn-ghost" style="'+bStyle+'" onclick="orderDetail(this)" data-id="'+esc(o.id)+'" data-d="'+esc(o.note)+'">🔍 ดู</button>':'';
-    return '<tr><td><b>'+esc(o.c)+'</b></td><td>'+esc(o.job)+'</td><td><b>'+o.amt+'</b></td><td>'+(o.phone?'<a href="tel:'+esc(o.phone)+'" style="color:#e63900;font-weight:600">📞 '+esc(o.phone)+'</a>':'—')+'</td><td>'+o.due+'</td><td>'+sel+'</td><td style="white-space:nowrap">'+qbtn+dbtn+'</td></tr>';
-  }).join(''):'<tr><td colspan="7"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
+    return '<tr><td><b>'+esc(o.c)+'</b></td><td>'+esc(o.job)+'</td><td><b>'+o.amt+'</b></td><td>'+(o.phone?'<a href="tel:'+esc(o.phone)+'" style="color:#e63900;font-weight:600">📞 '+esc(o.phone)+'</a>':'—')+'</td><td>'+o.due+'</td><td>'+sel+'</td><td>'+qbtn+'</td><td style="white-space:nowrap">'+dbtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="8"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
   document.getElementById('ordSum').textContent=`${list.length} ออเดอร์`;
 }
 function renderChat(){
