@@ -558,25 +558,24 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
-    <!-- ===== POWER (พลัง AI) ===== -->
+    <!-- ===== POWER (พลัง AI · มาตรฐาน NEOS) ===== -->
     <section class="view" id="view-power">
       <div class="pwr-alert" id="pwrAlert"></div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
-            <div class="csub">⚡ เครดิต AI คงเหลือ (พลัง AI)</div>
-            <div id="pwrBalance" style="font-size:2.5rem;font-weight:800;color:var(--accent-deep);line-height:1.1">—</div>
+            <div class="csub">🔋 พลัง AI — งบต่อ Agent (USD)</div>
+            <div id="pwrRate" style="font-size:.9rem;color:var(--accent-deep);font-weight:700;margin-top:5px">—</div>
             <div class="csub" id="pwrBalSub"></div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap" class="editor-only">
-            <button class="btn btn-line" onclick="topupCredit()">⚡ เติมเครดิต</button>
             <button class="btn btn-ghost" onclick="renderPower()">🔄 รีเฟรช</button>
           </div>
         </div>
       </div>
       <div class="card">
-        <h3>🤖 การใช้พลัง AI (รายการล่าสุด)</h3>
-        <div class="csub" style="margin-bottom:18px">สรุปจากประวัติ 25 รายการล่าสุด</div>
+        <h3>🤖 พลังคงเหลือต่อ Agent</h3>
+        <div class="csub" style="margin-bottom:18px">แต่ละ Agent มีถังงบแยก · หักตามต้นทุนจริง (tokens × ราคาโมเดล × เรตวันนี้ + ค่าแปลง) · กด <b>+ เติม</b> รายถังได้</div>
         <div id="pwrBars" style="display:flex;flex-direction:column;gap:18px">
           <div class="empty">กำลังโหลด...</div>
         </div>
@@ -1316,63 +1315,75 @@ async function blockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(!ip)
   if(error){toast('บล็อกไม่สำเร็จ: '+(error.message||''));return;}
   BLOCKED.add(ip);openChat(i);toast('🚫 บล็อก '+ip+' แล้วค่ะ');}
 async function unblockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(ip)await unblockIP(ip);openChat(i);}
+const PWR_AGENT_META={
+  ink:      {emoji:'💬', sub:'AI Sale · Dify (Sonnet 4.6)'},
+  image:    {emoji:'🎨', sub:'Graphic · gpt-image-1 / FLUX'},
+  manager:  {emoji:'👩‍💼', sub:'Manager · Sonnet 4.6'},
+  marketing:{emoji:'📣', sub:'Marketing · Haiku 4.5'},
+  inventory:{emoji:'📦', sub:'Inventory · Haiku 4.5'},
+  finance:  {emoji:'💰', sub:'Finance · Haiku 4.5'},
+  logistic: {emoji:'🚚', sub:'Logistic · ยังไม่เปิด'},
+  video:    {emoji:'🎬', sub:'Video add-on · ยังไม่เปิด'},
+};
+function _pwrColor(pct){return pct>=70?'#16a34a':pct>=30?'#d97706':pct>=1?'#dc2626':'#94a3b8';} // เขียว/เหลือง/แดง/เทา
 async function renderPower(){
-  const balEl=document.getElementById('pwrBalance'),subEl=document.getElementById('pwrBalSub'),barsEl=document.getElementById('pwrBars'),alertEl=document.getElementById('pwrAlert');
-  if(!balEl)return;
-  balEl.textContent='...';
-  if(barsEl)barsEl.innerHTML='<div class="empty">กำลังโหลด...</div>';
-  let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ balEl.textContent='—'; if(subEl)subEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; return; }
-  const bal=Number(w.balance)||0, low=Number(w.low_threshold)||50;
-  balEl.textContent=bal.toLocaleString()+' เครดิต';
-  subEl.textContent=bal<=low?('🔴 ต่ำกว่าเกณฑ์เตือน '+low+' — ควรเติม'):('🟢 เพียงพอ (เกณฑ์เตือน '+low+')');
-  const A = bal<=0 ? ['lv-crit','🚨','เครดิต AI หมดแล้วค่ะ!! 💔 AI หยุดทำงานชั่วคราว รีบเติมด่วนเลยนะคะ 🙏']
-    : bal<=low ? ['lv-warn','⚠️','เครดิต AI เหลือ <b>'+bal.toLocaleString()+'</b> แล้วค่ะ เริ่มน้อย 🖋️ แนะนำเติมเร็ว ๆ นี้ เดี๋ยวงานสะดุดนะคะ']
-    : ['lv-ok','💚','เครดิต AI ยังเหลือเฟือ ('+bal.toLocaleString()+') น้องอิงค์กับลายลินทำงานได้ลื่น ๆ เลยค่ะ 😊'];
-  alertEl.className='pwr-alert '+A[0];
-  alertEl.innerHTML='<div class="a">'+A[1]+'</div><div><b>ลายลิน แจ้งเตือน</b> · พลัง AI<br>'+A[2]+'</div>';
-  const badge=document.getElementById('pwrBadge');if(badge)badge.style.display=bal<=low?'inline-block':'none';
-  // รวม usage ต่อกลุ่ม agent จาก ledger
-  const led=Array.isArray(w.ledger)?w.ledger.filter(r=>r.kind==='use'):[];
-  const used={manager:0,ink:0,mif:0,image:0};
-  led.forEach(r=>{
-    const a=r.agent||'';const c=Number(r.credits)||0;
-    if(a==='manager') used.manager+=c;
-    else if(a==='ink') used.ink+=c;
-    else if(['marketing','inventory','finance'].includes(a)) used.mif+=c;
-    else if(a==='image') used.image+=c;
-  });
-  const total=used.manager+used.ink+used.mif+used.image||1;
-  const BARS=[
-    {label:'👩‍💼 ลายลิน',      sub:'Manager · Sonnet 4.6',                  color:'#7c3aed', val:used.manager},
-    {label:'💬 น้องอิงค์',     sub:'AI Sale · Sonnet 4.6',                  color:'#0891b2', val:used.ink},
-    {label:'📣 Marketing + Inventory + Finance', sub:'Haiku 4.5',           color:'#059669', val:used.mif},
-    {label:'🎨 Graphic Design', sub:'FLUX · fal.ai',                        color:'#d97706', val:used.image},
-  ];
-  if(barsEl) barsEl.innerHTML=BARS.map(b=>{
-    const pct=total>1?Math.round(b.val/total*100):0;
-    return `<div>
+  const barsEl=document.getElementById('pwrBars'),alertEl=document.getElementById('pwrAlert'),rateEl=document.getElementById('pwrRate');
+  if(!barsEl)return;
+  barsEl.innerHTML='<div class="empty">กำลังโหลด...</div>';
+  let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ if(rateEl)rateEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; barsEl.innerHTML='<div class="empty">⚠️ เชื่อมต่อ worker ไม่ได้</div>'; return; }
+  const fx=Number(w.fx)||0, fee=Math.round((Number(w.fee_pct)||0)*100);
+  const td=new Date(); const dstr=td.getDate()+'/'+(td.getMonth()+1);
+  if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · อัปเดต '+dstr+' · รวมค่าแปลง '+fee+'% แล้ว';
+  const buckets=Array.isArray(w.buckets)?w.buckets:[];
+  // alert จากถัง enabled ที่เหลือ % ต่ำสุด
+  let worst=null;
+  buckets.filter(b=>b.enabled).forEach(b=>{const full=Number(b.full_usd)||0,rem=full-(Number(b.used_usd)||0);const pct=full>0?rem/full*100:0;if(worst===null||pct<worst.pct)worst={pct,b};});
+  if(worst){
+    const m=PWR_AGENT_META[worst.b.agent]||{emoji:''};
+    const A = worst.pct<=0 ? ['lv-crit','🚨','ถังพลัง '+m.emoji+' '+worst.b.label+' หมดแล้วค่ะ 💔 รีบเติมนะคะ ไม่งั้น Agent ตัวนี้หยุดทำงาน 🙏']
+      : worst.pct<30 ? ['lv-warn','⚠️','ถัง '+m.emoji+' '+worst.b.label+' เหลือ <b>'+Math.round(worst.pct)+'%</b> แล้วค่ะ แนะนำเติมเร็ว ๆ นี้นะคะ']
+      : ['lv-ok','💚','ทุกถังพลังยังเพียงพอค่ะ น้องอิงค์กับลายลินทำงานได้ลื่น ๆ เลย 😊'];
+    alertEl.className='pwr-alert '+A[0];
+    alertEl.innerHTML='<div class="a">'+A[1]+'</div><div><b>ลายลิน แจ้งเตือน</b> · พลัง AI<br>'+A[2]+'</div>';
+    const badge=document.getElementById('pwrBadge');if(badge)badge.style.display=worst.pct<30?'inline-block':'none';
+  }
+  barsEl.innerHTML = buckets.map(b=>{
+    const meta=PWR_AGENT_META[b.agent]||{emoji:'🔋',sub:''};
+    const full=Number(b.full_usd)||0, usedU=Number(b.used_usd)||0, rem=Math.max(0,full-usedU);
+    const pct=full>0?Math.round(rem/full*100):0;
+    const off=!b.enabled, color=off?'#94a3b8':_pwrColor(pct);
+    const remThb=rem*fx;
+    return `<div style="opacity:${off?0.55:1}">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <div><span style="font-weight:700;font-size:.95rem">${b.label}</span>&nbsp;<span class="csub" style="font-size:.73rem">${b.sub}</span></div>
-        <span style="font-size:.85rem;font-weight:700;color:${b.color}">${b.val.toLocaleString()} เครดิต</span>
+        <div><span style="font-weight:700;font-size:.95rem">${meta.emoji} ${esc(b.label||b.agent)}</span>&nbsp;<span class="csub" style="font-size:.72rem">${meta.sub}</span></div>
+        <span style="font-size:.85rem;font-weight:700;color:${color}">${off?'ปิดอยู่':pct+'%'}</span>
       </div>
       <div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden">
-        <div style="background:${b.color};width:${pct}%;height:100%;border-radius:99px;transition:width .7s ease;min-width:${b.val>0?'4px':'0'}"></div>
+        <div style="background:${color};width:${off?0:pct}%;height:100%;border-radius:99px;transition:width .7s ease;min-width:${(!off&&pct>0)?'4px':'0'}"></div>
       </div>
-      <div style="font-size:.72rem;color:var(--muted);margin-top:3px;text-align:right">${pct}% ของรายการล่าสุด</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--muted);margin-top:4px">
+        <span>เหลือ <b>$${rem.toFixed(2)}</b> / $${full.toFixed(0)}${off?'':' · ≈ ฿'+Math.round(remThb).toLocaleString()}</span>
+        ${off?'<span>—</span>':`<button class="btn btn-ghost editor-only" style="padding:2px 10px;font-size:.7rem" onclick="topupAgent('${b.agent}','${esc(b.label||b.agent).replace(/'/g,'')}')">+ เติม</button>`}
+      </div>
     </div>`;
-  }).join('');
+  }).join('') || '<div class="empty">ยังไม่มีถังพลัง</div>';
 }
-function doTopup(credits,note){
+function topupAgent(agent,label){
+  const usd=parseFloat(prompt('เติมพลังเข้าถัง "'+label+'" กี่ดอลลาร์? (ขั้นต่ำ $5)','10'));
+  if(!usd||isNaN(usd))return;
+  if(usd<5){toast('ขั้นต่ำ $5 ค่ะ');return;}
+  doTopup(agent,usd);
+}
+function doTopup(agent,usd){
   let tok=localStorage.getItem('sm_admin_token')||'';
   if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
-  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({credits:credits,note:note||'เติมจาก admin'})})
+  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({agent:agent,usd:usd,note:'เติมจาก admin'})})
     .then(r=>r.json().then(d=>({s:r.status,d}))).then(({s,d})=>{
       if(s===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
-      if(d&&d.ok){toast('⚡ เติม '+Number(credits).toLocaleString()+' เครดิตแล้ว! ยอดใหม่ '+Number(d.balance).toLocaleString());renderPower();}
+      if(d&&d.ok){toast('⚡ เติมพลัง $'+usd+' แล้ว! พลังเต็มใหม่ $'+Number(d.full_usd).toFixed(2));renderPower();}
       else toast('เติมไม่สำเร็จค่ะ');
     }).catch(()=>toast('เชื่อมต่อไม่ได้'));
 }
-function topupCredit(){const amt=parseInt(prompt('เติมกี่เครดิต? (กำหนดเอง)','500'),10);if(!amt||amt<=0)return;doTopup(amt,'เติมเอง');}
 function _fmtDT(s){if(!s)return '<span style="color:#aab">—</span>';const d=new Date(s);if(isNaN(d))return '<span style="color:#aab">—</span>';const same=d.toDateString()===new Date().toDateString();const t=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});return same?('วันนี้ '+t):(d.getDate()+'/'+(d.getMonth()+1)+' '+t);}
 function _isOnline(ls){return ls&&(Date.now()-new Date(ls).getTime())<3*60000;}
 function renderUsers(){
