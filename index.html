@@ -828,10 +828,8 @@ async function mockGen(){
     const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brief:brief||shopName,phone,material,shopName})});
     const d=await r.json();
     if(d.url){
-      box.innerHTML='<div>🎨 '+t('กำลังใส่ข้อความ...','Adding text...')+'</div>';
-      const finalUrl=shopName ? await compositeSign(d.url,shopName,textColor) : d.url;
-      window.SM_MOCKUP=finalUrl;
-      box.innerHTML='<img src="'+finalUrl+'" alt="mockup" style="max-width:100%;border-radius:10px">'
+      window.SM_MOCKUP=d.url;
+      box.innerHTML='<img src="'+d.url+'" alt="mockup" style="max-width:100%;border-radius:10px">'
         +(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');
     }
     else if(d.message){box.innerHTML='<div style="padding:6px">🤖<br><b>'+esc(d.message)+'</b></div>';}
