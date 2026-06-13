@@ -42,7 +42,11 @@ body.role-viewer .editor-only,body.role-viewer .admin-only,body.role-staff .admi
 .brand b{color:#fff;font-size:1.02rem;letter-spacing:1px;display:block;line-height:1.1}
 /* โลโก้แสงวิ่ง — เหมือน index.html */
 .brandlogo{height:40px;width:auto;display:block;flex:none}
-.logo-wrap{display:inline-flex;flex:none}
+.logo-wrap{position:relative;display:inline-flex;flex:none;overflow:hidden}
+.logo-wrap::after{content:'';position:absolute;top:-15%;bottom:-15%;width:40%;left:-55%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8) 50%,transparent);transform:skewX(-15deg);pointer-events:none;animation:logoFlash 4.2s ease-in-out infinite}
+.brand .logo-wrap::after{mix-blend-mode:overlay}   /* sidebar พื้นดำ: จำกัด flash ไม่ให้ล้นพื้นดำ */
+@keyframes logoFlash{0%,50%{left:-55%}100%{left:160%}}
+@media(prefers-reduced-motion:reduce){.logo-wrap::after{animation:none}}
 .brand small{font-size:.66rem;color:#8b93a1}
 .rolebadge{margin:0 6px 12px;font-size:.74rem;font-weight:600;color:#fff;background:var(--ink3);border:1px solid #2c3340;border-radius:10px;padding:8px 11px;display:flex;align-items:center;gap:7px}
 .side .lbl{font-size:.68rem;letter-spacing:1.5px;color:#6b7280;text-transform:uppercase;padding:12px 10px 6px}
@@ -567,6 +571,8 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 <input type="file" id="imgFile" accept="image/*" style="display:none">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script>/* session แอดมินแยกจากเว็บลูกค้า (storageKey ของตัวเอง) → login เป็นลูกค้าที่หน้าเว็บไม่ทับ session admin · จำ login ได้นาน */
+if(window.supabase&&window.SB_URL){window.SB=window.supabase.createClient(window.SB_URL,window.SB_KEY,{auth:{storageKey:'sm-admin-auth',persistSession:true,autoRefreshToken:true}});}</script>
 <script src="gallery-data.js"></script>
 <script src="site-images.js"></script>
 <script src="quote.js"></script>
@@ -595,6 +601,7 @@ async function afterAuth(){
   const {data,error}=await SB.from('sm_admin_users').select('email,role,name').eq('email',email).maybeSingle();
   if(error||!data){await SB.auth.signOut();return false;}   // ไม่อยู่ใน sm_admin_users = เด้งออก
   CURRENT_USER={email, role:data.role||'admin', name:data.name||email};
+  try{localStorage.setItem('sm_admin_email',email);}catch(e){}
   await enterApp();
   return true;
 }
@@ -1272,6 +1279,7 @@ function init(){
   renderDash();renderPower();// pre-compute badge
 }
 /* คืนค่า session ถ้าเคย login ไว้ (refresh แล้วไม่ต้อง login ใหม่) */
+try{const _e=localStorage.getItem('sm_admin_email');if(_e){const _el=document.getElementById('adEmail');if(_el)_el.value=_e;}}catch(e){}
 (async function(){if(window.SB){try{const {data:{session}}=await SB.auth.getSession();if(session)await afterAuth();}catch(e){console.warn('restore session',e);}}})();
 </script>
 </body>

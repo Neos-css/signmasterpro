@@ -632,9 +632,10 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <div class="amodal" id="authModal">
   <div class="acard">
     <span class="ax" onclick="closeAuth()">×</span>
-    <div class="ahead"><div class="brand auth-brand" style="justify-content:center;margin-bottom:14px"><span class="logo-wrap"><svg class="brandlogo" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/></svg></span><span class="wm"><span class="wm-main">SIGNMASTER PRO</span></span></div><h3 id="authTitle">เข้าสู่ระบบ</h3><p data-en="Save order history · Track status · Reorder easily">เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
+    <div class="ahead"><div class="brand auth-brand" style="justify-content:center;margin-bottom:14px"><span class="logo-wrap"><svg class="brandlogo" style="height:54px" viewBox="144 158 326 202" role="img" aria-label="Signmaster Pro"><use href="#smart"/></svg></span></div><h3 id="authTitle">เข้าสู่ระบบ</h3><p data-en="Save order history · Track status · Reorder easily">เก็บประวัติงาน · ติดตามสถานะ · สั่งซ้ำง่าย</p></div>
     <div class="aform">
       <input id="mName" placeholder="ชื่อ-นามสกุล" autocomplete="name" style="display:none" data-en-ph="Full name">
+      <input id="mPhone" type="tel" placeholder="เบอร์โทรศัพท์" autocomplete="tel" inputmode="tel" style="display:none" data-en-ph="Phone number">
       <input id="mEmail" type="email" placeholder="อีเมล" autocomplete="email" data-en-ph="Email">
       <input id="mPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')authSubmit()" data-en-ph="Password">
       <button class="btn btn-primary btn-lg" id="authSubmit" style="justify-content:center" onclick="authSubmit()">เข้าสู่ระบบ</button>
@@ -1141,6 +1142,7 @@ function closeAuth(){document.getElementById('authModal').classList.remove('open
 function setAuthMode(mode){authMode=mode;
   document.getElementById('authTitle').textContent=mode==='signup'?t('สมัครสมาชิก','Sign up'):t('เข้าสู่ระบบ','Sign in');
   document.getElementById('mName').style.display=mode==='signup'?'':'none';
+  document.getElementById('mPhone').style.display=mode==='signup'?'':'none';
   document.getElementById('authSubmit').textContent=mode==='signup'?t('สมัครสมาชิก','Sign up'):t('เข้าสู่ระบบ','Sign in');
   document.getElementById('authSwitchTxt').textContent=mode==='signup'?t('มีบัญชีแล้ว?','Already have an account?'):t('ยังไม่มีบัญชี?','No account yet?');
   document.getElementById('authSwitchLink').textContent=mode==='signup'?t('เข้าสู่ระบบ','Sign in'):t('สมัครสมาชิก','Sign up');
@@ -1152,13 +1154,15 @@ async function authSubmit(){
   const email=(document.getElementById('mEmail').value||'').trim().toLowerCase();
   const pass=document.getElementById('mPass').value||'';
   const name=(document.getElementById('mName').value||'').trim();
+  const phone=(document.getElementById('mPhone').value||'').trim();
   document.getElementById('authErr').style.display='none';
   if(!email||!pass){authErr(t('กรอกอีเมลและรหัสผ่านก่อนค่ะ','Please enter your email and password.'));return;}
   if(authMode==='signup'&&!name){authErr(t('กรอกชื่อ-นามสกุลก่อนค่ะ','Please enter your full name.'));return;}
+  if(authMode==='signup'&&phone.replace(/\D/g,'').length<9){authErr(t('กรอกเบอร์โทรศัพท์ให้ถูกต้องค่ะ','Please enter a valid phone number.'));return;}
   if(authMode==='signup'&&pass.length<6){authErr(t('รหัสผ่านอย่างน้อย 6 ตัวอักษรค่ะ','Password must be at least 6 characters.'));return;}
   const btn=document.getElementById('authSubmit');btn.disabled=true;const old=btn.textContent;btn.textContent=t('กำลังดำเนินการ...','Processing...');
   const res=authMode==='signup'
-    ? await SB.auth.signUp({email,password:pass,options:{data:{name:name}}})
+    ? await SB.auth.signUp({email,password:pass,options:{data:{name:name,phone:phone}}})
     : await SB.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent=old;
   if(res.error){const msg=res.error.message||'';
@@ -1167,7 +1171,7 @@ async function authSubmit(){
     else authErr(msg);return;}
   await refreshMember();
   if(!CUR_MEMBER){authErr(t('สมัครแล้วค่ะ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ','Signed up! Please confirm your email before signing in.'));return;}
-  try{await SB.from('sm_customers').upsert({customer_id:'M-'+CUR_MEMBER.id,name:CUR_MEMBER.name,email:CUR_MEMBER.email},{onConflict:'customer_id'});}catch(e){}
+  try{const cu={customer_id:'M-'+CUR_MEMBER.id,name:CUR_MEMBER.name,email:CUR_MEMBER.email};if(phone)cu.phone=phone;await SB.from('sm_customers').upsert(cu,{onConflict:'customer_id'});}catch(e){}
   const tl=CUR_MEMBER.tier?(' · '+(CUR_MEMBER.tier.emoji||'')+' '+t('สมาชิก','')+CUR_MEMBER.tier.label):'';
   closeAuth();renderMember();toast(t('สวัสดีค่ะ '+CUR_MEMBER.name+' 🎉'+tl+' เข้าสู่ระบบแล้ว','Welcome, '+CUR_MEMBER.name+'! 🎉'+tl+' Signed in'));
 }
