@@ -605,7 +605,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <div class="f"><label>สิทธิ์</label><select id="uRole"><option value="staff">✏️ Staff</option><option value="viewer">👁️ Viewer</option></select></div>
           <button class="btn btn-pri" onclick="addUser()">เพิ่ม</button>
         </div>
-        <table><thead><tr><th>ชื่อแสดง</th><th>อีเมล</th><th>สิทธิ์</th><th></th></tr></thead><tbody id="userBody"></tbody></table>
+        <table><thead><tr><th>ชื่อแสดง</th><th>อีเมล</th><th>สิทธิ์</th><th>สถานะ</th><th>เข้าล่าสุด</th><th>ออกล่าสุด</th><th></th></tr></thead><tbody id="userBody"></tbody></table>
       </div>
     </section>
 
@@ -656,6 +656,8 @@ async function afterAuth(){
   if(error||!data){await SB.auth.signOut();return false;}   // ไม่อยู่ใน sm_admin_users = เด้งออก
   CURRENT_USER={email, role:data.role||'admin', name:data.name||email};
   try{localStorage.setItem('sm_admin_email',email);}catch(e){}
+  try{SB.rpc('sm_touch_admin',{p_event:'login'});}catch(e){}
+  if(!window._hbTimer)window._hbTimer=setInterval(()=>{try{SB.rpc('sm_touch_admin',{p_event:'heartbeat'});}catch(e){}},60000);
   await enterApp();
   return true;
 }
@@ -676,7 +678,7 @@ function applyRole(r){
   // sync ปุ่มทดลองมุมมองในหน้าผู้ใช้งานให้ตรง role จริง
   document.querySelectorAll('.roleswitch button').forEach(b=>b.classList.toggle('on',(b.textContent||'').includes({admin:'Admin',staff:'Staff',viewer:'Viewer'}[r])));
 }
-async function logout(){if(window.SB){try{await SB.auth.signOut();}catch(e){}}CURRENT_USER=null;location.reload();}
+async function logout(){if(window.SB){try{await SB.rpc('sm_touch_admin',{p_event:'logout'});}catch(e){}try{await SB.auth.signOut();}catch(e){}}CURRENT_USER=null;location.reload();}
 async function reloadData(){
   if(!window.SB){toast('ยังไม่ได้เชื่อม Supabase ค่ะ');return;}
   toast('🔄 กำลังโหลดข้อมูลล่าสุด...');
@@ -777,7 +779,7 @@ async function loadVisits(){
 async function loadUsers(){
   const {data,error}=await SB.from('sm_admin_users').select('*').order('created_at',{ascending:true});
   if(error){console.warn('users',error);return;}
-  USERS=(data||[]).map(u=>({u:u.email,d:u.name||u.email,r:u.role||'admin'}));
+  USERS=(data||[]).map(u=>({u:u.email,d:u.name||u.email,r:u.role||'admin',ll:u.last_login,lo:u.last_logout,ls:u.last_seen}));
 }
 async function loadAll(){
   if(!window.SB)return;
@@ -1367,8 +1369,14 @@ function doTopup(credits,note){
     }).catch(()=>toast('เชื่อมต่อไม่ได้'));
 }
 function topupCredit(){const amt=parseInt(prompt('เติมกี่เครดิต? (กำหนดเอง)','500'),10);if(!amt||amt<=0)return;doTopup(amt,'เติมเอง');}
+function _fmtDT(s){if(!s)return '<span style="color:#aab">—</span>';const d=new Date(s);if(isNaN(d))return '<span style="color:#aab">—</span>';const same=d.toDateString()===new Date().toDateString();const t=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});return same?('วันนี้ '+t):(d.getDate()+'/'+(d.getMonth()+1)+' '+t);}
+function _isOnline(ls){return ls&&(Date.now()-new Date(ls).getTime())<3*60000;}
 function renderUsers(){
-  document.getElementById('userBody').innerHTML=USERS.map((u,i)=>{const rt={admin:'👑 Admin',staff:'✏️ Staff',viewer:'👁️ Viewer'}[u.r];const del=u.r==='admin'?'<span style="color:#9aa1ad;font-size:.8rem">—</span>':`<button class="btn btn-ghost" style="padding:6px 11px;font-size:.8rem;color:#dc2626;border-color:#fecaca" onclick="delUser(${i})">ลบ</button>`;return `<tr><td><b>${esc(u.d)}</b></td><td>${esc(u.u)}</td><td>${rt}</td><td>${del}</td></tr>`;}).join('');
+  document.getElementById('userBody').innerHTML=USERS.map((u,i)=>{const rt={admin:'👑 Admin',staff:'✏️ Staff',viewer:'👁️ Viewer'}[u.r];
+    const online=_isOnline(u.ls);
+    const st=online?'<span class="tag" style="background:#dcfce7;color:#16a34a">🟢 ออนไลน์</span>':'<span class="tag" style="background:#eef1f5;color:#64748b">⚪ ออฟไลน์</span>';
+    const del=u.r==='admin'?'<span style="color:#9aa1ad;font-size:.8rem">—</span>':`<button class="btn btn-ghost" style="padding:6px 11px;font-size:.8rem;color:#dc2626;border-color:#fecaca" onclick="delUser(${i})">ลบ</button>`;
+    return `<tr><td><b>${esc(u.d)}</b></td><td>${esc(u.u)}</td><td>${rt}</td><td>${st}</td><td style="font-size:.84rem;color:#475569">${_fmtDT(u.ll)}</td><td style="font-size:.84rem;color:#475569">${_fmtDT(u.lo)}</td><td>${del}</td></tr>`;}).join('');
 }
 function addUser(){toast('🔒 เพิ่ม/ลบผู้ใช้จริงต้องผ่าน Worker (service_role) ค่ะ — ฝั่งเว็บมีสิทธิ์อ่านอย่างเดียว · รายชื่อด้านล่างดึงจาก sm_admin_users จริง');}
 function delUser(i){toast('🔒 ลบผู้ใช้จริงต้องผ่าน Worker (service_role) ค่ะ — เฟสถัดไปนะคะ');}
