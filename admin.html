@@ -51,6 +51,18 @@ body.role-viewer .editor-only,body.role-viewer .admin-only,body.role-staff .admi
 .nav a.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(230,57,0,.35)}
 .nav a .em{font-size:1.12rem}
 .nav a .badge{margin-left:auto;font-size:.66rem;font-weight:700;background:#ef4444;color:#fff;padding:1px 7px;border-radius:999px}
+.loyalty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.loyalty-grid{grid-template-columns:1fr}}
+.loyalty-card{background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:14px}
+.loyalty-card .lc-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.loyalty-card .lc-emoji{font-size:1.5rem}
+.loyalty-card .lc-count{margin-left:auto;font-size:.74rem;font-weight:700;background:#eef2f7;color:#475569;padding:2px 9px;border-radius:999px}
+.loyalty-card .lc-l{display:block;font-size:.73rem;color:#64748b;margin:9px 0 3px;font-weight:600}
+.loyalty-card input,.loyalty-card textarea{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #d7dce4;border-radius:8px;font:inherit;font-size:.85rem}
+.loyalty-card input[type=color]{padding:2px;height:34px;cursor:pointer}
+.loyalty-card .lc-row{display:flex;gap:8px}
+.loyalty-card .lc-row>div{flex:1}
+.loyalty-card textarea{resize:vertical;line-height:1.5}
 .side .foot{margin-top:auto;font-size:.74rem;color:#6b7280;padding:12px 10px;border-top:1px solid #232a36}
 
 .main{padding:22px 28px 50px}
@@ -277,6 +289,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
     <nav class="nav" id="nav">
       <a data-v="dash" class="active"><span class="em">📊</span> Dashboard <span style="margin-left:auto;font-size:.7rem;color:#8b93a1">ลายลิน</span></a>
       <a data-v="customers"><span class="em">👥</span> ลูกค้า</a>
+      <a data-v="loyalty" class="editor-only"><span class="em">🎁</span> สิทธิพิเศษสมาชิก</a>
       <a data-v="orders"><span class="em">🧾</span> ออเดอร์</a>
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
@@ -331,6 +344,15 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <div class="card">
         <div class="toolbar"><input class="search" id="custSearch" placeholder="🔍 ค้นหาชื่อ/เบอร์ลูกค้า..." oninput="renderCustomers()"><span class="sum" id="custSum"></span></div>
         <table><thead><tr><th>ลูกค้า</th><th>เบอร์</th><th>ประเภท</th><th>ออเดอร์</th><th>ยอดสะสม</th></tr></thead><tbody id="custBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===== LOYALTY (สิทธิพิเศษสมาชิก) ===== -->
+    <section class="view" id="view-loyalty">
+      <div class="card">
+        <div class="csub" style="margin-bottom:12px">🎁 ตั้งค่าระบบสมาชิก 3 ระดับ — ลูกค้าจะเลื่อนระดับอัตโนมัติตาม<b>ยอดบิลสะสม</b> และเห็นสัญลักษณ์ระดับตอนเข้าสู่ระบบ · พิมพ์สิทธิพิเศษได้บรรทัดละ 1 ข้อ</div>
+        <div id="loyaltyCards" class="loyalty-grid"></div>
+        <div class="sp" style="margin-top:14px"><button class="btn btn-ghost" onclick="renderLoyalty()">↩️ ยกเลิกการแก้ไข</button><button class="btn btn-pri" onclick="saveLoyalty()">💾 บันทึกสิทธิพิเศษ</button></div>
       </div>
     </section>
 
@@ -596,7 +618,7 @@ async function reloadData(){
   await loadAll();
   const cur=(document.querySelector('#nav a.active')||{}).dataset; const v=cur?cur.v:'dash';
   renderDash();
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='power')renderPower();else if(v==='users')renderUsers();
   toast('✅ อัปเดตข้อมูลล่าสุดแล้วค่ะ');
 }
 
@@ -672,13 +694,13 @@ async function loadUsers(){
 }
 async function loadAll(){
   if(!window.SB)return;
-  await Promise.all([loadOrders(),loadLeads(),loadCustomers(),loadChats(),loadVisits(),loadUsers()]);
+  await Promise.all([loadOrders(),loadLeads(),loadCustomers(),loadChats(),loadVisits(),loadUsers(),loadLoyaltyAdmin()]);
   // guest order: ออเดอร์ไม่ล็อกอิน (ไม่มี customer_id) → ผูกเข้าบัญชีลูกค้าด้วยเบอร์โทร
   const byPhone={};CUSTOMERS.forEach(c=>{const p=normPhone(c.tel);if(p)byPhone[p]=c.cid;});
   ORDERS.forEach(o=>{if(!o.cid&&o.phone){const p=normPhone(o.phone);if(p&&byPhone[p]){o.cid=byPhone[p];o.guestMatched=true;}}});
-  // นับจำนวนออเดอร์ต่อลูกค้า (รวม guest ที่ผูกแล้ว)
-  const cnt={};ORDERS.forEach(o=>{if(o.cid)cnt[o.cid]=(cnt[o.cid]||0)+1;});
-  CUSTOMERS.forEach(c=>{c.orders=cnt[c.cid]||0;});
+  // นับจำนวนออเดอร์ + รวมยอดบิลสะสมจริงต่อลูกค้า (รวม guest ที่ผูกแล้ว) → ใช้กับ VIP + ระบบสมาชิก
+  const cnt={},sum={};ORDERS.forEach(o=>{if(o.cid){cnt[o.cid]=(cnt[o.cid]||0)+1;sum[o.cid]=(sum[o.cid]||0)+(o.amount||0);}});
+  CUSTOMERS.forEach(c=>{c.orders=cnt[c.cid]||0;c.total=sum[c.cid]||0;});
 }
 // normalize เบอร์โทร (เอาเฉพาะตัวเลข 9 หลักท้าย) สำหรับจับคู่ guest order ↔ ลูกค้า
 function normPhone(s){const d=(s||'').replace(/\D/g,'');return d.length>=9?d.slice(-9):'';}
@@ -731,7 +753,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -739,7 +761,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
 }
 
 /* ===== ห้องทำงาน AI (รวม 4 แผนกเป็นแท็บในวิวเดียว) ===== */
@@ -961,6 +983,40 @@ function renderCustomers(){
   let vip=0,mem=0;
   document.getElementById('custBody').innerHTML=list.length?list.map(c=>{const isVip=c.total>=VIP_THRESHOLD;if(isVip)vip++;mem++;return `<tr><td><b>${esc(c.nm)}</b></td><td>${c.tel}</td><td>${isVip?'<span class="tag t-vip">⭐ VIP</span>':'<span class="tag t-mem">💎 สมาชิก</span>'}</td><td>${c.orders}</td><td><b>฿${c.total.toLocaleString()}</b></td></tr>`;}).join(''):'<tr><td colspan="5"><div class="empty">ไม่พบลูกค้า</div></td></tr>';
   document.getElementById('custSum').textContent=`${list.length} ราย · 💎 สมาชิก ${mem} · ⭐ VIP ${vip}`;
+}
+
+/* ===== ระบบสมาชิก 3 ระดับ (สิทธิพิเศษตั้งเองได้) ===== */
+let LOYALTY_ADMIN=[];
+async function loadLoyaltyAdmin(){
+  if(!window.SB)return;
+  try{const {data,error}=await SB.from('sm_loyalty_tiers').select('*').order('min_total',{ascending:true});
+    if(error){console.warn('loyalty',error);return;}LOYALTY_ADMIN=data||[];}catch(e){console.warn('loyalty',e);}
+}
+function loyaltyTierOf(total){let cur=null;[...LOYALTY_ADMIN].sort((a,b)=>a.min_total-b.min_total).forEach(t=>{if(total>=t.min_total)cur=t;});return cur;}
+function renderLoyalty(){
+  const box=document.getElementById('loyaltyCards');if(!box)return;
+  if(!LOYALTY_ADMIN.length){box.innerHTML='<div class="empty">ยังไม่พบข้อมูลระดับสมาชิก — ตรวจสอบตาราง sm_loyalty_tiers ใน Supabase</div>';return;}
+  const counts={};CUSTOMERS.forEach(c=>{const tr=loyaltyTierOf(c.total||0);if(tr)counts[tr.tier]=(counts[tr.tier]||0)+1;});
+  const asc=[...LOYALTY_ADMIN].sort((a,b)=>a.min_total-b.min_total);
+  box.innerHTML=asc.map(t=>`<div class="loyalty-card" style="border-top:4px solid ${esc(t.color||'#999')}">
+    <div class="lc-head"><span class="lc-emoji">${esc(t.emoji||'')}</span><b>${esc(t.label)}</b><span class="lc-count">${counts[t.tier]||0} คน</span></div>
+    <label class="lc-l">ยอดบิลสะสมขั้นต่ำ (บาท)</label><input type="number" min="0" id="ly_min_${t.tier}" value="${Number(t.min_total)||0}">
+    <div class="lc-row"><div><label class="lc-l">อีโมจิ/สัญลักษณ์</label><input id="ly_emoji_${t.tier}" value="${esc(t.emoji||'')}" maxlength="4"></div><div><label class="lc-l">สี</label><input type="color" id="ly_color_${t.tier}" value="${/^#[0-9a-fA-F]{6}$/.test(t.color||'')?t.color:'#999999'}"></div></div>
+    <label class="lc-l">สิทธิพิเศษ (พิมพ์บรรทัดละ 1 ข้อ)</label><textarea id="ly_perks_${t.tier}" rows="5" placeholder="เช่น&#10;ส่วนลด 5% ทุกออเดอร์&#10;ฟรีค่าออกแบบ 1 ครั้ง/เดือน&#10;คิวงานด่วนพิเศษ">${esc(t.perks||'')}</textarea>
+  </div>`).join('');
+}
+async function saveLoyalty(){
+  if(!window.SB){toast('ยังไม่ได้เชื่อม Supabase ค่ะ');return;}
+  if(!LOYALTY_ADMIN.length){toast('ไม่มีข้อมูลให้บันทึก');return;}
+  const rows=LOYALTY_ADMIN.map(t=>({tier:t.tier,label:t.label,sort:t.sort||0,
+    min_total:Math.max(0,parseInt((document.getElementById('ly_min_'+t.tier)||{}).value,10)||0),
+    emoji:((document.getElementById('ly_emoji_'+t.tier)||{}).value||'').slice(0,4),
+    color:(document.getElementById('ly_color_'+t.tier)||{}).value||'#999999',
+    perks:((document.getElementById('ly_perks_'+t.tier)||{}).value||'').slice(0,2000)}));
+  const {error}=await SB.from('sm_loyalty_tiers').upsert(rows,{onConflict:'tier'});
+  if(error){toast('❌ บันทึกไม่สำเร็จ: '+(error.message||'')+' (ต้อง login เป็นแอดมิน)');console.warn(error);return;}
+  LOYALTY_ADMIN=rows.map(r=>Object.assign({},r));
+  renderLoyalty();toast('✅ บันทึกสิทธิพิเศษสมาชิกแล้วค่ะ — ลูกค้าจะเห็นตอน login');
 }
 function orderDetail(el){
   const raw=el.getAttribute('data-d')||'—', id=el.getAttribute('data-id')||'';

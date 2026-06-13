@@ -1084,16 +1084,50 @@ function inkSend(){const i=document.getElementById('inkText');const v=i.value.tr
 function esc(s){return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 let CUR_MEMBER=null,authMode='login';
 function getMember(){return CUR_MEMBER;}
+/* ระบบสมาชิก 3 ระดับ (Silver/Gold/Platinum) — ระดับตามยอดบิลสะสมจริง */
+let LOYALTY_TIERS=null;
+async function loadLoyaltyTiers(){
+  if(LOYALTY_TIERS)return LOYALTY_TIERS;
+  if(!window.SB){LOYALTY_TIERS=[];return LOYALTY_TIERS;}
+  try{const {data}=await SB.from('sm_loyalty_tiers').select('*').order('min_total',{ascending:true});LOYALTY_TIERS=data||[];}catch(e){LOYALTY_TIERS=[];}
+  return LOYALTY_TIERS;
+}
+async function loadMemberTier(m){
+  m.total=0;m.tier=null;m.nextTier=null;
+  if(!window.SB)return m;
+  try{const {data}=await SB.from('sm_orders').select('amount').eq('customer_id','M-'+m.id);(data||[]).forEach(o=>{m.total+=Number(o.amount)||0;});}catch(e){}
+  const asc=[...(await loadLoyaltyTiers())].sort((a,b)=>a.min_total-b.min_total);
+  asc.forEach(tr=>{if(m.total>=tr.min_total)m.tier=tr;});
+  m.nextTier=asc.find(tr=>tr.min_total>m.total)||null;
+  return m;
+}
 async function refreshMember(){
   if(window.SB){try{const {data:{session}}=await SB.auth.getSession();
     if(session&&session.user){const u=session.user;CUR_MEMBER={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||(u.email||'').split('@')[0]};}
     else CUR_MEMBER=null;}catch(e){CUR_MEMBER=null;}}
+  if(CUR_MEMBER)await loadMemberTier(CUR_MEMBER);
   renderMember();
 }
 function renderMember(){
   const m=CUR_MEMBER,a=document.getElementById('authArea');if(!a)return;
   if(!m){a.innerHTML=`<button class="btn-auth" onclick="openAuth()">👤 ${t('เข้าสู่ระบบ','Sign in')}</button>`;return;}
-  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0].toUpperCase())}</span><span class="mn">${esc(m.name)}</span> ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${esc(m.email||'')}</small></div><div class="mi" onclick="openMyOrders()">📦 ${t('ออเดอร์ของฉัน','My Orders')}</div><div class="mi" onclick="logout()">🚪 ${t('ออกจากระบบ','Sign out')}</div></div></div>`;
+  const ti=m.tier,tot=Number(m.total||0).toLocaleString();
+  const badge=ti?`<span class="mtier" style="margin-left:6px;padding:1px 7px;border-radius:10px;font-size:.7rem;font-weight:700;background:${esc(ti.color)}22;color:${esc(ti.color)};border:1px solid ${esc(ti.color)}66">${esc(ti.emoji||'')} ${esc(ti.label)}</span>`:'';
+  let tierBox;
+  if(ti){
+    const perks=(ti.perks||'').trim();
+    const perksHtml=perks
+      ? `<div style="margin-top:5px;color:#334155;line-height:1.55">${perks.split(/\n+/).map(p=>'• '+esc(p.replace(/^[-•·]\s*/,''))).join('<br>')}</div>`
+      : `<div style="margin-top:5px;color:#94a3b8">${t('(เจ้าของร้านกำลังจัดสิทธิพิเศษให้เร็วๆ นี้ค่ะ)','(Perks coming soon)')}</div>`;
+    const nx=m.nextTier
+      ? `<div style="margin-top:6px;color:#0ea5e9;font-size:.72rem">${t('อีก','Only')} ฿${(m.nextTier.min_total-m.total).toLocaleString()} ${t('ถึงระดับ','to reach')} ${esc(m.nextTier.emoji||'')} ${esc(m.nextTier.label)}</div>`
+      : `<div style="margin-top:6px;color:#16a34a;font-size:.72rem">${t('คุณคือสมาชิกระดับสูงสุดแล้ว ขอบคุณค่ะ 💖','You\'ve reached the top tier — thank you! 💖')}</div>`;
+    tierBox=`<div style="margin:6px 10px 2px;padding:9px 11px;background:#f8fafc;border-radius:9px;font-size:.78rem;border-left:3px solid ${esc(ti.color)}"><div style="font-weight:800">${esc(ti.emoji||'')} ${t('สมาชิก','Member')} ${esc(ti.label)}</div><div style="color:#64748b;font-size:.73rem">${t('ยอดสะสม','Total spent')} ฿${tot}</div>${perksHtml}${nx}</div>`;
+  }else{
+    const nx=m.nextTier?`${t('อีก','Only')} ฿${(m.nextTier.min_total-m.total).toLocaleString()} ${t('เป็นสมาชิก','to become')} ${esc(m.nextTier.emoji||'')} ${esc(m.nextTier.label)}`:t('สมาชิกทั่วไป','General member');
+    tierBox=`<div style="margin:6px 10px 2px;padding:9px 11px;background:#f8fafc;border-radius:9px;font-size:.78rem;border-left:3px solid #cbd5e1"><div style="font-weight:800">⭐ ${t('สมาชิกทั่วไป','General member')}</div><div style="color:#64748b;font-size:.73rem">${t('ยอดสะสม','Total spent')} ฿${tot}</div><div style="margin-top:6px;color:#0ea5e9;font-size:.72rem">${nx}</div></div>`;
+  }
+  a.innerHTML=`<div class="member" id="memberBox"><div class="chip" onclick="event.stopPropagation();document.getElementById('memberBox').classList.toggle('open')"><span class="mav">${esc((m.name||'?')[0].toUpperCase())}</span><span class="mn">${esc(m.name)}</span>${badge} ▾</div><div class="menu"><div class="top"><b>${esc(m.name)}</b><small>${esc(m.email||'')}</small></div>${tierBox}<div class="mi" onclick="openMyOrders()">📦 ${t('ออเดอร์ของฉัน','My Orders')}</div><div class="mi" onclick="logout()">🚪 ${t('ออกจากระบบ','Sign out')}</div></div></div>`;
 }
 function openAuth(){closeNav();setAuthMode('login');document.getElementById('authErr').style.display='none';document.getElementById('authModal').classList.add('open');}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');}
@@ -1127,7 +1161,8 @@ async function authSubmit(){
   await refreshMember();
   if(!CUR_MEMBER){authErr(t('สมัครแล้วค่ะ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ','Signed up! Please confirm your email before signing in.'));return;}
   try{await SB.from('sm_customers').upsert({customer_id:'M-'+CUR_MEMBER.id,name:CUR_MEMBER.name,email:CUR_MEMBER.email},{onConflict:'customer_id'});}catch(e){}
-  closeAuth();renderMember();toast(t('สวัสดีค่ะ '+CUR_MEMBER.name+' 🎉 เข้าสู่ระบบแล้ว','Welcome, '+CUR_MEMBER.name+'! 🎉 Signed in'));
+  const tl=CUR_MEMBER.tier?(' · '+(CUR_MEMBER.tier.emoji||'')+' '+t('สมาชิก','')+CUR_MEMBER.tier.label):'';
+  closeAuth();renderMember();toast(t('สวัสดีค่ะ '+CUR_MEMBER.name+' 🎉'+tl+' เข้าสู่ระบบแล้ว','Welcome, '+CUR_MEMBER.name+'! 🎉'+tl+' Signed in'));
 }
 async function logout(){const mb=document.getElementById('memberBox');if(mb)mb.classList.remove('open');if(window.SB){try{await SB.auth.signOut();}catch(e){}}CUR_MEMBER=null;renderMember();toast('ออกจากระบบแล้วค่ะ');}
 async function openMyOrders(){
