@@ -1109,12 +1109,22 @@ async function loadMemberTier(m){
   m.nextTier=asc.find(tr=>tr.min_total>m.total)||null;
   return m;
 }
+const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
+async function recordMemberIp(m){   // เก็บ IP จริง (server-side) + เด้งถ้าถูกบล็อก
+  if(!m||!window.SB||sessionStorage.getItem('sm_ip_done'))return;
+  sessionStorage.setItem('sm_ip_done','1');
+  try{const r=await fetch(AGENTS_WORKER+'/member-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_id:'M-'+m.id})});
+    const d=await r.json().catch(()=>({}));
+    if(d&&d.blocked){await SB.auth.signOut();CUR_MEMBER=null;sessionStorage.removeItem('sm_ip_done');renderMember();toast(t('บัญชี/อุปกรณ์นี้ถูกระงับการใช้งานค่ะ','This account/device has been suspended.'));}
+  }catch(e){}
+}
 async function refreshMember(){
   if(window.SB){try{const {data:{session}}=await SB.auth.getSession();
     if(session&&session.user){const u=session.user;CUR_MEMBER={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||(u.email||'').split('@')[0]};}
     else CUR_MEMBER=null;}catch(e){CUR_MEMBER=null;}}
   if(CUR_MEMBER)await loadMemberTier(CUR_MEMBER);
   renderMember();
+  if(CUR_MEMBER)recordMemberIp(CUR_MEMBER);
 }
 function renderMember(){
   const m=CUR_MEMBER,a=document.getElementById('authArea');if(!a)return;
