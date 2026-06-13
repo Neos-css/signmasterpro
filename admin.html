@@ -67,6 +67,13 @@ body.role-viewer .editor-only,body.role-viewer .admin-only,body.role-staff .admi
 .loyalty-card .lc-row{display:flex;gap:8px}
 .loyalty-card .lc-row>div{flex:1}
 .loyalty-card textarea{resize:vertical;line-height:1.5}
+.clip-thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:6px;max-height:210px;overflow:auto;padding:2px;margin-bottom:4px}
+.clip-thumb{position:relative;aspect-ratio:9/12;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:#eef}
+.clip-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.clip-thumb.sel{border-color:#e63900}
+.clip-thumb .ord{position:absolute;top:2px;left:2px;background:#e63900;color:#fff;font-size:.64rem;font-weight:700;min-width:16px;height:16px;padding:0 3px;border-radius:9px;display:grid;place-items:center}
+.vlbl{font-size:.76rem;color:#64748b;font-weight:600;display:block;margin-bottom:3px}
+.vsel{width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:.86rem;background:#fff;cursor:pointer}
 .side .foot{margin-top:auto;font-size:.74rem;color:#6b7280;padding:12px 10px;border-top:1px solid #232a36}
 
 .main{padding:22px 28px 50px}
@@ -428,7 +435,10 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <button class="imgtab" data-c="sign" onclick="clipCat(this)">🪧 ป้าย</button>
           <button class="imgtab" data-c="lightbox" onclick="clipCat(this)">💡 ตู้ไฟ</button>
         </div>
-        <input id="clipHeadline" placeholder="ข้อความหัวคลิป เช่น ป้ายไวนิลคุณภาพโรงงาน ราคาส่ง" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;margin-top:4px">
+        <div style="font-size:.8rem;color:var(--muted);margin:10px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">🖼️ เลือกรูปที่อยากใส่ (กดได้หลายรูป · ไม่เลือก = สุ่มให้ 5 รูป) <button class="btn btn-ghost" style="padding:2px 9px;font-size:.72rem" onclick="clipClearSel()">ล้างที่เลือก</button><span id="clipSelCount" style="font-weight:700;color:#e63900"></span></div>
+        <div id="clipThumbs" class="clip-thumbs"></div>
+        <input id="clipHeadline" placeholder="ข้อความหัวคลิป เช่น ป้ายไวนิลคุณภาพโรงงาน ราคาส่ง" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;margin-top:8px">
+        <div style="margin-top:10px"><label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:4px">🎵 เพิ่มเพลงประกอบ (ถ้ามี · ไฟล์ mp3/m4a — คลิปจะมีเสียง)</label><input type="file" id="clipAudio" accept="audio/*" style="font-size:.85rem"></div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <button class="btn btn-line" id="clipGo" onclick="makeClip()">🎬 สร้างคลิป</button>
           <button class="btn btn-ghost" onclick="aiCaptionForClip()">✍️ ให้ AI ช่วยคิดหัวคลิป</button>
@@ -439,6 +449,26 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <a id="clipDl" class="btn btn-pri" style="margin-top:10px;display:none" download="signmaster-clip.webm">⬇️ ดาวน์โหลดคลิป</a>
         </div>
         <canvas id="clipCanvas" width="540" height="960" style="display:none"></canvas>
+      </div>
+      <div class="card">
+        <h3>🎥 AI วิดีโอ (เชื่อมบริการภายนอก)</h3>
+        <div class="csub">สร้างวิดีโอ AI จริงจาก prompt + รูป (คุณภาพสูง · <b>มีค่าใช้จ่าย</b>) — ฟอร์มพร้อมแล้ว เหลือแค่เลือกผู้ให้บริการ + ใส่ API key ใน worker</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+          <div><label class="vlbl">ผู้ให้บริการ (เลือกเจ้าที่จะเชื่อม)</label><select id="aivProvider" class="vsel"><option value="">— ยังไม่เลือก —</option><option value="fal-kling">fal.ai · Kling</option><option value="fal-luma">fal.ai · Luma Dream Machine</option><option value="fal-ltx">fal.ai · LTX Video</option><option value="fal-hunyuan">fal.ai · Hunyuan</option><option value="runway">Runway Gen-3</option><option value="pika">Pika</option></select></div>
+          <div><label class="vlbl">อัตราส่วน</label><select id="aivRatio" class="vsel"><option value="9:16">📱 9:16 TikTok/Reels</option><option value="1:1">⬛ 1:1 IG</option><option value="16:9">🖥️ 16:9 YouTube</option></select></div>
+          <div><label class="vlbl">ความยาว</label><select id="aivDur" class="vsel"><option value="5">5 วินาที</option><option value="10">10 วินาที</option></select></div>
+          <div><label class="vlbl">ความละเอียด/โหมด</label><select id="aivRes" class="vsel"><option value="std">Standard (720p · เร็ว/ถูก)</option><option value="pro">Pro (1080p · คุณภาพสูง)</option></select></div>
+        </div>
+        <label class="vlbl" style="margin-top:10px;display:block">Prompt (ภาษาอังกฤษได้ผลดีกว่า)</label>
+        <textarea id="aivPrompt" rows="3" placeholder="เช่น A cinematic shot of a glowing LED signboard on a modern storefront at dusk, smooth camera pan, neon reflections, 4k" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem"></textarea>
+        <label class="vlbl" style="margin-top:8px;display:block">รูปอ้างอิง (ถ้ามี · image-to-video) — วาง URL</label>
+        <input id="aivImg" placeholder="วาง URL รูป (เว้นว่าง = text-to-video)" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.88rem">
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-line" id="aivGo" onclick="generateAiVideo()">🎥 สร้างวิดีโอ AI</button>
+          <button class="btn btn-ghost" onclick="aivBuildPrompt()">✨ ให้ AI ช่วยเขียน prompt</button>
+        </div>
+        <div id="aivMsg" class="csub" style="margin-top:8px;color:var(--warn)">⚠️ ยังไม่ได้เชื่อม API — เลือกเจ้า + ใส่ key ใน worker ก่อนถึงสร้างได้จริง (ตอนนี้กดได้ แต่จะแจ้งว่ายังไม่พร้อม)</div>
+        <div id="aivStage" style="display:none;margin-top:14px;text-align:center"><video id="aivVideo" controls playsinline style="max-width:300px;width:100%;border-radius:12px;background:#000"></video><br><a id="aivDl" class="btn btn-pri" style="margin-top:10px;display:none" download="signmaster-ai-video.mp4">⬇️ ดาวน์โหลด</a></div>
       </div>
     </div>
 
@@ -837,7 +867,7 @@ function renderAIRoom(){
 /* ===== AI Marketing ===== */
 const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
 let MKT_KIND='promo';
-function renderMarketing(){/* แผงพร้อมใช้ ไม่ต้องโหลดอะไรเพิ่ม (ORDERS โหลดไว้แล้ว) */}
+function renderMarketing(){try{renderClipThumbs();}catch(e){}/* แผงพร้อมใช้ + โหลด thumbnail รูปคลิป */}
 function mktKind(btn){MKT_KIND=btn.dataset.k;document.querySelectorAll('#mktKinds .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
 /* สรุปงานขายดีจาก ORDERS จริง → context ให้ AI */
 function topJobsContext(){
@@ -865,8 +895,17 @@ async function askMarketing(analyze){
 function copyMkt(){const t=document.getElementById('mktOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
 
 /* ===== ทำคลิปผลงานอัตโนมัติ (canvas → MediaRecorder · ฟรี) ===== */
-let CLIP_CAT='booth';
-function clipCat(btn){CLIP_CAT=btn.dataset.c;document.querySelectorAll('#clipCat .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
+let CLIP_CAT='booth',CLIP_SEL=[];
+function clipCat(btn){CLIP_CAT=btn.dataset.c;document.querySelectorAll('#clipCat .imgtab').forEach(b=>b.classList.toggle('on',b===btn));renderClipThumbs();}
+function _catImgs(cat){const G=window.GALLERY||{},a=[];for(const k in G){if(G[k].group===cat)(G[k].imgs||[]).forEach(s=>a.push(s));}return a;}
+function renderClipThumbs(){
+  const box=document.getElementById('clipThumbs');if(!box)return;
+  const imgs=_catImgs(CLIP_CAT);
+  box.innerHTML=imgs.length?imgs.map(s=>{const i=CLIP_SEL.indexOf(s),sel=i>=0;return `<div class="clip-thumb${sel?' sel':''}" onclick="clipToggleThumb('${s.replace(/'/g,"\\'")}')"><img src="${esc(s)}" loading="lazy">${sel?'<span class="ord">'+(i+1)+'</span>':''}</div>`;}).join(''):'<div class="empty" style="grid-column:1/-1">ไม่มีรูปในหมวดนี้</div>';
+  const c=document.getElementById('clipSelCount');if(c)c.textContent=CLIP_SEL.length?('· เลือก '+CLIP_SEL.length+' รูป'):'';
+}
+function clipToggleThumb(src){const i=CLIP_SEL.indexOf(src);if(i>=0)CLIP_SEL.splice(i,1);else{if(CLIP_SEL.length>=8){toast('เลือกได้สูงสุด 8 รูปค่ะ');return;}CLIP_SEL.push(src);}renderClipThumbs();}
+function clipClearSel(){CLIP_SEL=[];renderClipThumbs();}
 async function aiCaptionForClip(){
   const lbl={booth:'บูธ/อีเวนต์',inkjet:'งานอิงค์เจท ไวนิล/สติกเกอร์',sign:'ป้ายทุกชนิด',lightbox:'ตู้ไฟ'}[CLIP_CAT]||'งานป้าย';
   const inp=document.getElementById('clipHeadline'),old=inp.placeholder;inp.placeholder='✍️ AI กำลังคิดหัวคลิป...';
@@ -876,7 +915,7 @@ async function aiCaptionForClip(){
   }catch(e){toast('เชื่อม AI ไม่ได้ ลองใหม่ค่ะ');}
   inp.placeholder=old;
 }
-function _clipImgs(){const G=window.GALLERY||{},a=[];for(const k in G){if(G[k].group===CLIP_CAT)(G[k].imgs||[]).forEach(s=>a.push(s));}for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,5);}
+function _clipImgs(){if(CLIP_SEL.length)return CLIP_SEL.slice();const a=_catImgs(CLIP_CAT);for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,5);}
 function _loadImg(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(src);im.src=src;});}
 async function makeClip(){
   if(typeof MediaRecorder==='undefined'){toast('เบราว์เซอร์นี้อัดคลิปไม่ได้ ลองใช้ Chrome ค่ะ');return;}
@@ -888,7 +927,11 @@ async function makeClip(){
   let imgs;try{imgs=(await Promise.all(srcs.map(s=>_loadImg(s).catch(()=>null)))).filter(Boolean);}catch(e){imgs=[];}
   if(!imgs.length){toast('โหลดรูปไม่สำเร็จค่ะ');btn.disabled=false;btn.textContent='🎬 สร้างคลิป';return;}
   const cv=document.getElementById('clipCanvas'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
-  const stream=cv.captureStream(30);
+  const vstream=cv.captureStream(30);
+  let tracks=vstream.getVideoTracks(),audioEl=null,audioCtx=null;
+  const af=(document.getElementById('clipAudio').files||[])[0];
+  if(af){try{audioEl=new Audio(URL.createObjectURL(af));audioEl.loop=true;audioCtx=new (window.AudioContext||window.webkitAudioContext)();const sn=audioCtx.createMediaElementSource(audioEl),dn=audioCtx.createMediaStreamDestination();sn.connect(dn);tracks=tracks.concat(dn.stream.getAudioTracks());}catch(e){audioEl=null;}}
+  const stream=new MediaStream(tracks);
   const cands=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
   let mime=cands.find(m=>{try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}})||'video/webm';
   const ext=mime.indexOf('mp4')>=0?'mp4':'webm';
@@ -900,6 +943,7 @@ async function makeClip(){
   function cover(im,sc,ox){const ir=im.width/im.height,cr=W/H;let dw,dh;if(ir>cr){dh=H*sc;dw=dh*ir;}else{dw=W*sc;dh=dw/ir;}ctx.drawImage(im,(W-dw)/2,(H-dh)/2+ox,dw,dh);}
   function wrap(text,x,y,maxW,lh,font,color){ctx.font=font;ctx.fillStyle=color;ctx.textAlign='center';const ws=(text+'').split(' ');let ln='',yy=y;for(const w of ws){const t=ln+w+' ';if(ctx.measureText(t).width>maxW&&ln){ctx.fillText(ln.trim(),x,yy);ln=w+' ';yy+=lh;}else ln=t;}ctx.fillText(ln.trim(),x,yy);}
   rec.start();
+  if(audioEl){try{audioEl.currentTime=0;audioEl.play().catch(()=>{});}catch(e){}}
   const PER=2600,FADE=550,END=3000,t0=performance.now();
   await new Promise(resolve=>{
     function frame(now){
@@ -928,12 +972,34 @@ async function makeClip(){
     requestAnimationFrame(frame);
   });
   rec.stop();await stopped;
+  if(audioEl){try{audioEl.pause();}catch(e){}}if(audioCtx){try{audioCtx.close();}catch(e){}}
   const blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob);
   document.getElementById('clipStage').style.display='';
   document.getElementById('clipVideo').src=url;
   const dl=document.getElementById('clipDl');dl.href=url;dl.download='signmaster-clip.'+ext;dl.style.display='';
   btn.disabled=false;btn.textContent='🎬 สร้างคลิปใหม่';
   toast('🎬 คลิปเสร็จแล้วค่ะ! กดเล่นดู / ดาวน์โหลดไปโพสต์ได้เลย');
+}
+/* ===== AI วิดีโอ (เชื่อมบริการภายนอก · scaffold พร้อม เหลือใส่ key ใน worker /video-gen) ===== */
+function aivBuildPrompt(){
+  const inp=document.getElementById('aivPrompt');const old=inp.placeholder;inp.placeholder='✨ AI กำลังเขียน prompt...';
+  fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'campaign',topic:'เขียน video prompt ภาษาอังกฤษ 1-2 ประโยค (cinematic) สำหรับคลิปโฆษณางานป้าย/ตู้ไฟ/บูธ — ตอบเฉพาะ prompt'})})
+    .then(r=>r.json()).then(d=>{const t=((d.answer||'').split('\n').map(s=>s.replace(/^[#•\-\d\.\s"]+/,'').trim()).filter(Boolean)[0]||'').replace(/["“”]/g,'');if(t)inp.value=t.slice(0,300);else toast('AI ไม่ตอบ ลองใหม่');inp.placeholder=old;})
+    .catch(()=>{toast('เชื่อม AI ไม่ได้');inp.placeholder=old;});
+}
+async function generateAiVideo(){
+  const provider=document.getElementById('aivProvider').value,prompt=(document.getElementById('aivPrompt').value||'').trim();
+  if(!provider){toast('เลือกผู้ให้บริการก่อนค่ะ (ตอนนี้ยังเป็น scaffold)');return;}
+  if(!prompt){toast('ใส่ prompt ก่อนค่ะ');return;}
+  const body={provider,prompt,aspectRatio:document.getElementById('aivRatio').value,duration:document.getElementById('aivDur').value,mode:document.getElementById('aivRes').value,imageUrl:(document.getElementById('aivImg').value||'').trim()||null};
+  const btn=document.getElementById('aivGo');btn.disabled=true;btn.textContent='⏳ กำลังส่ง...';
+  try{
+    const r=await fetch(AGENTS_WORKER+'/video-gen',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':(localStorage.getItem('sm_admin_token')||'')},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(d&&d.videoUrl){document.getElementById('aivStage').style.display='';const v=document.getElementById('aivVideo');v.src=d.videoUrl;const dl=document.getElementById('aivDl');dl.href=d.videoUrl;dl.style.display='';toast('🎥 วิดีโอเสร็จแล้วค่ะ!');}
+    else toast(d.message||'ยังไม่ได้เชื่อม API — เลือกเจ้า + ใส่ key ใน worker /video-gen ก่อนค่ะ');
+  }catch(e){toast('ยังไม่ได้เชื่อม API (route /video-gen ยังไม่เปิด) — เหลือแค่เลือกเจ้า+ใส่ key ค่ะ');}
+  btn.disabled=false;btn.textContent='🎥 สร้างวิดีโอ AI';
 }
 
 /* ===== AI Inventory (เดโม client-side · ต่อ Supabase sm_inventory ภายหลัง) ===== */
