@@ -461,8 +461,10 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         </div>
         <label class="vlbl" style="margin-top:10px;display:block">Prompt (ภาษาอังกฤษได้ผลดีกว่า)</label>
         <textarea id="aivPrompt" rows="3" placeholder="เช่น A cinematic shot of a glowing LED signboard on a modern storefront at dusk, smooth camera pan, neon reflections, 4k" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem"></textarea>
-        <label class="vlbl" style="margin-top:8px;display:block">รูปอ้างอิง (ถ้ามี · image-to-video) — วาง URL</label>
-        <input id="aivImg" placeholder="วาง URL รูป (เว้นว่าง = text-to-video)" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.88rem">
+        <label class="vlbl" style="margin-top:8px;display:block">รูปอ้างอิง (ถ้ามี · image-to-video) — อัปโหลดไฟล์ได้เลย</label>
+        <input type="file" id="aivImgFile" accept="image/*" onchange="aivPreviewImg()" style="font-size:.85rem">
+        <img id="aivImgPrev" style="display:none;max-height:90px;border-radius:8px;margin-top:6px;border:1px solid var(--line)">
+        <input id="aivImg" placeholder="หรือวาง URL รูป (เว้นว่าง = text-to-video)" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.88rem;margin-top:6px">
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <button class="btn btn-line" id="aivGo" onclick="generateAiVideo()">🎥 สร้างวิดีโอ AI</button>
           <button class="btn btn-ghost" onclick="aivBuildPrompt()">✨ ให้ AI ช่วยเขียน prompt</button>
@@ -987,12 +989,17 @@ function aivBuildPrompt(){
     .then(r=>r.json()).then(d=>{const t=((d.answer||'').split('\n').map(s=>s.replace(/^[#•\-\d\.\s"]+/,'').trim()).filter(Boolean)[0]||'').replace(/["“”]/g,'');if(t)inp.value=t.slice(0,300);else toast('AI ไม่ตอบ ลองใหม่');inp.placeholder=old;})
     .catch(()=>{toast('เชื่อม AI ไม่ได้');inp.placeholder=old;});
 }
+function aivPreviewImg(){const f=(document.getElementById('aivImgFile').files||[])[0],img=document.getElementById('aivImgPrev');if(f){img.src=URL.createObjectURL(f);img.style.display='';}else img.style.display='none';}
 async function generateAiVideo(){
   const provider=document.getElementById('aivProvider').value,prompt=(document.getElementById('aivPrompt').value||'').trim();
   if(!provider){toast('เลือกผู้ให้บริการก่อนค่ะ (ตอนนี้ยังเป็น scaffold)');return;}
   if(!prompt){toast('ใส่ prompt ก่อนค่ะ');return;}
-  const body={provider,prompt,aspectRatio:document.getElementById('aivRatio').value,duration:document.getElementById('aivDur').value,mode:document.getElementById('aivRes').value,imageUrl:(document.getElementById('aivImg').value||'').trim()||null};
   const btn=document.getElementById('aivGo');btn.disabled=true;btn.textContent='⏳ กำลังส่ง...';
+  // รูปอ้างอิง: ไฟล์ที่อัปโหลด → data URL (fal.ai รับได้) · ไม่งั้นใช้ URL ที่วาง
+  let imageUrl=(document.getElementById('aivImg').value||'').trim()||null;
+  const f=(document.getElementById('aivImgFile').files||[])[0];
+  if(f){try{imageUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}catch(e){}}
+  const body={provider,prompt,aspectRatio:document.getElementById('aivRatio').value,duration:document.getElementById('aivDur').value,mode:document.getElementById('aivRes').value,imageUrl};
   try{
     const r=await fetch(AGENTS_WORKER+'/video-gen',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':(localStorage.getItem('sm_admin_token')||'')},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
