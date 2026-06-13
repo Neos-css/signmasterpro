@@ -487,30 +487,46 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
           </div>
         </div>
         <div id="aiPane" style="display:none">
+          <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย <span style="color:#e53935">*</span></label>
+            <input id="shopName" placeholder="เช่น Signmaster Pro · ร้านกาแฟลานทอง" data-en-ph="e.g. My Coffee Shop"></div>
           <div class="field">
-            <label data-en="Sign type">ประเภทป้าย</label>
-            <div class="mat-pills" id="matPills">
-              <button class="mat-pill active" data-mat="vinyl" onclick="pickMat(this)" data-en="🖼️ Vinyl/Sticker">🖼️ ไวนิล/สติกเกอร์</button>
-              <button class="mat-pill" data-mat="lightbox" onclick="pickMat(this)" data-en="💡 Lightbox">💡 ตู้ไฟ</button>
-              <button class="mat-pill" data-mat="acrylic" onclick="pickMat(this)" data-en="✨ Acrylic">✨ อะคริลิค</button>
-              <button class="mat-pill" data-mat="standee" onclick="pickMat(this)" data-en="📋 Standee/Booth">📋 สแตนดี้/บูธ</button>
+            <label data-en="Style">สไตล์</label>
+            <div class="mat-pills" id="stylePills">
+              <button class="gen-pill mat-pill active" data-val="modern sleek minimalist" onclick="pickGen(this)" data-en="Modern & Sleek">โมเดิร์นเรียบหรู</button>
+              <button class="gen-pill mat-pill" data-val="vintage rustic wooden" onclick="pickGen(this)" data-en="Vintage Wood">วินเทจไม้</button>
+              <button class="gen-pill mat-pill" data-val="luxury premium gold" onclick="pickGen(this)" data-en="Luxury Gold">หรูทอง</button>
+              <button class="gen-pill mat-pill" data-val="cyberpunk neon futuristic" onclick="pickGen(this)" data-en="Cyberpunk Neon">ไซเบอร์พังก์นีออน</button>
             </div>
           </div>
-          <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย</label>
-            <input id="shopName" placeholder="เช่น Signmaster Pro · ร้านกาแฟลานทอง" data-en-ph="e.g. My Shop Name"></div>
+          <div class="field">
+            <label data-en="Lighting">ประเภทไฟ</label>
+            <div class="mat-pills" id="lightPills">
+              <button class="gen-pill mat-pill active" data-val="backlit halo illuminated from behind" onclick="pickGen(this)" data-en="Backlit">ไฟออกหลัง</button>
+              <button class="gen-pill mat-pill" data-val="front-lit illuminated from the front" onclick="pickGen(this)" data-en="Frontlit">ไฟออกหน้า</button>
+              <button class="gen-pill mat-pill" data-val="glowing neon tube lighting" onclick="pickGen(this)" data-en="Neon Glow">นีออนเรืองแสง</button>
+              <button class="gen-pill mat-pill" data-val="dramatic spotlight lighting" onclick="pickGen(this)" data-en="Spotlight">สปอตไลต์</button>
+            </div>
+          </div>
+          <div class="field">
+            <label data-en="Environment">สถานที่ติดตั้ง</label>
+            <div class="mat-pills" id="envPills">
+              <button class="gen-pill mat-pill active" data-val="on a modern glass building facade" onclick="pickGen(this)" data-en="Modern glass building">ตึกกระจกสมัยใหม่</button>
+              <button class="gen-pill mat-pill" data-val="on a classic red brick wall" onclick="pickGen(this)" data-en="Classic brick wall">ผนังอิฐคลาสสิก</button>
+              <button class="gen-pill mat-pill" data-val="inside a modern shopping mall interior" onclick="pickGen(this)" data-en="Inside a shopping mall">ภายในห้างสรรพสินค้า</button>
+            </div>
+          </div>
           <div class="field ai-color-row">
             <label data-en="Text color">สีข้อความ</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="color-pill active" data-color="#ffffff" onclick="pickColor(this)"><span style="background:#fff"></span><span data-en="White">ขาว</span></button>
-              <button class="color-pill" data-color="#111111" onclick="pickColor(this)"><span style="background:#111"></span><span data-en="Black">ดำ</span></button>
-              <button class="color-pill" data-color="#FFD700" onclick="pickColor(this)"><span style="background:#FFD700"></span><span data-en="Gold">ทอง</span></button>
-              <button class="color-pill" data-color="#E53935" onclick="pickColor(this)"><span style="background:#E53935"></span><span data-en="Red">แดง</span></button>
+              <button class="color-pill active" data-color="#ffffff" data-name="white" onclick="pickColor(this)"><span style="background:#fff"></span><span data-en="White">ขาว</span></button>
+              <button class="color-pill" data-color="#111111" data-name="black" onclick="pickColor(this)"><span style="background:#111"></span><span data-en="Black">ดำ</span></button>
+              <button class="color-pill" data-color="#FFD700" data-name="gold" onclick="pickColor(this)"><span style="background:#FFD700"></span><span data-en="Gold">ทอง</span></button>
+              <button class="color-pill" data-color="#E53935" data-name="red" onclick="pickColor(this)"><span style="background:#E53935"></span><span data-en="Red">แดง</span></button>
             </div>
           </div>
-          <div class="field"><label data-en="Style details (optional)">รายละเอียดสไตล์ (ไม่บังคับ)</label>
-            <input id="aiPrompt" placeholder="เช่น โทนสีน้ำเงิน มีไฟ LED โมเดิร์น" data-en-ph="e.g. blue tone, LED lights, modern style"></div>
+          <p class="hint" data-en="🇹🇭 Thai text uses our standard font overlay (always correct) · 🇬🇧 English is rendered by the AI">🇹🇭 ชื่อภาษาไทยใช้ฟอนต์มาตรฐานของร้านวางทับ (ถูกต้องเป๊ะ) · 🇬🇧 ชื่ออังกฤษ AI เขียนให้สวยเลย</p>
           <div class="preview-box" id="aiPreview">
-            <div data-en="🤖<br><b>AI mockup will appear here</b><br><small>Select sign type · enter shop name · tap generate</small>">🤖<br><b>ตัวอย่าง mockup จาก AI จะแสดงตรงนี้</b><br><small>เลือกประเภทป้าย · ใส่ชื่อร้าน · กดสร้าง</small></div>
+            <div data-en="🤖<br><b>AI mockup will appear here</b><br><small>Enter shop name · pick style · tap generate</small>">🤖<br><b>ตัวอย่าง mockup จาก AI จะแสดงตรงนี้</b><br><small>ใส่ชื่อร้าน · เลือกสไตล์ · กดสร้าง</small></div>
           </div>
           <button class="btn btn-dark" style="margin-top:14px" onclick="mockGen()" data-en="✨ Generate AI mockup">✨ สร้าง mockup ด้วย AI</button>
         </div>
@@ -838,27 +854,60 @@ async function compositeSign(bgUrl, text, color){
   });
 }
 
+function pickGen(el){
+  el.parentElement.querySelectorAll('.gen-pill').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function genVal(id){const a=document.querySelector('#'+id+' .gen-pill.active');return a?a.dataset.val:'';}
 async function mockGen(){
   const shopName=(document.getElementById('shopName')?.value||'').trim();
-  const brief=(document.getElementById('aiPrompt').value||'').trim();
-  const material=document.querySelector('.mat-pill.active')?.dataset.mat||'vinyl';
-  const textColor=document.querySelector('.color-pill.active')?.dataset.color||'#ffffff';
-  if(!shopName && !brief){toast('ใส่ชื่อร้านหรือบรีฟก่อนนะคะ');return;}
+  if(!shopName){toast(t('กรุณาใส่ชื่อร้าน / ข้อความบนป้ายก่อนนะคะ','Please enter the shop name / sign text first'));return;}
+  const style=genVal('stylePills'), lighting=genVal('lightPills'), environment=genVal('envPills');
+  const cp=document.querySelector('.color-pill.active');
+  const textColor=cp?cp.dataset.color:'#ffffff', colorName=cp?cp.dataset.name:'white';
+  const isThai=/[฀-๿]/.test(shopName);   // มีอักขระไทย → ป้ายเปล่า + overlay ฟอนต์ไทย
   let phone=((document.getElementById('cPhone')||{}).value||'').trim();
   if(!phone){phone=(prompt(t('กรอกเบอร์โทรเพื่อรับตัวอย่าง (ทีมงานจะติดต่อกลับค่ะ):','Enter your phone to get a sample (our team will follow up):'),'')||'').trim();if(!phone)return;}
   const box=document.getElementById('aiPreview');
   box.innerHTML='<div>⏳ '+t('กำลังสร้าง mockup...','Generating mockup...')+'</div>';
   try{
-    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brief:brief||shopName,phone,material,shopName})});
+    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shopName,style,lighting,environment,colorName,isThai,phone})});
     const d=await r.json();
     if(d.url){
-      window.SM_MOCKUP=d.url;
-      box.innerHTML='<img src="'+d.url+'" alt="mockup" style="max-width:100%;border-radius:10px">'
+      let finalUrl=d.url;
+      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor); }
+      window.SM_MOCKUP=finalUrl;
+      box.innerHTML='<img src="'+finalUrl+'" alt="mockup" style="max-width:100%;border-radius:10px">'
         +(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');
     }
     else if(d.message){box.innerHTML='<div style="padding:6px">🤖<br><b>'+esc(d.message)+'</b></div>';}
     else{box.innerHTML='<div>⚠️ '+t('สร้างภาพไม่สำเร็จ ลองใหม่นะคะ','Failed, please try again')+'</div>';}
   }catch(e){box.innerHTML='<div>⚠️ '+t('เชื่อมต่อไม่ได้ ลองใหม่นะคะ','Connection error, try again')+'</div>';}
+}
+// วางฟอนต์ไทยทับป้ายเปล่า (ฝั่ง browser · ภาพจาก worker เป็น base64 ไม่ติด CORS)
+async function overlayThaiText(imgSrc, text, color){
+  try{
+    if(!window.__thaiFontLoaded){
+      const ff=new FontFace('KanitMock','url(https://fonts.gstatic.com/s/kanit/v15/nKKZ-Go6G5tXcr72GwWKcaxALFs.woff2)',{weight:'700'});
+      await ff.load(); document.fonts.add(ff); window.__thaiFontLoaded=true;
+    }
+  }catch(e){}
+  return await new Promise(function(resolve){
+    const img=new Image();
+    img.onload=function(){
+      const c=document.createElement('canvas'); c.width=img.naturalWidth||1024; c.height=img.naturalHeight||1024;
+      const ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
+      const W=c.width,H=c.height, boxW=W*0.66, cx=W/2, cy=H*0.5;
+      let fs=Math.round(H*0.12); ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font='700 '+fs+'px KanitMock, Kanit, sans-serif';
+      while(ctx.measureText(text).width>boxW && fs>12){ fs-=2; ctx.font='700 '+fs+'px KanitMock, Kanit, sans-serif'; }
+      ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=Math.round(fs*0.16); ctx.shadowOffsetY=2;
+      ctx.fillStyle=color||'#ffffff'; ctx.fillText(text,cx,cy);
+      resolve(c.toDataURL('image/jpeg',0.92));
+    };
+    img.onerror=function(){ resolve(imgSrc); };
+    img.src=imgSrc;
+  });
 }
 
 function buildMaterials(){
