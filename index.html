@@ -672,6 +672,21 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
   </div>
 </div>
 
+<!-- บริการคลิปโฆษณา (ลูกค้าสนใจ → เก็บ lead · ยังไม่เปิด gen จริง เปิดให้รายลูกค้า) -->
+<div class="amodal" id="clipReqModal">
+  <div class="acard">
+    <span class="ax" onclick="closeClipReq()">×</span>
+    <div class="ahead"><div class="aava">🎬</div><h3 data-en="AI Ad Clip for Your Business">คลิปโฆษณาธุรกิจคุณ</h3><p data-en="Want a short ad clip for TikTok/Reels? Leave your details — our team will set it up for you">อยากได้คลิปสั้นโฆษณาธุรกิจคุณลง TikTok / Reels? ฝากข้อมูลไว้ ทีมงานจะเปิดบริการ + ทำให้ค่ะ</p></div>
+    <div class="aform">
+      <input id="clName" placeholder="ชื่อ-นามสกุล *" autocomplete="name" data-en-ph="Full name *">
+      <input id="clPhone" placeholder="เบอร์โทร *" autocomplete="tel" inputmode="tel" data-en-ph="Phone *">
+      <textarea id="clDetail" placeholder="เล่าธุรกิจ/สินค้าที่อยากโฆษณา + สไตล์คลิปที่ชอบ" rows="3" style="font-family:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;outline:0;resize:vertical;width:100%" data-en-ph="Tell us about your business/product + clip style you like"></textarea>
+      <button class="btn btn-primary btn-lg" style="justify-content:center" onclick="submitClipReq()" data-en="📩 Request Clip Service">📩 สนใจบริการคลิป</button>
+    </div>
+    <p class="anote" data-en="🎁 Premium service — enabled per customer · our team will contact you">🎁 บริการพิเศษ · เปิดให้เป็นรายลูกค้า — ทีมงานติดต่อกลับนะคะ</p>
+  </div>
+</div>
+
 <!-- น้องอิงค์ — AI Sale flagship -->
 <button class="ink-fab" id="inkFab" onclick="toggleInk()" aria-label="ปรึกษาน้องอิงค์">
   <span class="ink-ava">🤖</span><span data-en="Ask Ink">ปรึกษาน้องอิงค์</span>
@@ -690,6 +705,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
     <button onclick="inkAsk(t('มีบริการอะไรบ้าง','What services do you offer?'))" data-en="🧱 Services">🧱 บริการ</button>
     <button onclick="inkAsk(t('ขอดูผลงาน','Show me your portfolio'))" data-en="🖼️ Portfolio">🖼️ ผลงาน</button>
     <button onclick="openBulk()" data-en="🎁 Special Price (Bulk)">🎁 ราคาพิเศษ (สั่งเยอะ)</button>
+    <button onclick="openClipReq()" data-en="🎬 Ad Clip">🎬 คลิปโฆษณา</button>
   </div>
   <div class="ink-input">
     <input id="inkText" placeholder="พิมพ์ถึงน้องอิงค์..." onkeydown="if(event.key==='Enter')inkSend()" data-en-ph="Message Ink...">
@@ -1084,6 +1100,16 @@ async function submitBulk(){
   document.getElementById('bkName').value='';document.getElementById('bkPhone').value='';document.getElementById('bkDetail').value='';
   closeBulk();
   toast('รับเรื่องแล้วค่ะ 🙏 ทีมงานจะติดต่อกลับเรื่องราคาพิเศษให้เร็วๆ นี้นะคะ 🎁');
+}
+function openClipReq(){try{closeNav();}catch(e){}const m=CUR_MEMBER;if(m){const n=document.getElementById('clName');if(n&&!n.value&&m.name)n.value=m.name;}document.getElementById('clipReqModal').classList.add('open');}
+function closeClipReq(){document.getElementById('clipReqModal').classList.remove('open');}
+async function submitClipReq(){
+  const n=document.getElementById('clName').value.trim(),p=document.getElementById('clPhone').value.trim(),d=document.getElementById('clDetail').value.trim();
+  if(!n||!p){toast(t('กรอกชื่อ + เบอร์โทรก่อนนะคะ','Please enter name + phone first'));return;}
+  if(window.SB){try{await SB.from('sm_leads').insert({name:n,phone:p,job_type:'คลิปโฆษณา (AI)',detail:d||null,source:'clip',status:'new'});}catch(e){}}
+  document.getElementById('clName').value='';document.getElementById('clPhone').value='';document.getElementById('clDetail').value='';
+  closeClipReq();
+  toast(t('รับเรื่องแล้วค่ะ 🎬 ทีมงานจะติดต่อกลับเรื่องคลิปโฆษณาให้เร็วๆ นี้นะคะ','Got it! 🎬 Our team will contact you about the ad clip soon.'));
 }
 function inkAsk(q){inkPush(q,'me');logChat('user',q);inkReply(q)}
 function inkSend(){const i=document.getElementById('inkText');const v=i.value.trim();if(!v)return;inkPush(v,'me');logChat('user',v);i.value='';inkReply(v)}
