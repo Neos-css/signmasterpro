@@ -419,6 +419,27 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         <div id="mktOut" style="white-space:pre-wrap;line-height:1.7;margin-top:12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.95rem"></div>
         <div id="mktSrc" style="font-size:.78rem;color:var(--muted);margin-top:8px"></div>
       </div>
+      <div class="card">
+        <h3>🎬 ทำคลิปผลงาน (โพสต์ TikTok / Reels)</h3>
+        <div class="csub">เลือกหมวด → ใส่ข้อความหัวคลิป → AI สร้างคลิปแนวตั้งจากผลงานจริงให้ (ฟรี · ไม่เปลือง API · อักษรไทยคมชัด)</div>
+        <div class="imgtabs" id="clipCat" style="margin-top:6px">
+          <button class="imgtab on" data-c="booth" onclick="clipCat(this)">🎪 บูธ</button>
+          <button class="imgtab" data-c="inkjet" onclick="clipCat(this)">🖨️ อิงค์เจท</button>
+          <button class="imgtab" data-c="sign" onclick="clipCat(this)">🪧 ป้าย</button>
+          <button class="imgtab" data-c="lightbox" onclick="clipCat(this)">💡 ตู้ไฟ</button>
+        </div>
+        <input id="clipHeadline" placeholder="ข้อความหัวคลิป เช่น ป้ายไวนิลคุณภาพโรงงาน ราคาส่ง" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;margin-top:4px">
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-line" id="clipGo" onclick="makeClip()">🎬 สร้างคลิป</button>
+          <button class="btn btn-ghost" onclick="aiCaptionForClip()">✍️ ให้ AI ช่วยคิดหัวคลิป</button>
+        </div>
+        <div class="csub" style="margin-top:8px;color:var(--muted)">⏱️ สร้างคลิปใช้เวลา ~15 วินาที (อัดเรียลไทม์) · ได้ไฟล์ .webm · เปิดหน้านี้ค้างไว้จนเสร็จ</div>
+        <div id="clipStage" style="display:none;margin-top:14px;text-align:center">
+          <video id="clipVideo" controls playsinline style="max-width:300px;width:100%;border-radius:12px;background:#000"></video><br>
+          <a id="clipDl" class="btn btn-pri" style="margin-top:10px;display:none" download="signmaster-clip.webm">⬇️ ดาวน์โหลดคลิป</a>
+        </div>
+        <canvas id="clipCanvas" width="540" height="960" style="display:none"></canvas>
+      </div>
     </div>
 
     <!-- ===== AI INVENTORY (แท็บ) ===== -->
@@ -842,6 +863,78 @@ async function askMarketing(analyze){
   }finally{if(go)go.disabled=false;}
 }
 function copyMkt(){const t=document.getElementById('mktOut').textContent||'';navigator.clipboard.writeText(t).then(()=>toast('ก๊อปแล้วค่ะ 📋'),()=>toast('ก๊อปไม่สำเร็จ'));}
+
+/* ===== ทำคลิปผลงานอัตโนมัติ (canvas → MediaRecorder · ฟรี) ===== */
+let CLIP_CAT='booth';
+function clipCat(btn){CLIP_CAT=btn.dataset.c;document.querySelectorAll('#clipCat .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
+async function aiCaptionForClip(){
+  const lbl={booth:'บูธ/อีเวนต์',inkjet:'งานอิงค์เจท ไวนิล/สติกเกอร์',sign:'ป้ายทุกชนิด',lightbox:'ตู้ไฟ'}[CLIP_CAT]||'งานป้าย';
+  const inp=document.getElementById('clipHeadline'),old=inp.placeholder;inp.placeholder='✍️ AI กำลังคิดหัวคลิป...';
+  try{const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'caption',topic:'หัวคลิปสั้นๆ โปรโมท'+lbl+' (1 ประโยคสั้น เร้าใจ ไม่เกิน 8 คำ)'})});
+    const d=await r.json();const line=((d.answer||'').split('\n').map(s=>s.replace(/^[#•\-\d\.\s]+/,'').trim()).filter(Boolean)[0]||'').replace(/["“”]/g,'');
+    if(line)inp.value=line.slice(0,60);else toast('AI ไม่ตอบ ลองใหม่ค่ะ');
+  }catch(e){toast('เชื่อม AI ไม่ได้ ลองใหม่ค่ะ');}
+  inp.placeholder=old;
+}
+function _clipImgs(){const G=window.GALLERY||{},a=[];for(const k in G){if(G[k].group===CLIP_CAT)(G[k].imgs||[]).forEach(s=>a.push(s));}for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,5);}
+function _loadImg(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(src);im.src=src;});}
+async function makeClip(){
+  if(typeof MediaRecorder==='undefined'){toast('เบราว์เซอร์นี้อัดคลิปไม่ได้ ลองใช้ Chrome ค่ะ');return;}
+  const btn=document.getElementById('clipGo');
+  const headline=(document.getElementById('clipHeadline').value||'').trim()||'งานป้ายครบวงจร Signmaster Pro';
+  const srcs=_clipImgs();
+  if(!srcs.length){toast('หมวดนี้ยังไม่มีรูปผลงานค่ะ');return;}
+  btn.disabled=true;btn.textContent='⏳ โหลดรูป...';
+  let imgs;try{imgs=(await Promise.all(srcs.map(s=>_loadImg(s).catch(()=>null)))).filter(Boolean);}catch(e){imgs=[];}
+  if(!imgs.length){toast('โหลดรูปไม่สำเร็จค่ะ');btn.disabled=false;btn.textContent='🎬 สร้างคลิป';return;}
+  const cv=document.getElementById('clipCanvas'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const stream=cv.captureStream(30);
+  const cands=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  let mime=cands.find(m=>{try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}})||'video/webm';
+  const ext=mime.indexOf('mp4')>=0?'mp4':'webm';
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000}),chunks=[];
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  const stopped=new Promise(r=>{rec.onstop=r;});
+  btn.textContent='🔴 กำลังอัดคลิป...';
+  const FONT="'IBM Plex Sans Thai','Sarabun',sans-serif";
+  function cover(im,sc,ox){const ir=im.width/im.height,cr=W/H;let dw,dh;if(ir>cr){dh=H*sc;dw=dh*ir;}else{dw=W*sc;dh=dw/ir;}ctx.drawImage(im,(W-dw)/2,(H-dh)/2+ox,dw,dh);}
+  function wrap(text,x,y,maxW,lh,font,color){ctx.font=font;ctx.fillStyle=color;ctx.textAlign='center';const ws=(text+'').split(' ');let ln='',yy=y;for(const w of ws){const t=ln+w+' ';if(ctx.measureText(t).width>maxW&&ln){ctx.fillText(ln.trim(),x,yy);ln=w+' ';yy+=lh;}else ln=t;}ctx.fillText(ln.trim(),x,yy);}
+  rec.start();
+  const PER=2600,FADE=550,END=3000,t0=performance.now();
+  await new Promise(resolve=>{
+    function frame(now){
+      const el=now-t0,total=imgs.length*PER+END;
+      if(el>=total){resolve();return;}
+      ctx.fillStyle='#0a0d12';ctx.fillRect(0,0,W,H);
+      if(el<imgs.length*PER){
+        const idx=Math.min(imgs.length-1,Math.floor(el/PER)),p=(el-idx*PER)/PER;
+        cover(imgs[idx],1.07+p*0.13,0);
+        if(idx>0&&(p*PER)<FADE){ctx.globalAlpha=1-(p*PER/FADE);cover(imgs[idx-1],1.2,0);ctx.globalAlpha=1;}
+        let g=ctx.createLinearGradient(0,0,0,H*0.42);g.addColorStop(0,'rgba(0,0,0,.62)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*0.42);
+        g=ctx.createLinearGradient(0,H*0.62,0,H);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.8)');ctx.fillStyle=g;ctx.fillRect(0,H*0.6,W,H*0.4);
+        wrap(headline,W/2,92,W-72,46,'800 36px '+FONT,'#fff');
+        ctx.fillStyle='#e63900';ctx.fillRect(W/2-30,112,60,6);
+        ctx.font='600 25px '+FONT;ctx.fillStyle='#ffd9c7';ctx.textAlign='center';ctx.fillText('ผลงานจริง · Signmaster Pro',W/2,H-66);
+      }else{
+        ctx.fillStyle='#0a0d12';ctx.fillRect(0,0,W,H);ctx.textAlign='center';
+        ctx.font='800 50px '+FONT;ctx.fillStyle='#fff';ctx.fillText('SIGNMASTER PRO',W/2,H/2-46);
+        ctx.fillStyle='#e63900';ctx.fillRect(W/2-58,H/2-16,116,7);
+        ctx.font='600 28px '+FONT;ctx.fillStyle='#ffd9c7';ctx.fillText('ป้ายครบวงจร · ออกแบบ-ผลิต-ติดตั้ง',W/2,H/2+40);
+        ctx.font='700 30px '+FONT;ctx.fillStyle='#fff';ctx.fillText('📞 0-2373-7050',W/2,H/2+108);
+        ctx.font='600 26px '+FONT;ctx.fillStyle='#cbd5e1';ctx.fillText('LINE: sign_masterpro',W/2,H/2+150);
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+  rec.stop();await stopped;
+  const blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob);
+  document.getElementById('clipStage').style.display='';
+  document.getElementById('clipVideo').src=url;
+  const dl=document.getElementById('clipDl');dl.href=url;dl.download='signmaster-clip.'+ext;dl.style.display='';
+  btn.disabled=false;btn.textContent='🎬 สร้างคลิปใหม่';
+  toast('🎬 คลิปเสร็จแล้วค่ะ! กดเล่นดู / ดาวน์โหลดไปโพสต์ได้เลย');
+}
 
 /* ===== AI Inventory (เดโม client-side · ต่อ Supabase sm_inventory ภายหลัง) ===== */
 let INVENTORY=[];  // โหลดจริงจาก Supabase ผ่าน worker /inv
