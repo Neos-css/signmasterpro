@@ -7,7 +7,7 @@
 <meta name="description" content="บริษัท ซายน์ มาสเตอร์โปร จำกัด — รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งทำงาน + ประเมินราคาด้วย AI">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&family=Prompt:wght@600;700&family=Kanit:wght@600;700&family=Mitr:wght@500;600&family=Chonburi&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#0e1116; --ink2:#1a1f29; --paper:#f6f7f9; --white:#fff;
@@ -487,8 +487,17 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
           </div>
         </div>
         <div id="aiPane" style="display:none">
-          <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย <span style="color:#e53935">*</span></label>
-            <input id="shopName" placeholder="เช่น Signmaster Pro · ร้านกาแฟลานทอง" data-en-ph="e.g. My Coffee Shop"></div>
+          <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย <span style="color:#e53935">*</span> <span id="nameCount" class="muted" style="font-size:.78rem;font-weight:400">0/28</span></label>
+            <input id="shopName" maxlength="28" oninput="onNameInput()" placeholder="เช่น ร้านกาแฟลานทอง" data-en-ph="e.g. My Coffee Shop" style="font-family:'Prompt',sans-serif"></div>
+          <div class="field">
+            <label data-en="Font (Thai)">ฟอนต์ (ตัวหนังสือไทย)</label>
+            <div class="mat-pills" id="fontPills">
+              <button class="font-pill mat-pill active" data-font="Prompt" onclick="pickFont(this)" style="font-family:'Prompt',sans-serif">ตัวอย่าง</button>
+              <button class="font-pill mat-pill" data-font="Kanit" onclick="pickFont(this)" style="font-family:'Kanit',sans-serif">ตัวอย่าง</button>
+              <button class="font-pill mat-pill" data-font="Mitr" onclick="pickFont(this)" style="font-family:'Mitr',sans-serif">ตัวอย่าง</button>
+              <button class="font-pill mat-pill" data-font="Chonburi" onclick="pickFont(this)" style="font-family:'Chonburi',serif">ตัวอย่าง</button>
+            </div>
+          </div>
           <div class="field">
             <label data-en="Style">สไตล์</label>
             <div class="mat-pills" id="stylePills">
@@ -522,6 +531,14 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
               <button class="color-pill" data-color="#111111" data-name="black" onclick="pickColor(this)"><span style="background:#111"></span><span data-en="Black">ดำ</span></button>
               <button class="color-pill" data-color="#FFD700" data-name="gold" onclick="pickColor(this)"><span style="background:#FFD700"></span><span data-en="Gold">ทอง</span></button>
               <button class="color-pill" data-color="#E53935" data-name="red" onclick="pickColor(this)"><span style="background:#E53935"></span><span data-en="Red">แดง</span></button>
+            </div>
+          </div>
+          <div class="field">
+            <label data-en="Sign shape">รูปทรงป้าย</label>
+            <div class="mat-pills" id="aspectPills">
+              <button class="gen-pill mat-pill active" data-val="1x1" onclick="pickGen(this)" data-en="Square">⬜ จัตุรัส</button>
+              <button class="gen-pill mat-pill" data-val="16x9" onclick="pickGen(this)" data-en="Landscape">▭ แนวนอน</button>
+              <button class="gen-pill mat-pill" data-val="9x16" onclick="pickGen(this)" data-en="Portrait">▯ แนวตั้ง</button>
             </div>
           </div>
           <p class="hint" data-en="🇹🇭 Thai text uses our standard font overlay (always correct) · 🇬🇧 English is rendered by the AI">🇹🇭 ชื่อภาษาไทยใช้ฟอนต์มาตรฐานของร้านวางทับ (ถูกต้องเป๊ะ) · 🇬🇧 ชื่ออังกฤษ AI เขียนให้สวยเลย</p>
@@ -863,6 +880,7 @@ async function mockGen(){
   const shopName=(document.getElementById('shopName')?.value||'').trim();
   if(!shopName){toast(t('กรุณาใส่ชื่อร้าน / ข้อความบนป้ายก่อนนะคะ','Please enter the shop name / sign text first'));return;}
   const style=genVal('stylePills'), lighting=genVal('lightPills'), environment=genVal('envPills');
+  const aspect=genVal('aspectPills')||'1x1', font=curFont();
   const cp=document.querySelector('.color-pill.active');
   const textColor=cp?cp.dataset.color:'#ffffff', colorName=cp?cp.dataset.name:'white';
   const isThai=/[฀-๿]/.test(shopName);   // มีอักขระไทย → ป้ายเปล่า + overlay ฟอนต์ไทย
@@ -871,11 +889,11 @@ async function mockGen(){
   const box=document.getElementById('aiPreview');
   box.innerHTML='<div>⏳ '+t('กำลังสร้าง mockup...','Generating mockup...')+'</div>';
   try{
-    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shopName,style,lighting,environment,colorName,isThai,phone})});
+    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shopName,style,lighting,environment,colorName,isThai,aspect,phone})});
     const d=await r.json();
     if(d.url){
       let finalUrl=d.url;
-      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor); }
+      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor, font); }
       window.SM_MOCKUP=finalUrl;
       box.innerHTML='<img src="'+finalUrl+'" alt="mockup" style="max-width:100%;border-radius:10px">'
         +(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');
@@ -884,33 +902,64 @@ async function mockGen(){
     else{box.innerHTML='<div>⚠️ '+t('สร้างภาพไม่สำเร็จ ลองใหม่นะคะ','Failed, please try again')+'</div>';}
   }catch(e){box.innerHTML='<div>⚠️ '+t('เชื่อมต่อไม่ได้ ลองใหม่นะคะ','Connection error, try again')+'</div>';}
 }
-// วางฟอนต์ไทยทับป้ายเปล่า (ฝั่ง browser · ภาพจาก worker เป็น base64 ไม่ติด CORS)
-// ใช้ 'IBM Plex Sans Thai' ที่หน้านี้โหลดอยู่แล้ว (subset ไทยครบ · สระไม่ลอย)
-async function overlayThaiText(imgSrc, text, color){
-  const FONT="'IBM Plex Sans Thai', sans-serif";
-  try{ await document.fonts.load("700 64px 'IBM Plex Sans Thai'"); }catch(e){}
+// วางฟอนต์ไทยทับป้ายเปล่า (ฝั่ง browser · ภาพ base64 ไม่ติด CORS) · ฟอนต์เลือกได้ + หลายบรรทัด + fit ในกรอบ
+async function overlayThaiText(imgSrc, text, color, fontName){
+  const fam = fontName || 'Prompt';
+  const wt  = fam==='Chonburi' ? '400' : '700';
+  const FONT = "'"+fam+"', 'IBM Plex Sans Thai', sans-serif";
+  try{ await document.fonts.load(wt+" 64px '"+fam+"'"); await document.fonts.load("700 64px 'IBM Plex Sans Thai'"); }catch(e){}
+  function wrap(ctx, s, maxW){
+    if(!/\s/.test(s)) return [s];                      // ไทยไม่มีเว้นวรรค → บรรทัดเดียว
+    const words=s.split(/\s+/), lines=[]; let cur='';
+    for(const w of words){ const tst=cur?cur+' '+w:w; if(ctx.measureText(tst).width>maxW && cur){lines.push(cur);cur=w;} else cur=tst; }
+    if(cur)lines.push(cur); return lines.slice(0,3);
+  }
   return await new Promise(function(resolve){
     const img=new Image();
     img.onload=function(){
       const c=document.createElement('canvas'); c.width=img.naturalWidth||1024; c.height=img.naturalHeight||1024;
       const ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
-      const W=c.width,H=c.height, boxW=W*0.84, cx=W/2, cy=H*0.5;
-      let fs=Math.round(H*0.2); ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.font='700 '+fs+'px '+FONT;
-      while(ctx.measureText(text).width>boxW && fs>12){ fs-=2; ctx.font='700 '+fs+'px '+FONT; }
-      // เส้นขอบให้อ่านชัดทุกสีป้าย → ขอบสีตรงข้ามความสว่างของตัวอักษร (สว่าง→ขอบเข้ม · เข้ม→ขอบขาว)
+      const W=c.width,H=c.height, boxW=W*0.84, boxH=H*0.5, cx=W/2, cy=H*0.5;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      // fit: ลดขนาดจนกว้างสุด+สูงรวมพอดีกรอบ
+      let fs=Math.round(H*0.24), lines=[text], lh=1.18;
+      for(; fs>14; fs-=2){
+        ctx.font=wt+' '+fs+'px '+FONT;
+        lines=wrap(ctx,text,boxW);
+        const widest=Math.max.apply(null,lines.map(function(l){return ctx.measureText(l).width;}));
+        if(widest<=boxW && lines.length*fs*lh<=boxH) break;
+      }
+      ctx.font=wt+' '+fs+'px '+FONT;
+      // เส้นขอบสีตรงข้ามความสว่างตัวอักษร → อ่านชัดทุกสีป้าย
       const hx=(color||'#ffffff').replace('#',''); const rr=parseInt(hx.substr(0,2),16)||255, gg=parseInt(hx.substr(2,2),16)||255, bb=parseInt(hx.substr(4,2),16)||255;
       const stroke=(0.299*rr+0.587*gg+0.114*bb)>140 ? 'rgba(18,18,18,.9)' : 'rgba(255,255,255,.92)';
       ctx.lineJoin='round'; ctx.miterLimit=2;
-      ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=Math.round(fs*0.1); ctx.shadowOffsetY=2;
-      ctx.lineWidth=Math.max(2,Math.round(fs*0.15)); ctx.strokeStyle=stroke; ctx.strokeText(text,cx,cy);
-      ctx.shadowColor='transparent';   // ปิดเงาตอน fill กันตัวอักษรเบลอ
-      ctx.fillStyle=color||'#ffffff'; ctx.fillText(text,cx,cy);
+      const total=lines.length, y0=cy-((total-1)*fs*lh)/2;
+      for(let i=0;i<total;i++){
+        const ly=y0+i*fs*lh;
+        ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=Math.round(fs*0.1); ctx.shadowOffsetY=2;
+        ctx.lineWidth=Math.max(2,Math.round(fs*0.15)); ctx.strokeStyle=stroke; ctx.strokeText(lines[i],cx,ly);
+        ctx.shadowColor='transparent';
+        ctx.fillStyle=color||'#ffffff'; ctx.fillText(lines[i],cx,ly);
+      }
       resolve(c.toDataURL('image/jpeg',0.92));
     };
     img.onerror=function(){ resolve(imgSrc); };
     img.src=imgSrc;
   });
+}
+// เลือกฟอนต์ → ช่องพิมพ์เปลี่ยนฟอนต์ตามเลย (ลูกค้าเห็นในกล่องที่ใส่)
+function pickFont(el){
+  el.parentElement.querySelectorAll('.font-pill').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const inp=document.getElementById('shopName'); if(inp) inp.style.fontFamily="'"+el.dataset.font+"', sans-serif";
+}
+function curFont(){const a=document.querySelector('#fontPills .font-pill.active');return a?a.dataset.font:'Prompt';}
+// นับตัวอักษร + อัปเดต preview บนปุ่มฟอนต์ให้เป็นชื่อที่พิมพ์
+function onNameInput(){
+  const inp=document.getElementById('shopName'); if(!inp)return;
+  const v=inp.value||''; const cnt=document.getElementById('nameCount'); if(cnt)cnt.textContent=v.length+'/28';
+  document.querySelectorAll('#fontPills .font-pill').forEach(b=>{ b.textContent = v.trim() ? v.trim() : 'ตัวอย่าง'; });
 }
 
 function buildMaterials(){
