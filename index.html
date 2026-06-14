@@ -836,6 +836,17 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('lb').classL
 
 /* ---------- WIZARD ---------- */
 const PC=window.PRICE_CONFIG;
+// โหลดราคาที่เจ้าของตั้งเอง (KV ผ่าน worker) → overlay ทับ price-config.js
+async function applyPriceOverrides(){
+  try{
+    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/price');
+    const d=await r.json(); const p=d&&d.prices; if(!p)return;
+    if(p.materials&&PC.materials){PC.materials.forEach(m=>{const o=p.materials[m.id];if(o){if(o.price_1_9!=null)m.price_1_9=Number(o.price_1_9);if(o.price_10!=null)m.price_10=Number(o.price_10);}});}
+    if(p.options&&PC.options){for(const k in p.options){if(PC.options[k]&&p.options[k]&&p.options[k].price!=null)PC.options[k].price=Number(p.options[k].price);}}
+    if(typeof p.draft==='boolean')PC.draft=p.draft;
+    try{buildMaterials();}catch(e){}
+  }catch(e){}
+}
 let cur=1;
 const state={source:null,img:null,group:'inkjet',matId:null,w:1,h:1,qty:1};
 
@@ -1454,7 +1465,7 @@ window.onLangChange=function(){
 };
 
 /* ---------- INIT ---------- */
-applyImages();applySiteImagesOverlay();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();
+applyImages();applySiteImagesOverlay();buildGallery();buildMaterials();setSteps();refreshMember();trackVisit();applyPriceOverrides();
 if(window.SB&&SB.auth&&SB.auth.onAuthStateChange){SB.auth.onAuthStateChange(()=>{refreshMember();});}
 if(/[?&]bulk=1/.test(location.search))setTimeout(openBulk,700);   // มาจากปุ่ม "ขอราคาพิเศษ" หน้าราคา
 </script>

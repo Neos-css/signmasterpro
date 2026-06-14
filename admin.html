@@ -306,6 +306,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="airoom"><span class="em">🤖</span> ห้องทำงาน AI</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
+      <a data-v="prices" class="admin-only"><span class="em">💰</span> ตั้งราคา</a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
     </nav>
     <div class="foot" id="sideFoot">🤖 ขับเคลื่อนโดย Neo-S AI<br>เชื่อม Supabase แล้ว ✅</div>
@@ -558,6 +559,18 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
+    <!-- ===== PRICES (ตั้งราคา) ===== -->
+    <section class="view" id="view-prices">
+      <div class="card">
+        <div class="csub">💰 แก้ราคาเองได้เลย — กด <b>บันทึก</b> แล้วเว็บหน้าร้านอัปเดตทันที (เก็บในระบบ ไม่ต้องแก้โค้ด)</div>
+        <div id="priceBody" style="margin-top:12px"><div class="empty">กำลังโหลด...</div></div>
+        <div class="editor-only" style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-line" onclick="savePrices()">💾 บันทึกราคา</button>
+          <button class="btn btn-ghost" onclick="renderPrices()">↩️ โหลดใหม่</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== POWER (พลัง AI · มาตรฐาน NEOS) ===== -->
     <section class="view" id="view-power">
       <div class="pwr-alert" id="pwrAlert"></div>
@@ -627,6 +640,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 <script>/* session แอดมินแยกจากเว็บลูกค้า (storageKey ของตัวเอง) → login เป็นลูกค้าที่หน้าเว็บไม่ทับ session admin · จำ login ได้นาน */
 if(window.supabase&&window.SB_URL){window.SB=window.supabase.createClient(window.SB_URL,window.SB_KEY,{auth:{storageKey:'sm-admin-auth',persistSession:true,autoRefreshToken:true}});}</script>
 <script src="gallery-data.js"></script>
+<script src="price-config.js"></script>
 <script src="site-images.js"></script>
 <script src="quote.js"></script>
 <script>
@@ -854,7 +868,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -862,7 +876,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='prices')renderPrices();else if(v==='users')renderUsers();
 }
 
 /* ===== ห้องทำงาน AI (รวม 4 แผนกเป็นแท็บในวิวเดียว) ===== */
@@ -1324,6 +1338,49 @@ async function blockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(!ip)
   if(error){toast('บล็อกไม่สำเร็จ: '+(error.message||''));return;}
   BLOCKED.add(ip);openChat(i);toast('🚫 บล็อก '+ip+' แล้วค่ะ');}
 async function unblockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(ip)await unblockIP(ip);openChat(i);}
+/* ===== ตั้งราคา (อ่าน/เขียน KV ผ่าน worker /price) ===== */
+async function renderPrices(){
+  const box=document.getElementById('priceBody'); if(!box)return;
+  if(!window.PRICE_CONFIG){box.innerHTML='<div class="empty">โหลด price-config ไม่ได้ค่ะ</div>';return;}
+  box.innerHTML='<div class="empty">กำลังโหลด...</div>';
+  let ov=null; try{ const r=await fetch(AGENTS_WORKER+'/price'); const d=await r.json(); ov=d&&d.prices; }catch(e){}
+  const ovM=(ov&&ov.materials)||{}, ovO=(ov&&ov.options)||{};
+  const mats=PRICE_CONFIG.materials.filter(m=>!m.quote);
+  let html='<h3 style="margin:6px 0 10px">🖨️ วัสดุงานพิมพ์ (บาท/ตร.ม.)</h3>';
+  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.88rem"><thead><tr style="text-align:left;color:var(--muted)"><th style="padding:6px">วัสดุ</th><th style="padding:6px">1–9 ตร.ม.</th><th style="padding:6px">10+ ตร.ม.</th></tr></thead><tbody>';
+  mats.forEach(m=>{
+    const a=(ovM[m.id]&&ovM[m.id].price_1_9!=null)?ovM[m.id].price_1_9:m.price_1_9;
+    const b=(ovM[m.id]&&ovM[m.id].price_10!=null)?ovM[m.id].price_10:m.price_10;
+    html+='<tr style="border-top:1px solid var(--line)"><td style="padding:6px">'+esc(m.name)+'<br><span style="font-size:.72rem;color:var(--muted)">'+esc(m.line||'')+'</span></td>'
+      +'<td style="padding:6px"><input type="number" min="0" data-pm="'+esc(m.id)+'" data-pk="price_1_9" value="'+(a!=null?a:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></td>'
+      +'<td style="padding:6px"><input type="number" min="0" data-pm="'+esc(m.id)+'" data-pk="price_10" value="'+(b!=null?b:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></td></tr>';
+  });
+  html+='</tbody></table></div>';
+  html+='<h3 style="margin:18px 0 10px">➕ ค่าบริการเสริม (บาท)</h3>';
+  const opts=PRICE_CONFIG.options||{};
+  for(const k in opts){
+    const cur=(ovO[k]&&ovO[k].price!=null)?ovO[k].price:opts[k].price;
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><span>'+esc(opts[k].label||k)+'</span><input type="number" min="0" data-po="'+esc(k)+'" value="'+(cur!=null?cur:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></div>';
+  }
+  const draftNow=(ov&&typeof ov.draft==='boolean')?ov.draft:PRICE_CONFIG.draft;
+  html+='<div style="margin-top:16px;padding:11px 14px;background:#fff7ed;border-radius:10px"><label style="display:flex;gap:9px;align-items:center;cursor:pointer"><input type="checkbox" id="priceDraft" '+(draftNow?'checked':'')+'> <span>แสดงป้าย <b>"ราคาประมาณการ รอยืนยัน"</b> บนเว็บ (ติ๊กออกเมื่อใช้ราคาจริงแล้ว)</span></label></div>';
+  box.innerHTML=html;
+}
+async function savePrices(){
+  let tok=localStorage.getItem('sm_admin_token')||'';
+  if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
+  const materials={};
+  document.querySelectorAll('#priceBody input[data-pm]').forEach(i=>{const id=i.dataset.pm,k=i.dataset.pk,v=i.value.trim();if(v!==''){materials[id]=materials[id]||{};materials[id][k]=Number(v);}});
+  const options={};
+  document.querySelectorAll('#priceBody input[data-po]').forEach(i=>{const k=i.dataset.po,v=i.value.trim();if(v!=='')options[k]={price:Number(v)};});
+  const draft=!!((document.getElementById('priceDraft')||{}).checked);
+  try{
+    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({materials,options,draft})});
+    if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
+    const d=await r.json().catch(()=>({}));
+    if(d&&d.ok)toast('💾 บันทึกราคาแล้ว! เว็บหน้าร้านอัปเดตทันทีค่ะ ✅');else toast('บันทึกไม่สำเร็จค่ะ');
+  }catch(e){toast('เชื่อมต่อไม่ได้');}
+}
 const PWR_AGENT_META={
   ink:      {emoji:'💬', sub:'AI Sale · Dify (Sonnet 4.6)'},
   image:    {emoji:'🎨', sub:'Graphic · gpt-image-1 / FLUX'},
