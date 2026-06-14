@@ -732,8 +732,9 @@ async function loadLeads(){
   LEADS=(data||[]).map(l=>{
     const det=(l.detail||'');
     const img=((det.split('@IMG=')[1]||'').split('\n')[0]).trim();
-    const detClean=det.split('\n@IMG=')[0];
-    return {nm:l.name||'(ไม่ระบุชื่อ)',job:(l.job_type||detClean||'—'),detail:detClean,img:img,
+    const ip=((det.split('@IP=')[1]||'').split('\n')[0]).trim();
+    const detClean=det.split('\n@IMG=')[0].split('\n@IP=')[0];
+    return {nm:l.name||'(ไม่ระบุชื่อ)',job:(l.job_type||detClean||'—'),detail:detClean,img:img,ip:ip,
       src:SRC_LABEL[(l.source||'web').toLowerCase()]||('🌐 '+l.source),date:l.created_at?new Date(l.created_at):new Date(),
       phone:l.phone||'',status:l.status||'new'};
   });
@@ -762,6 +763,9 @@ async function unblockIP(ip){
   if(error){toast('ปลดบล็อกไม่สำเร็จ: '+(error.message||''));return;}
   BLOCKED.delete(ip);renderCustomers();toast('✅ ปลดบล็อก '+ip+' แล้วค่ะ');
 }
+// บล็อก/ปลด จากหน้า Lead (กันคนป่วน gen ภาพเล่น) → re-render dashboard
+async function blockLead(ip){ if(!ip)return; await blockIP(ip,null); renderDash(); }
+async function unblockLead(ip){ if(!ip)return; await unblockIP(ip); renderDash(); }
 async function loadChats(){
   const {data,error}=await SB.from('sm_chat_logs').select('*').order('created_at',{ascending:true});
   if(error){console.warn('chats',error);return;}
@@ -1185,7 +1189,7 @@ function renderDash(){
   const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,6);
   document.getElementById('queue').innerHTML=q.length?q.map(o=>`<div class="q"><span class="dot" style="background:${o.dot}"></span><div><div class="nm">${esc(o.c)} · ${esc(o.job)}</div><div class="meta">${o.due!=='—'?'กำหนดส่ง '+o.due:'ยังไม่กำหนดส่ง'} · ${o.amt}</div></div><span class="st ${o.stc}">${o.st}</span></div>`).join(''):'<div class="empty">ไม่มีงานในคิว</div>';
   document.getElementById('leadSub').textContent=`${leads.length} ราย ในช่วง ${fmt(from)}${RANGE==='today'?'':' – '+fmt(to)}`;
-  document.getElementById('leads').innerHTML=leads.length?leads.map(l=>`<tr><td><b>${esc(l.nm)}</b>${l.phone?'<br><a href="tel:'+esc(l.phone)+'" style="font-size:.8rem;color:var(--accent-deep)">'+esc(l.phone)+'</a>':''}</td><td>${l.img?'<img src="'+AGENTS_WORKER+'/mockup?p='+encodeURIComponent(l.img)+'" loading="lazy" style="width:56px;height:56px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:8px;cursor:pointer;border:1px solid var(--line)" onclick="window.open(this.src,\'_blank\')" title="คลิกดูภาพเต็ม">':''}<span style="white-space:pre-line;font-size:.86rem">${esc(l.job)}</span></td><td><span class="src-t">${l.src}</span></td><td style="color:var(--muted)">${fmt(l.date)}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty">ไม่มี Lead ในช่วงนี้</div></td></tr>';
+  document.getElementById('leads').innerHTML=leads.length?leads.map(l=>`<tr><td><b>${esc(l.nm)}</b>${l.phone?'<br><a href="tel:'+esc(l.phone)+'" style="font-size:.8rem;color:var(--accent-deep)">'+esc(l.phone)+'</a>':''}${l.ip?'<br><span style="font-size:.72rem;color:var(--muted)">IP '+esc(l.ip)+'</span> '+(BLOCKED.has(l.ip)?'<button class="btn btn-ghost" style="padding:1px 7px;font-size:.68rem" onclick="unblockLead(\''+esc(l.ip)+'\')">✅ ปลด</button>':'<button class="btn btn-ghost" style="padding:1px 7px;font-size:.68rem;color:#dc2626" onclick="blockLead(\''+esc(l.ip)+'\')">🚫 บล็อก</button>'):''}</td><td>${l.img?'<img src="'+AGENTS_WORKER+'/mockup?p='+encodeURIComponent(l.img)+'" loading="lazy" style="width:56px;height:56px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:8px;cursor:pointer;border:1px solid var(--line)" onclick="window.open(this.src,\'_blank\')" title="คลิกดูภาพเต็ม">':''}<span style="white-space:pre-line;font-size:.86rem">${esc(l.job)}</span></td><td><span class="src-t">${l.src}</span></td><td style="color:var(--muted)">${fmt(l.date)}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty">ไม่มี Lead ในช่วงนี้</div></td></tr>';
 }
 function renderCustomers(){
   const q=(document.getElementById('custSearch').value||'').toLowerCase();
