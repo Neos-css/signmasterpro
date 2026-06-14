@@ -7,6 +7,9 @@
   if(window.__inkWidget) return; window.__inkWidget = true;
   var W = 'https://signmaster-proxy.neos-css01.workers.dev';
   function t(th,en){ return (localStorage.getItem('sm_lang')==='en') ? en : th; }
+  // visitor id ถาวร (key เดียวกับ index) → worker เก็บ sm_chat_logs + sm_chat_ip ด้วย key นี้ ให้ admin เห็น IP+บล็อกได้
+  var vid = localStorage.getItem('sm_vid');
+  if(!vid){ vid='v_'+Math.random().toString(36).slice(2)+Date.now(); try{localStorage.setItem('sm_vid',vid);}catch(e){} }
   var hist = [];
 
   var css = document.createElement('style');
@@ -56,7 +59,7 @@
   async function reply(q){
     var d = push('···','bot');
     try{
-      var r = await fetch(W+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:hist.slice(-6).join('\n'),user:'web'})});
+      var r = await fetch(W+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:hist.slice(-6).join('\n'),user:vid,name:(localStorage.getItem('sm_name')||''),log:true})});
       var j = await r.json().catch(function(){return {};});
       var a = j.answer || t('ขออภัยค่ะ ลองใหม่อีกครั้งนะคะ','Sorry, please try again');
       d.innerHTML = String(a).replace(/</g,'&lt;').replace(/&lt;br&gt;/g,'<br>').replace(/\n/g,'<br>');

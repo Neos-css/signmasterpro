@@ -548,7 +548,6 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <div id="imgtab-web">
         <div class="lailin" style="margin-bottom:16px"><div class="ava">👩‍💼</div><div class="tx"><b>ลายลิน</b><span class="role">ผู้ช่วยจัดการภาพ</span><p>เปลี่ยนรูปหน้าเว็บได้เองเลยค่ะ 🖼️ — กด <b>อัปโหลดรูปเอง</b> หรือให้ <b>ลายลินสลับรูป</b>จากคลังผลงาน แล้วกด <b>บันทึก</b> · หน้าเว็บจะเปลี่ยนตามทันที (ไม่ต้องแก้โค้ด!)</p></div></div>
         <div class="savebar">
-          <span>💡 แก้รูปแล้วอย่าลืมกด "บันทึก" · ตอนนี้บันทึกในเครื่องนี้ (เดโม) — ต่อ Supabase Storage แล้วจะเปลี่ยนให้ทุกคนเห็น</span>
           <div class="sp"><button class="btn btn-ghost" onclick="resetAllImg()">↩️ คืนค่าเริ่มต้นทั้งหมด</button><button class="btn btn-pri" onclick="saveImages()">💾 บันทึกทั้งหมด</button></div>
         </div>
         <div class="imgslots" id="imgSlots"></div>
@@ -563,7 +562,6 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
     <!-- ===== PRICES (ตั้งราคา) ===== -->
     <section class="view" id="view-prices">
       <div class="card">
-        <div class="csub">💰 แก้ราคาเองได้เลย — กด <b>บันทึก</b> แล้วเว็บหน้าร้านอัปเดตทันที (เก็บในระบบ ไม่ต้องแก้โค้ด)</div>
         <div id="priceBody" style="margin-top:12px"><div class="empty">กำลังโหลด...</div></div>
         <div class="editor-only" style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-line" onclick="savePrices()">💾 บันทึกราคา</button>
@@ -598,12 +596,6 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
     <!-- ===== USERS ===== -->
     <section class="view" id="view-users">
-      <div class="roleswitch">
-        <span>🧪 <b>ทดลองมุมมองสิทธิ์:</b> ดูว่าแต่ละ role เห็นหลังบ้านต่างกันยังไง</span>
-        <button onclick="setRole('admin',this)" class="on">👑 Admin</button>
-        <button onclick="setRole('staff',this)">✏️ Staff</button>
-        <button onclick="setRole('viewer',this)">👁️ Viewer</button>
-      </div>
       <div class="roleinfo">
         <div class="r"><b>👑 Admin</b><ul><li>ดูข้อมูลทั้งหมด</li><li>แก้ไขออเดอร์/ลูกค้า</li><li>จัดการผู้ใช้งาน</li><li>เติม/ตั้งพลัง AI</li></ul></div>
         <div class="r"><b>✏️ Staff</b><ul><li>ดูข้อมูลทั้งหมด</li><li>แก้ไขออเดอร์/ลูกค้า</li><li>❌ จัดการผู้ใช้งาน</li></ul></div>
