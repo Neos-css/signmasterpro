@@ -487,7 +487,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
             <button class="btn btn-line" onclick="askInventory()" id="invGo">🤖 วิเคราะห์ + แนะนำสั่งซื้อ</button>
           </div>
         </div>
-        <div class="csub">ข้อมูลจริงจาก Supabase <code>sm_inventory</code> · แก้คงเหลือ/เพิ่ม/ลบได้ (ใช้รหัสจัดการ)</div>
+        <div class="csub">ข้อมูลจริงจาก Supabase <code>sm_inventory</code> · แก้คงเหลือ/เพิ่ม/ลบได้</div>
         <table style="margin-top:10px"><thead><tr><th style="text-align:left">วัสดุ</th><th>หน่วย</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th><th>สถานะ</th></tr></thead><tbody id="invBody"></tbody></table>
       </div>
       <div class="card" id="invOutCard" style="display:none">
@@ -896,6 +896,8 @@ function renderAIRoom(){
 
 /* ===== AI Marketing ===== */
 const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
+// token สิทธิ์ = session ของ admin ที่ login (รหัสเดียวกับ login · ไม่ต้องมีรหัสจัดการแยก)
+async function adminToken(){ try{ const {data}=await SB.auth.getSession(); return (data&&data.session)?data.session.access_token:''; }catch(e){ return ''; } }
 let MKT_KIND='promo';
 function renderMarketing(){try{renderClipThumbs();}catch(e){}/* แผงพร้อมใช้ + โหลด thumbnail รูปคลิป */}
 function mktKind(btn){MKT_KIND=btn.dataset.k;document.querySelectorAll('#mktKinds .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
@@ -1029,7 +1031,7 @@ async function generateAiVideo(){
   if(f){try{imageUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}catch(e){}}
   const body={provider,prompt,aspectRatio:document.getElementById('aivRatio').value,duration:document.getElementById('aivDur').value,mode:document.getElementById('aivRes').value,imageUrl};
   try{
-    const r=await fetch(AGENTS_WORKER+'/video-gen',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':(localStorage.getItem('sm_admin_token')||'')},body:JSON.stringify(body)});
+    const r=await fetch(AGENTS_WORKER+'/video-gen',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
     if(d&&d.videoUrl){document.getElementById('aivStage').style.display='';const v=document.getElementById('aivVideo');v.src=d.videoUrl;const dl=document.getElementById('aivDl');dl.href=d.videoUrl;dl.style.display='';toast('🎥 วิดีโอเสร็จแล้วค่ะ!');}
     else toast(d.message||'ยังไม่ได้เชื่อม API — เลือกเจ้า + ใส่ key ใน worker /video-gen ก่อนค่ะ');
@@ -1054,12 +1056,11 @@ async function renderInventory(){
     || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px">ยังไม่มีวัสดุ — กดเพิ่มได้เลย</td></tr>';
   const b=document.getElementById('invLowBadge');if(b)b.textContent=low?`🔴 ${low} รายการใกล้หมด`:'';
 }
-/* เขียนสต็อก (guard ด้วย ADMIN_TOKEN เดียวกับเติมเครดิต) */
+/* เขียนสต็อก (guard ด้วย session ของ admin ที่ login) */
 async function invPost(body){
-  let t=localStorage.getItem('sm_admin_token')||'';
-  if(!t){t=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!t)return false;localStorage.setItem('sm_admin_token',t);}
-  const r=await fetch(AGENTS_WORKER+'/inv',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':t},body:JSON.stringify(body)});
-  if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return false;}
+  const t=await adminToken(); if(!t){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return false;}
+  const r=await fetch(AGENTS_WORKER+'/inv',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify(body)});
+  if(r.status===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return false;}
   const d=await r.json().catch(()=>({}));return !!d.ok;
 }
 async function invSet(id,v){const ok=await invPost({op:'set',id:id,qty:Math.max(0,parseInt(v,10)||0)});if(ok)toast('บันทึกแล้วค่ะ ✅');renderInventory();}
@@ -1270,11 +1271,10 @@ function orderDetail(el){
 }
 async function delMockup(id,p){
   if(!confirm('ลบรูป mockup นี้ออกจากระบบ?'))return;
-  let tok=localStorage.getItem('sm_admin_token')||'';
-  if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
+  const tok=await adminToken(); if(!tok){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return;}
   try{
-    const r=await fetch(AGENTS_WORKER+'/mockup-del',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({p:p})});
-    if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
+    const r=await fetch(AGENTS_WORKER+'/mockup-del',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({p:p})});
+    if(r.status===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return;}
     const d=await r.json();if(!d.ok){toast('ลบไฟล์ไม่สำเร็จค่ะ');return;}
     if(id&&window.SB){const ord=ORDERS.find(x=>String(x.id)===String(id));
       if(ord){const nn=(ord.note||'').replace(/\n@IMG=[^\n]*/,'');try{await SB.from('sm_orders').update({note:nn}).eq('id',id);ord.note=nn;}catch(e){}}}
@@ -1402,8 +1402,7 @@ async function renderPrices(){
   box.innerHTML=html;
 }
 async function savePrices(){
-  let tok=localStorage.getItem('sm_admin_token')||'';
-  if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
+  const tok=await adminToken(); if(!tok){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return;}
   const materials={};
   document.querySelectorAll('#priceBody input[data-pm]').forEach(i=>{const id=i.dataset.pm,k=i.dataset.pk,v=i.value.trim();if(v!==''){materials[id]=materials[id]||{};materials[id][k]=Number(v);}});
   const options={};
@@ -1412,8 +1411,8 @@ async function savePrices(){
   document.querySelectorAll('#priceBody input[data-pp]').forEach(i=>{const id=i.dataset.pp,k=i.dataset.pk,v=i.value.trim();if(v!==''){products[id]=products[id]||{};products[id][k]=Number(v);}});
   const draft=!!((document.getElementById('priceDraft')||{}).checked);
   try{
-    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({materials,options,products,draft})});
-    if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
+    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({materials,options,products,draft})});
+    if(r.status===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return;}
     const d=await r.json().catch(()=>({}));
     if(d&&d.ok)toast('💾 บันทึกราคาแล้ว! เว็บหน้าร้านอัปเดตทันทีค่ะ ✅');else toast('บันทึกไม่สำเร็จค่ะ');
   }catch(e){toast('เชื่อมต่อไม่ได้');}
@@ -1477,12 +1476,11 @@ function topupAgent(agent,label){
   if(usd<5){toast('ขั้นต่ำ $5 ค่ะ');return;}
   doTopup(agent,usd);
 }
-function doTopup(agent,usd){
-  let tok=localStorage.getItem('sm_admin_token')||'';
-  if(!tok){tok=(prompt('ใส่รหัสจัดการ (ADMIN_TOKEN):','')||'').trim();if(!tok)return;localStorage.setItem('sm_admin_token',tok);}
-  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({agent:agent,usd:usd,note:'เติมจาก admin'})})
+async function doTopup(agent,usd){
+  const tok=await adminToken(); if(!tok){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return;}
+  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({agent:agent,usd:usd,note:'เติมจาก admin'})})
     .then(r=>r.json().then(d=>({s:r.status,d}))).then(({s,d})=>{
-      if(s===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
+      if(s===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return;}
       if(d&&d.ok){toast('⚡ เติมพลัง $'+usd+' แล้ว! พลังเต็มใหม่ $'+Number(d.full_usd).toFixed(2));renderPower();}
       else toast('เติมไม่สำเร็จค่ะ');
     }).catch(()=>toast('เชื่อมต่อไม่ได้'));
