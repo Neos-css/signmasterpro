@@ -898,7 +898,13 @@ async function overlayThaiText(imgSrc, text, color){
       let fs=Math.round(H*0.12); ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.font='700 '+fs+'px '+FONT;
       while(ctx.measureText(text).width>boxW && fs>12){ fs-=2; ctx.font='700 '+fs+'px '+FONT; }
-      ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=Math.round(fs*0.16); ctx.shadowOffsetY=2;
+      // เส้นขอบให้อ่านชัดทุกสีป้าย → ขอบสีตรงข้ามความสว่างของตัวอักษร (สว่าง→ขอบเข้ม · เข้ม→ขอบขาว)
+      const hx=(color||'#ffffff').replace('#',''); const rr=parseInt(hx.substr(0,2),16)||255, gg=parseInt(hx.substr(2,2),16)||255, bb=parseInt(hx.substr(4,2),16)||255;
+      const stroke=(0.299*rr+0.587*gg+0.114*bb)>140 ? 'rgba(18,18,18,.9)' : 'rgba(255,255,255,.92)';
+      ctx.lineJoin='round'; ctx.miterLimit=2;
+      ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=Math.round(fs*0.1); ctx.shadowOffsetY=2;
+      ctx.lineWidth=Math.max(2,Math.round(fs*0.15)); ctx.strokeStyle=stroke; ctx.strokeText(text,cx,cy);
+      ctx.shadowColor='transparent';   // ปิดเงาตอน fill กันตัวอักษรเบลอ
       ctx.fillStyle=color||'#ffffff'; ctx.fillText(text,cx,cy);
       resolve(c.toDataURL('image/jpeg',0.92));
     };
