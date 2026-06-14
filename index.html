@@ -877,6 +877,8 @@ function pickGen(el){
   el.classList.add('active');
 }
 function genVal(id){const a=document.querySelector('#'+id+' .gen-pill.active');return a?a.dataset.val:'';}
+// เก็บ Lead ผ่าน worker (service_role · anon เขียน sm_leads ตรงไม่ได้ → เคยหายเงียบ)
+function sendLead(o){ try{ return fetch('https://signmaster-agents.neos-css01.workers.dev/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).catch(()=>{}); }catch(e){ return Promise.resolve(); } }
 async function mockGen(){
   const shopName=(document.getElementById('shopName')?.value||'').trim();
   if(!shopName){toast(t('กรุณาใส่ชื่อร้าน / ข้อความบนป้ายก่อนนะคะ','Please enter the shop name / sign text first'));return;}
@@ -906,10 +908,8 @@ async function mockGen(){
         const sd=await sr.json().catch(()=>({}));
         if(sd.path){
           window.SM_MOCKUP_PATH=sd.path;
-          if(window.SB){
-            const desc=(isThai?('ไทย · ฟอนต์ '+font):('อังกฤษ · สไตล์ '+(styleHint||'AI')))+' · '+style+' · '+lighting+' · '+environment+' · '+aspect+' · ขนาด '+sizePct+'%';
-            SB.from('sm_leads').insert({name:null,phone:phone,job_type:'ออกแบบป้าย AI (mockup)',detail:'"'+shopName+'"\n'+desc+'\n@IMG='+sd.path,source:'mockup',status:'new'}).then(()=>{},()=>{});
-          }
+          const desc=(isThai?('ไทย · ฟอนต์ '+font):('อังกฤษ · สไตล์ '+(styleHint||'AI')))+' · '+style+' · '+lighting+' · '+environment+' · '+aspect+' · ขนาด '+sizePct+'%';
+          sendLead({name:null,phone:phone,job_type:'ออกแบบป้าย AI (mockup)',detail:'"'+shopName+'"\n'+desc+'\n@IMG='+sd.path,source:'mockup'});
         }
       }catch(e){}
     }
@@ -1122,7 +1122,7 @@ async function submitWork(){
     const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:detail,source:'web',status:'new'};
     const qp=d.priced?('\n@Q='+JSON.stringify({customer:{name:d.c.name,phone:d.c.phone,email:d.c.email,note:d.c.note},items:d.items,quoteNo:no})):'';
     const order={customer_id:(CUR_MEMBER?'M-'+CUR_MEMBER.id:null),customer_name:d.c.name||(CUR_MEMBER?CUR_MEMBER.name:null),phone:d.c.phone||null,job:d.jobName,material:d.jobName,size:d.w+'x'+d.h+' ม.',qty:d.qty,area_sqm:d.a,amount:d.priced?d.grand:null,status:'new',note:detail+qp+imgTag};
-    Promise.all([SB.from('sm_leads').insert(lead),SB.from('sm_orders').insert(order)]).then(()=>{},()=>{});
+    SB.from('sm_orders').insert(order).then(()=>{},()=>{}); sendLead(lead);
   }
   emailOrder('🧾 ออเดอร์ใหม่ '+no+' · '+(d.c.name||'ลูกค้า'),{'เลขที่ใบเสนอราคา':no,'ลูกค้า':d.c.name||'-','เบอร์โทร':d.c.phone||'-','อีเมล':d.c.email||'-','งาน':d.jobName,'ขนาด':d.w+'×'+d.h+' ม. × '+d.qty+' ชิ้น ('+d.a.toFixed(2)+' ตร.ม.)','รายการ':d.itemsText,'รวมทั้งสิ้น':d.grandTxt+(d.priced?' (รวม VAT)':''),'หมายเหตุ':d.c.note||'-'});
   const reprint=d.priced?`<button class="btn btn-dark" style="margin-top:14px" onclick="openQuoteDoc()">${t('📄 พิมพ์ใบเสนอราคาอีกครั้ง','📄 Print quotation again')}</button>`:'';
@@ -1141,7 +1141,7 @@ function decideLater(){
   const d=quoteData(),no=state.quoteNo;
   if(window.SB){
     const lead={name:d.c.name||null,phone:d.c.phone||null,email:d.c.email||null,job_type:d.jobName,detail:`[ขอตัดสินใจก่อน] เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} · รวม ${d.grandTxt}${d.c.note?' · '+d.c.note:''}`,source:'web',status:'new'};
-    SB.from('sm_leads').insert(lead).then(()=>{},()=>{});
+    sendLead(lead);
   }
   emailOrder('🤔 ลูกค้าขอตัดสินใจก่อน '+no+' · '+(d.c.name||''),{'สถานะ':'ขอตัดสินใจก่อน','เลขที่ใบเสนอราคา':no,'ลูกค้า':d.c.name||'-','เบอร์โทร':d.c.phone||'-','งาน':d.jobName,'รวมทั้งสิ้น':d.grandTxt,'หมายเหตุ':d.c.note||'-'});
   toast(t('บันทึกไว้ให้แล้วค่ะ 🙏 ทีมงานจะติดต่อกลับ · อ้างอิง '+no,'Saved! Our team will follow up · Ref '+no));
@@ -1239,7 +1239,7 @@ function closeBulk(){document.getElementById('bulkModal').classList.remove('open
 async function submitBulk(){
   const n=document.getElementById('bkName').value.trim(),p=document.getElementById('bkPhone').value.trim(),d=document.getElementById('bkDetail').value.trim();
   if(!n||!p){toast('กรอกชื่อ + เบอร์โทรก่อนนะคะ');return;}
-  if(window.SB){try{await SB.from('sm_leads').insert({name:n,phone:p,job_type:'ราคาพิเศษ (งานจำนวนมาก)',detail:d||null,source:'bulk',status:'new'});}catch(e){}}
+  await sendLead({name:n,phone:p,job_type:'ราคาพิเศษ (งานจำนวนมาก)',detail:d||null,source:'bulk'});
   document.getElementById('bkName').value='';document.getElementById('bkPhone').value='';document.getElementById('bkDetail').value='';
   closeBulk();
   toast('รับเรื่องแล้วค่ะ 🙏 ทีมงานจะติดต่อกลับเรื่องราคาพิเศษให้เร็วๆ นี้นะคะ 🎁');
@@ -1249,7 +1249,7 @@ function closeClipReq(){document.getElementById('clipReqModal').classList.remove
 async function submitClipReq(){
   const n=document.getElementById('clName').value.trim(),p=document.getElementById('clPhone').value.trim(),d=document.getElementById('clDetail').value.trim();
   if(!n||!p){toast(t('กรอกชื่อ + เบอร์โทรก่อนนะคะ','Please enter name + phone first'));return;}
-  if(window.SB){try{await SB.from('sm_leads').insert({name:n,phone:p,job_type:'คลิปโฆษณา (AI)',detail:d||null,source:'clip',status:'new'});}catch(e){}}
+  await sendLead({name:n,phone:p,job_type:'คลิปโฆษณา (AI)',detail:d||null,source:'clip'});
   document.getElementById('clName').value='';document.getElementById('clPhone').value='';document.getElementById('clDetail').value='';
   closeClipReq();
   toast(t('รับเรื่องแล้วค่ะ 🎬 ทีมงานจะติดต่อกลับเรื่องคลิปโฆษณาให้เร็วๆ นี้นะคะ','Got it! 🎬 Our team will contact you about the ad clip soon.'));
