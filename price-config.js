@@ -34,6 +34,7 @@ window.PRICE_CONFIG = {
     // ── ป้าย / ตู้ไฟ (เว็บเดิมไม่ระบุราคา → ประเมินหน้างาน) ──
     { id:"sign-quote",     group:"sign",     line:"ป้ายทุกชนิด",  name:"ป้ายโลหะ/อะคริลิก/ตัวอักษร ฯลฯ", name_en:"Metal/acrylic signs, letters, etc.", quote:true },
     { id:"lightbox-quote", group:"lightbox", line:"ตู้ไฟ",        name:"ตู้ไฟ / ตัวอักษรซ่อนไฟ",          name_en:"Lightbox / hidden-light letters",    quote:true },
+    { id:"booth-quote",    group:"booth",    line:"งานบูธ/อีเวนต์", name:"ออกบูธ/งานอีเวนต์ (ประเมินหน้างาน)", name_en:"Event booth (on-site quote)",        quote:true },
   ],
 
   /* สินค้าสำเร็จรูป คิดเป็นชิ้น (Booth / Roll Up / Backdrop) */

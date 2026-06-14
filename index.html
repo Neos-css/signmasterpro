@@ -472,8 +472,8 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
           <div class="opt" data-src="import" onclick="pickSource('import')">
             <div class="em">📁</div><b data-en="Upload Design File">อัปโหลดไฟล์แบบ</b><small data-en="Already have a design (JPG/PNG/PDF)">มีแบบอยู่แล้ว (JPG/PNG/PDF)</small>
           </div>
-          <div class="opt" data-src="ai" onclick="pickSource('ai')">
-            <div class="em">🤖</div><b data-en="Let Ink (AI) Design It">ให้น้องอิงค์ (AI) ออกแบบ</b><small data-en="No design yet? Tell Ink your idea and AI will create it">ยังไม่มีแบบ? พิมพ์ไอเดียให้น้องอิงค์สร้างให้</small>
+          <div class="opt" data-src="design" onclick="pickSource('design')">
+            <div class="em">🎨</div><b data-en="Let our team design it (free)">ให้ทีมงานออกแบบให้ (ฟรี)</b><small data-en="No design yet? Tell us your idea, our team designs it">ยังไม่มีแบบ? บอกไอเดีย ทีมงานออกแบบให้</small>
           </div>
         </div>
       </div>
@@ -488,6 +488,17 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
             <div data-en="📤<br><b>Click to choose your sign design file</b><br><small>JPG, PNG supported · instant preview</small>">📤<br><b>คลิกเพื่อเลือกไฟล์รูปแบบป้าย</b><br><small>รองรับ JPG, PNG · พรีวิวทันที</small></div>
           </div>
         </div>
+        <div id="designPane" style="display:none">
+          <div class="field"><label data-en="Tell us your idea / details">บอกไอเดีย / รายละเอียดที่อยากได้ <span style="color:#e53935">*</span></label>
+            <textarea id="designBrief" rows="4" style="width:100%;font-family:inherit;font-size:1rem;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;resize:vertical" placeholder="เช่น ร้านกาแฟ โทนน้ำตาลอบอุ่น อยากได้ป้ายหน้าร้าน มีโลโก้แก้วกาแฟ ขนาดประมาณ 2×1 ม." data-en-ph="e.g. coffee shop, warm brown tone, storefront sign with a coffee-cup logo, about 2x1 m"></textarea></div>
+          <div class="field"><label data-en="Reference image (optional)">รูปอ้างอิง (ถ้ามี)</label>
+            <div class="preview-box" id="designPreview" onclick="document.getElementById('designFile').click()" style="cursor:pointer">
+              <div data-en="📎<br><b>Click to attach a reference image</b><br><small>Optional · helps our team understand</small>">📎<br><b>คลิกแนบรูปอ้างอิง</b><br><small>ไม่บังคับ · ช่วยให้ทีมงานเข้าใจ</small></div>
+            </div>
+            <input type="file" id="designFile" accept="image/*" style="display:none" onchange="onDesignFile(event)"></div>
+          <p class="hint" data-en="🎨 Our team will design it for you and follow up after you submit · tap Next to pick material">🎨 ทีมงานจะออกแบบให้ + ติดต่อกลับหลังคุณสั่งงาน · กดถัดไปเลือกวัสดุได้เลย</p>
+        </div>
+        <!-- น้องอิงค์ AI ออกแบบ (แอบไว้ · วันหลัง gen ภาพดีขึ้นค่อยเปิด · pickSource('ai')) -->
         <div id="aiPane" style="display:none">
           <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย <span style="color:#e53935">*</span> <span id="nameCount" class="muted" style="font-size:.78rem;font-weight:400">0/28</span></label>
             <input id="shopName" maxlength="28" oninput="onNameInput()" placeholder="เช่น ร้านกาแฟลานทอง" data-en-ph="e.g. My Coffee Shop" style="font-family:'Prompt',sans-serif"></div>
@@ -559,6 +570,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
             <option value="inkjet" data-en="🖨️ Inkjet (per sq.m.)">🖨️ งานอิงค์เจท (คิดตาม ตร.ม.)</option>
             <option value="sign" data-en="🪧 All Signs (on-site quote)">🪧 ป้ายทุกชนิด (ประเมินหน้างาน)</option>
             <option value="lightbox" data-en="💡 Lightbox (on-site quote)">💡 ตู้ไฟ (ประเมินหน้างาน)</option>
+            <option value="booth" data-en="🎪 Event booth (on-site quote)">🎪 งานบูธ/อีเวนต์ (ประเมินหน้างาน)</option>
           </select>
         </div>
         <div class="field"><label data-en="Material Type">ชนิดวัสดุ</label>
@@ -831,8 +843,15 @@ function pickSource(s){
   state.source=s;
   document.querySelectorAll('.choice .opt').forEach(o=>o.classList.toggle('sel',o.dataset.src===s));
   document.getElementById('importPane').style.display=s==='import'?'block':'none';
-  document.getElementById('aiPane').style.display=s==='ai'?'block':'none';
-  document.getElementById('step2hint').textContent=s==='import'?t('อัปโหลดไฟล์แบบของคุณ','Upload your design file'):t('อธิบายไอเดีย แล้วให้ AI สร้างตัวอย่าง','Describe your idea and let AI create a sample');
+  const dp=document.getElementById('designPane'); if(dp)dp.style.display=s==='design'?'block':'none';
+  const ap=document.getElementById('aiPane'); if(ap)ap.style.display=s==='ai'?'block':'none';
+  document.getElementById('step2hint').textContent=s==='import'?t('อัปโหลดไฟล์แบบของคุณ','Upload your design file'):s==='design'?t('บอกไอเดีย ทีมงานออกแบบให้','Tell us your idea — our team will design it'):t('อธิบายไอเดีย แล้วให้ AI สร้างตัวอย่าง','Describe your idea and let AI create a sample');
+}
+function onDesignFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{state.img=ev.target.result;document.getElementById('designPreview').innerHTML='<img src="'+ev.target.result+'">';};
+  r.readAsDataURL(f);
 }
 function onFile(e){
   const f=e.target.files[0];if(!f)return;
@@ -1085,7 +1104,7 @@ function renderQuote(){
   state.customer={name:document.getElementById('cName').value,phone:document.getElementById('cPhone').value,email:document.getElementById('cEmail').value,note:document.getElementById('cNote').value};
   if(!state.quoteNo)state.quoteNo=genQuoteNo();
   const c=state.customer,q=calcQuote();
-  const src=state.source==='ai'?t('🤖 AI ออกแบบ','🤖 AI design'):state.source==='import'?t('📁 อัปโหลดเอง','📁 self-uploaded'):'-';
+  const src=state.source==='design'?t('🎨 ทีมงานออกแบบ','🎨 Team design'):state.source==='ai'?t('🤖 AI ออกแบบ','🤖 AI design'):state.source==='import'?t('📁 อัปโหลดเอง','📁 self-uploaded'):'-';
   let head=`<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:.92rem">
     <b>${esc(c.name)||'-'}</b> · ${esc(c.phone)||'-'} ${c.email?'· '+esc(c.email):''}<br>
     <span class="muted">${t('เลขที่ใบเสนอราคา: ','Quote No.: ')}<b style="color:var(--accent-deep)">${state.quoteNo}</b> · ${t('ที่มาแบบ: ','Design: ')}${src} ${c.note?'· '+esc(c.note):''}</span></div>`;
@@ -1114,7 +1133,8 @@ function emailOrder(subject,fields){
 async function submitWork(){
   if(!state.quoteNo)state.quoteNo=genQuoteNo();
   const d=quoteData(),no=state.quoteNo;
-  const detail=`เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} ชิ้น (${d.a.toFixed(2)} ตร.ม.) · ${d.itemsText} · รวมทั้งสิ้น ${d.grandTxt}${d.priced?' (รวม VAT)':''}${d.c.note?' · '+d.c.note:''}`;
+  const dBrief=(state.source==='design'&&document.getElementById('designBrief'))?(document.getElementById('designBrief').value||'').trim():'';
+  const detail=`เลขที่ ${no} · ${d.jobName} · ${d.w}×${d.h} ม. × ${d.qty} ชิ้น (${d.a.toFixed(2)} ตร.ม.) · ${d.itemsText} · รวมทั้งสิ้น ${d.grandTxt}${d.priced?' (รวม VAT)':''}${d.c.note?' · '+d.c.note:''}${dBrief?' · 🎨ออกแบบให้: '+dBrief:''}`;
   if(window.SB){
     // ลูกค้า Gen ภาพ mockup ไว้ → เก็บเข้าระบบเรา (Supabase Storage) แนบกับออเดอร์
     let imgTag='';
@@ -1159,6 +1179,7 @@ function setSteps(){
 }
 function validate(){
   if(cur===1&&!state.source){toast('เลือกที่มาของแบบก่อนนะคะ');return false}
+  if(cur===2&&state.source==='design'&&!((document.getElementById('designBrief')||{}).value||'').trim()){toast('บอกไอเดีย/รายละเอียดที่อยากได้ก่อนนะคะ');return false}
   if(cur===5){
     if(!document.getElementById('cName').value.trim()){toast('กรอกชื่อก่อนนะคะ');return false}
     if(!document.getElementById('cPhone').value.trim()){toast('กรอกเบอร์โทรก่อนนะคะ');return false}
