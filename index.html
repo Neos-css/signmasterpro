@@ -341,8 +341,6 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
 <mask id="smmask" maskUnits="userSpaceOnUse" style="mask-type:alpha"><use href="#smart"/></mask>
 </defs></svg>
 
-<!-- DEMO banner -->
-<div class="note-banner" data-en="🚧 Demo site · Prices shown are estimates pending confirmation · Built by Neo-S AI">🚧 เว็บตัวอย่าง (Demo) · ราคาที่แสดงเป็น “ประมาณการ” รอยืนยันราคาจริง · พัฒนาโดยทีม Neo-S AI</div>
 
 <!-- NAV -->
 <header class="nav">
@@ -473,7 +471,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
             <div class="em">📁</div><b data-en="Upload Design File">อัปโหลดไฟล์แบบ</b><small data-en="Already have a design (JPG/PNG/PDF)">มีแบบอยู่แล้ว (JPG/PNG/PDF)</small>
           </div>
           <div class="opt" data-src="design" onclick="pickSource('design')">
-            <div class="em">🎨</div><b data-en="Let our team design it (free)">ให้ทีมงานออกแบบให้ (ฟรี)</b><small data-en="No design yet? Tell us your idea, our team designs it">ยังไม่มีแบบ? บอกไอเดีย ทีมงานออกแบบให้</small>
+            <div class="em">🎨</div><b data-en="Let our team design it">ให้ทีมงานออกแบบให้</b><small data-en="No design yet? Tell us your idea, our team designs it">ยังไม่มีแบบ? บอกไอเดีย ทีมงานออกแบบให้</small>
           </div>
         </div>
       </div>
@@ -661,7 +659,7 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
         <p data-en="Mon–Sat 08:00–17:00">จ–ส 08:00–17:00 น.</p>
       </div>
     </div>
-    <div class="copy" data-en="© 2007–2026 Sign Master Pro Co., Ltd. · Demo site by Neo-S AI">© 2550–2569 บริษัท ซายน์ มาสเตอร์โปร จำกัด · เว็บตัวอย่างพัฒนาโดยทีม Neo-S AI</div>
+    <div class="copy" data-en="© 2007–2026 Sign Master Pro Co., Ltd. · System by neos-css.com — Comtech Solution System Co., Ltd.">© 2550–2569 บริษัท ซายน์ มาสเตอร์โปร จำกัด · ผู้พัฒนาระบบ neos-css.com by Comtech Solution System Co., Ltd.</div>
   </div>
 </footer>
 
@@ -843,6 +841,7 @@ async function applyPriceOverrides(){
     const d=await r.json(); const p=d&&d.prices; if(!p)return;
     if(p.materials&&PC.materials){PC.materials.forEach(m=>{const o=p.materials[m.id];if(o){if(o.price_1_9!=null)m.price_1_9=Number(o.price_1_9);if(o.price_10!=null)m.price_10=Number(o.price_10);}});}
     if(p.options&&PC.options){for(const k in p.options){if(PC.options[k]&&p.options[k]&&p.options[k].price!=null)PC.options[k].price=Number(p.options[k].price);}}
+    if(p.products&&PC.products){PC.products.forEach(pr=>{const o=p.products[pr.id];if(o){if(o.price!=null)pr.price=Number(o.price);if(o.price_from!=null)pr.price_from=Number(o.price_from);if(o.price_to!=null)pr.price_to=Number(o.price_to);}});}
     if(typeof p.draft==='boolean')PC.draft=p.draft;
     try{buildMaterials();}catch(e){}
   }catch(e){}

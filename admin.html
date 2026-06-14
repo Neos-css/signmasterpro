@@ -309,7 +309,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="prices" class="admin-only"><span class="em">💰</span> ตั้งราคา</a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
     </nav>
-    <div class="foot" id="sideFoot">🤖 ขับเคลื่อนโดย Neo-S AI<br>เชื่อม Supabase แล้ว ✅</div>
+    <div class="foot" id="sideFoot">🤖 ระบบโดย Comtech Solution<br>neos-css.com ✅</div>
   </aside>
 
   <main class="main">
@@ -682,7 +682,7 @@ async function enterApp(){
   document.getElementById('gate').classList.add('hide');
   document.getElementById('app').style.display='grid';
   applyRole(CURRENT_USER.role);
-  document.getElementById('sideFoot').innerHTML='🤖 Neo-S AI · เชื่อม Supabase ✅<br>👤 '+esc(CURRENT_USER.email);
+  document.getElementById('sideFoot').innerHTML='🤖 neos-css.com · Comtech Solution<br>👤 '+esc(CURRENT_USER.email);
   TITLES.dash[0]='สวัสดีค่ะ '+esc(CURRENT_USER.name)+' 👋';
   document.getElementById('vTitle').textContent=TITLES.dash[0];
   await loadAll();
@@ -1356,11 +1356,32 @@ async function renderPrices(){
       +'<td style="padding:6px"><input type="number" min="0" data-pm="'+esc(m.id)+'" data-pk="price_10" value="'+(b!=null?b:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></td></tr>';
   });
   html+='</tbody></table></div>';
+  // สินค้าสำเร็จรูป / บูธ (ราคาต่อชิ้น)
+  const prods=(PRICE_CONFIG.products||[]), ovP=(ov&&ov.products)||{};
+  if(prods.length){
+    html+='<h3 style="margin:18px 0 10px">🎪 สินค้าสำเร็จรูป / บูธ (บาท/ชิ้น)</h3>';
+    prods.forEach(p=>{
+      if(p.price_from!=null){
+        const f=(ovP[p.id]&&ovP[p.id].price_from!=null)?ovP[p.id].price_from:p.price_from;
+        const to=(ovP[p.id]&&ovP[p.id].price_to!=null)?ovP[p.id].price_to:p.price_to;
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><span>'+esc(p.name)+'</span><span style="font-size:.84rem">เริ่ม <input type="number" min="0" data-pp="'+esc(p.id)+'" data-pk="price_from" value="'+(f!=null?f:'')+'" style="width:78px;padding:6px;border:1px solid var(--line);border-radius:8px"> – <input type="number" min="0" data-pp="'+esc(p.id)+'" data-pk="price_to" value="'+(to!=null?to:'')+'" style="width:78px;padding:6px;border:1px solid var(--line);border-radius:8px"></span></div>';
+      } else {
+        const v=(ovP[p.id]&&ovP[p.id].price!=null)?ovP[p.id].price:p.price;
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><span>'+esc(p.name)+'</span><input type="number" min="0" data-pp="'+esc(p.id)+'" data-pk="price" value="'+(v!=null?v:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></div>';
+      }
+    });
+  }
   html+='<h3 style="margin:18px 0 10px">➕ ค่าบริการเสริม (บาท)</h3>';
   const opts=PRICE_CONFIG.options||{};
   for(const k in opts){
     const cur=(ovO[k]&&ovO[k].price!=null)?ovO[k].price:opts[k].price;
     html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><span>'+esc(opts[k].label||k)+'</span><input type="number" min="0" data-po="'+esc(k)+'" value="'+(cur!=null?cur:'')+'" style="width:88px;padding:6px;border:1px solid var(--line);border-radius:8px"></div>';
+  }
+  // งานประเมินหน้างาน (ป้าย/ตู้ไฟ/บูธ quote) — ไม่มีราคาตายตัว
+  const qmats=PRICE_CONFIG.materials.filter(m=>m.quote);
+  if(qmats.length){
+    html+='<h3 style="margin:18px 0 10px">📋 งานประเมินหน้างาน (ไม่มีราคาตายตัว)</h3>';
+    qmats.forEach(m=>{ html+='<div style="padding:7px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem">'+esc(m.name)+' — <i>ประเมินหน้างาน · ทีมงานติดต่อกลับ</i></div>'; });
   }
   const draftNow=(ov&&typeof ov.draft==='boolean')?ov.draft:PRICE_CONFIG.draft;
   html+='<div style="margin-top:16px;padding:11px 14px;background:#fff7ed;border-radius:10px"><label style="display:flex;gap:9px;align-items:center;cursor:pointer"><input type="checkbox" id="priceDraft" '+(draftNow?'checked':'')+'> <span>แสดงป้าย <b>"ราคาประมาณการ รอยืนยัน"</b> บนเว็บ (ติ๊กออกเมื่อใช้ราคาจริงแล้ว)</span></label></div>';
@@ -1373,9 +1394,11 @@ async function savePrices(){
   document.querySelectorAll('#priceBody input[data-pm]').forEach(i=>{const id=i.dataset.pm,k=i.dataset.pk,v=i.value.trim();if(v!==''){materials[id]=materials[id]||{};materials[id][k]=Number(v);}});
   const options={};
   document.querySelectorAll('#priceBody input[data-po]').forEach(i=>{const k=i.dataset.po,v=i.value.trim();if(v!=='')options[k]={price:Number(v)};});
+  const products={};
+  document.querySelectorAll('#priceBody input[data-pp]').forEach(i=>{const id=i.dataset.pp,k=i.dataset.pk,v=i.value.trim();if(v!==''){products[id]=products[id]||{};products[id][k]=Number(v);}});
   const draft=!!((document.getElementById('priceDraft')||{}).checked);
   try{
-    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({materials,options,draft})});
+    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':tok},body:JSON.stringify({materials,options,products,draft})});
     if(r.status===401){localStorage.removeItem('sm_admin_token');toast('รหัสไม่ถูกต้องค่ะ 🔒');return;}
     const d=await r.json().catch(()=>({}));
     if(d&&d.ok)toast('💾 บันทึกราคาแล้ว! เว็บหน้าร้านอัปเดตทันทีค่ะ ✅');else toast('บันทึกไม่สำเร็จค่ะ');
