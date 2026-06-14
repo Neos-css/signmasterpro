@@ -378,6 +378,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <span style="color:var(--muted);font-size:.82rem">ถึง</span>
           <input type="date" id="ordTo" onchange="renderOrders()" title="ถึงวันที่" style="padding:6px 8px;border-radius:8px;border:1px solid #e7e9ee;font:inherit;font-size:.82rem">
           <button class="btn btn-ghost" style="padding:6px 10px;font-size:.8rem" onclick="document.getElementById('ordFrom').value='';document.getElementById('ordTo').value='';renderOrders()">ล้างวันที่</button>
+          <button class="btn btn-line" style="padding:6px 12px;font-size:.8rem" onclick="exportOrders()">📤 Export Excel</button>
           <span class="sum" id="ordSum"></span>
         </div>
         <table><thead><tr><th>ลูกค้า</th><th>งาน</th><th>ยอด</th><th>เบอร์โทร</th><th>กำหนดส่ง</th><th>สถานะ</th><th>ใบเสนอราคา</th><th></th></tr></thead><tbody id="ordBody"></tbody></table>
@@ -621,7 +622,6 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
-    <div class="demo-note">🔗 ออเดอร์ / ลูกค้า / Lead / แชต / ผู้เข้าชม / <b>พลัง AI (เครดิต)</b> / <b>สต็อกวัสดุ</b> = <b>ข้อมูลจริงจาก Supabase</b> · จัดการภาพ = เดโม (ต่อ Storage ภายหลัง)</div>
   </main>
 </div>
 
@@ -1299,6 +1299,20 @@ function viewQuote(el){
     if(typeof window.printSignmasterQuote==='function')window.printSignmasterQuote({customer:p.customer,items:p.items,vatRate:0.07,quoteNo:p.quoteNo});
     else toast('ระบบใบเสนอราคายังไม่พร้อม ลองรีเฟรช');
   }catch(e){toast('ออเดอร์นี้ไม่มีข้อมูลใบเสนอราคา (อาจเป็นงานประเมินหน้างาน)');}
+}
+function exportOrders(){
+  if(!ORDERS||!ORDERS.length){toast('ยังไม่มีออเดอร์ให้ export ค่ะ');return;}
+  const q=v=>{const s=(v==null?'':String(v)).replace(/"/g,'""');return '"'+s+'"';};
+  const cleanNote=n=>(n||'').split('\n@Q=')[0].split('\n@IMG=')[0].split('\n@IP=')[0].replace(/\s+/g,' ').trim();
+  const head=['วันที่','ลูกค้า','เบอร์โทร','งาน','ยอด (บาท)','สถานะ','กำหนดส่ง','หมายเหตุ'];
+  const rows=ORDERS.map(o=>[o.created?fmt(o.created):'',o.c,o.phone,o.job,(o.amount||0),o.st,o.due,cleanNote(o.note)].map(q).join(','));
+  const csv='﻿'+head.map(q).join(',')+'\r\n'+rows.join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  const d=new Date(), p2=n=>('0'+n).slice(-2);
+  a.href=url; a.download='signmaster-orders-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'.csv';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  toast('📤 export ออเดอร์ '+ORDERS.length+' รายการแล้วค่ะ (เปิดด้วย Excel ได้เลย)');
 }
 function renderOrders(){
   const q=(document.getElementById('ordSearch').value||'').toLowerCase(),s=document.getElementById('ordStatus').value;
