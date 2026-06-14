@@ -1357,7 +1357,7 @@ async function renderPrices(){
   const box=document.getElementById('priceBody'); if(!box)return;
   if(!window.PRICE_CONFIG){box.innerHTML='<div class="empty">โหลด price-config ไม่ได้ค่ะ</div>';return;}
   box.innerHTML='<div class="empty">กำลังโหลด...</div>';
-  let ov=null; try{ const r=await fetch(AGENTS_WORKER+'/price'); const d=await r.json(); ov=d&&d.prices; }catch(e){}
+  let ov=null, plog=[]; try{ const r=await fetch(AGENTS_WORKER+'/price'); const d=await r.json(); ov=d&&d.prices; plog=(d&&d.log)||[]; }catch(e){}
   const ovM=(ov&&ov.materials)||{}, ovO=(ov&&ov.options)||{};
   const mats=PRICE_CONFIG.materials.filter(m=>!m.quote);
   let html='<h3 style="margin:6px 0 10px">🖨️ วัสดุงานพิมพ์ (บาท/ตร.ม.)</h3>';
@@ -1397,11 +1397,15 @@ async function renderPrices(){
     html+='<h3 style="margin:18px 0 10px">📋 งานประเมินหน้างาน (ไม่มีราคาตายตัว)</h3>';
     qmats.forEach(m=>{ html+='<div style="padding:7px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem">'+esc(m.name)+' — <i>ประเมินหน้างาน · ทีมงานติดต่อกลับ</i></div>'; });
   }
-  const draftNow=(ov&&typeof ov.draft==='boolean')?ov.draft:PRICE_CONFIG.draft;
-  html+='<div style="margin-top:16px;padding:11px 14px;background:#fff7ed;border-radius:10px"><label style="display:flex;gap:9px;align-items:center;cursor:pointer"><input type="checkbox" id="priceDraft" '+(draftNow?'checked':'')+'> <span>แสดงป้าย <b>"ราคาประมาณการ รอยืนยัน"</b> บนเว็บ (ติ๊กออกเมื่อใช้ราคาจริงแล้ว)</span></label></div>';
+  // ประวัติการแก้ราคา (หลักฐาน: ใคร·เมื่อไหร่)
+  if(plog.length){
+    html+='<h3 style="margin:20px 0 8px">📝 ประวัติการแก้ราคา (หลักฐาน)</h3>';
+    html+='<div style="max-height:180px;overflow:auto;font-size:.83rem;border:1px solid var(--line);border-radius:10px">'+plog.slice(0,15).map(function(l){var d=new Date(l.at);var dt=isNaN(d)?(l.at||''):(d.getDate()+'/'+(d.getMonth()+1)+'/'+(d.getFullYear()+543)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' น.');return '<div style="padding:7px 12px;border-bottom:1px solid var(--line)">🧑‍💼 <b>'+esc(l.by||'-')+'</b> <span style="color:var(--muted)">· '+dt+'</span></div>';}).join('')+'</div>';
+  }
   box.innerHTML=html;
 }
 async function savePrices(){
+  if(!confirm('ยืนยันบันทึกราคาใหม่?\nราคาบนเว็บหน้าร้านจะเปลี่ยนทันที'))return;
   const tok=await adminToken(); if(!tok){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return;}
   const materials={};
   document.querySelectorAll('#priceBody input[data-pm]').forEach(i=>{const id=i.dataset.pm,k=i.dataset.pk,v=i.value.trim();if(v!==''){materials[id]=materials[id]||{};materials[id][k]=Number(v);}});
@@ -1409,9 +1413,8 @@ async function savePrices(){
   document.querySelectorAll('#priceBody input[data-po]').forEach(i=>{const k=i.dataset.po,v=i.value.trim();if(v!=='')options[k]={price:Number(v)};});
   const products={};
   document.querySelectorAll('#priceBody input[data-pp]').forEach(i=>{const id=i.dataset.pp,k=i.dataset.pk,v=i.value.trim();if(v!==''){products[id]=products[id]||{};products[id][k]=Number(v);}});
-  const draft=!!((document.getElementById('priceDraft')||{}).checked);
   try{
-    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({materials,options,products,draft})});
+    const r=await fetch(AGENTS_WORKER+'/price',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({materials,options,products,draft:false})});
     if(r.status===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return;}
     const d=await r.json().catch(()=>({}));
     if(d&&d.ok)toast('💾 บันทึกราคาแล้ว! เว็บหน้าร้านอัปเดตทันทีค่ะ ✅');else toast('บันทึกไม่สำเร็จค่ะ');
