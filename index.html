@@ -7,7 +7,9 @@
 <meta name="description" content="บริษัท ซายน์ มาสเตอร์โปร จำกัด — รับผลิตพร้อมติดตั้งป้ายโฆษณาทุกชนิด บูธ อิงค์เจท ป้าย ตู้ไฟ ครบวงจร พร้อมระบบสั่งทำงาน + ประเมินราคาด้วย AI">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&family=Prompt:wght@600;700&family=Kanit:wght@600;700&family=Mitr:wght@500;600&family=Chonburi&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;700&family=Kanit:wght@500;700&family=Sarabun:wght@500;700&family=Mitr:wght@500;700&family=Mali:wght@500;700&family=Pridi:wght@500;700&family=Chakra+Petch:wght@500;700&family=Bai+Jamjuree:wght@500;700&family=K2D:wght@500;700&family=Sriracha&family=Charm:wght@700&family=Charmonman:wght@700&family=Itim&family=Chonburi&family=Pattaya&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Poppins:wght@600;800&family=Oswald:wght@600&family=Playfair+Display:wght@700;900&family=Bebas+Neue&family=Lobster&family=Pacifico&family=Righteous&family=Archivo+Black&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#0e1116; --ink2:#1a1f29; --paper:#f6f7f9; --white:#fff;
@@ -490,13 +492,12 @@ footer{background:#0a0d12;color:#cbd2dc;padding:70px 0 30px}
           <div class="field"><label data-en="Shop name / sign text">ชื่อร้าน / ข้อความบนป้าย <span style="color:#e53935">*</span> <span id="nameCount" class="muted" style="font-size:.78rem;font-weight:400">0/28</span></label>
             <input id="shopName" maxlength="28" oninput="onNameInput()" placeholder="เช่น ร้านกาแฟลานทอง" data-en-ph="e.g. My Coffee Shop" style="font-family:'Prompt',sans-serif"></div>
           <div class="field">
-            <label data-en="Font (Thai)">ฟอนต์ (ตัวหนังสือไทย)</label>
-            <div class="mat-pills" id="fontPills">
-              <button class="font-pill mat-pill active" data-font="Prompt" onclick="pickFont(this)" style="font-family:'Prompt',sans-serif">ตัวอย่าง</button>
-              <button class="font-pill mat-pill" data-font="Kanit" onclick="pickFont(this)" style="font-family:'Kanit',sans-serif">ตัวอย่าง</button>
-              <button class="font-pill mat-pill" data-font="Mitr" onclick="pickFont(this)" style="font-family:'Mitr',sans-serif">ตัวอย่าง</button>
-              <button class="font-pill mat-pill" data-font="Chonburi" onclick="pickFont(this)" style="font-family:'Chonburi',serif">ตัวอย่าง</button>
-            </div>
+            <label><span data-en="Font style">สไตล์ตัวอักษร</span> <span id="fontLangNote" class="muted" style="font-size:.76rem;font-weight:400"></span></label>
+            <select id="fontSel" onchange="onFontChange()" style="font-size:1.05rem"></select>
+          </div>
+          <div class="field">
+            <label><span data-en="Text size on sign">ขนาดตัวอักษรบนป้าย</span> <span id="sizeOut" class="muted" style="font-size:.78rem;font-weight:400">70%</span></label>
+            <input type="range" id="sizeRange" min="45" max="92" value="70" step="1" oninput="document.getElementById('sizeOut').textContent=this.value+'%'" style="width:100%">
           </div>
           <div class="field">
             <label data-en="Style">สไตล์</label>
@@ -880,20 +881,22 @@ async function mockGen(){
   const shopName=(document.getElementById('shopName')?.value||'').trim();
   if(!shopName){toast(t('กรุณาใส่ชื่อร้าน / ข้อความบนป้ายก่อนนะคะ','Please enter the shop name / sign text first'));return;}
   const style=genVal('stylePills'), lighting=genVal('lightPills'), environment=genVal('envPills');
-  const aspect=genVal('aspectPills')||'1x1', font=curFont();
+  const aspect=genVal('aspectPills')||'1x1';
+  const isThai=/[฀-๿]/.test(shopName);   // มีอักขระไทย → ป้ายเปล่า + overlay ฟอนต์ไทย
+  const font=curFont(), styleHint=isThai?'':curHint();
+  const sizePct=parseInt((document.getElementById('sizeRange')||{}).value,10)||70;
   const cp=document.querySelector('.color-pill.active');
   const textColor=cp?cp.dataset.color:'#ffffff', colorName=cp?cp.dataset.name:'white';
-  const isThai=/[฀-๿]/.test(shopName);   // มีอักขระไทย → ป้ายเปล่า + overlay ฟอนต์ไทย
   let phone=((document.getElementById('cPhone')||{}).value||'').trim();
   if(!phone){phone=(prompt(t('กรอกเบอร์โทรเพื่อรับตัวอย่าง (ทีมงานจะติดต่อกลับค่ะ):','Enter your phone to get a sample (our team will follow up):'),'')||'').trim();if(!phone)return;}
   const box=document.getElementById('aiPreview');
   box.innerHTML='<div>⏳ '+t('กำลังสร้าง mockup...','Generating mockup...')+'</div>';
   try{
-    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shopName,style,lighting,environment,colorName,isThai,aspect,phone})});
+    const r=await fetch('https://signmaster-agents.neos-css01.workers.dev/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shopName,style,lighting,environment,colorName,isThai,aspect,styleHint,sizePct,phone})});
     const d=await r.json();
     if(d.url){
       let finalUrl=d.url;
-      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor, font); }
+      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor, font, sizePct); }
       window.SM_MOCKUP=finalUrl;
       box.innerHTML='<img src="'+finalUrl+'" alt="mockup" style="max-width:100%;border-radius:10px">'
         +(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');
@@ -903,7 +906,8 @@ async function mockGen(){
   }catch(e){box.innerHTML='<div>⚠️ '+t('เชื่อมต่อไม่ได้ ลองใหม่นะคะ','Connection error, try again')+'</div>';}
 }
 // วางฟอนต์ไทยทับป้ายเปล่า (ฝั่ง browser · ภาพ base64 ไม่ติด CORS) · ฟอนต์เลือกได้ + หลายบรรทัด + fit ในกรอบ
-async function overlayThaiText(imgSrc, text, color, fontName){
+async function overlayThaiText(imgSrc, text, color, fontName, sizePct){
+  const frac = Math.max(0.4, Math.min(0.92, (Number(sizePct)||70)/100));
   const fam = fontName || 'Prompt';
   const wt  = fam==='Chonburi' ? '400' : '700';
   const FONT = "'"+fam+"', 'IBM Plex Sans Thai', sans-serif";
@@ -919,10 +923,10 @@ async function overlayThaiText(imgSrc, text, color, fontName){
     img.onload=function(){
       const c=document.createElement('canvas'); c.width=img.naturalWidth||1024; c.height=img.naturalHeight||1024;
       const ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
-      const W=c.width,H=c.height, boxW=W*0.84, boxH=H*0.5, cx=W/2, cy=H*0.5;
+      const W=c.width,H=c.height, boxW=W*frac, boxH=H*Math.min(0.62,frac*0.8), cx=W/2, cy=H*0.5;
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      // fit: ลดขนาดจนกว้างสุด+สูงรวมพอดีกรอบ
-      let fs=Math.round(H*0.24), lines=[text], lh=1.18;
+      // fit: ลดขนาดจนกว้างสุด+สูงรวมพอดีกรอบ (ตามขนาด % ที่เลือก)
+      let fs=Math.round(H*0.3), lines=[text], lh=1.18;
       for(; fs>14; fs-=2){
         ctx.font=wt+' '+fs+'px '+FONT;
         lines=wrap(ctx,text,boxW);
@@ -948,19 +952,36 @@ async function overlayThaiText(imgSrc, text, color, fontName){
     img.src=imgSrc;
   });
 }
-// เลือกฟอนต์ → ช่องพิมพ์เปลี่ยนฟอนต์ตามเลย (ลูกค้าเห็นในกล่องที่ใส่)
-function pickFont(el){
-  el.parentElement.querySelectorAll('.font-pill').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  const inp=document.getElementById('shopName'); if(inp) inp.style.fontFamily="'"+el.dataset.font+"', sans-serif";
+// ฟอนต์ไทย 15 (overlay จริง) + อังกฤษ 10 (ส่งเป็นสไตล์ให้ Ideogram เขียน)
+const FONT_TH=['Prompt','Kanit','Sarabun','Mitr','Mali','Pridi','Chakra Petch','Bai Jamjuree','K2D','Sriracha','Charm','Charmonman','Itim','Chonburi','Pattaya'];
+const FONT_EN=[['Montserrat','modern geometric sans-serif'],['Poppins','rounded geometric sans-serif'],['Bebas Neue','tall bold condensed uppercase sans-serif'],['Oswald','narrow bold condensed sans-serif'],['Playfair Display','elegant high-contrast serif'],['Lobster','bold flowing cursive script'],['Pacifico','casual brush script lettering'],['Anton','heavy impactful sans-serif'],['Righteous','retro geometric display'],['Archivo Black','ultra-bold grotesque sans-serif']];
+let FONT_MODE='';
+function isThaiText(s){return /[฀-๿]/.test(s||'');}
+function buildFontOptions(mode){
+  const sel=document.getElementById('fontSel'); if(!sel)return;
+  const prev=sel.value; sel.innerHTML='';
+  (mode==='en'?FONT_EN.map(x=>x[0]):FONT_TH).forEach(function(f){
+    const o=document.createElement('option'); o.value=f; o.textContent=f; o.style.fontFamily="'"+f+"', sans-serif"; sel.appendChild(o);
+  });
+  if([...sel.options].some(o=>o.value===prev)) sel.value=prev;
+  FONT_MODE=mode;
+  const note=document.getElementById('fontLangNote');
+  if(note) note.textContent = mode==='en' ? t('· AI เขียนตามสไตล์นี้','· AI renders this style') : t('· วางฟอนต์ไทยจริง','· real Thai font');
+  onFontChange();
 }
-function curFont(){const a=document.querySelector('#fontPills .font-pill.active');return a?a.dataset.font:'Prompt';}
-// นับตัวอักษร + อัปเดต preview บนปุ่มฟอนต์ให้เป็นชื่อที่พิมพ์
+function onFontChange(){
+  const sel=document.getElementById('fontSel'), inp=document.getElementById('shopName');
+  if(sel&&inp) inp.style.fontFamily = (FONT_MODE==='th') ? ("'"+sel.value+"', sans-serif") : "";   // ไทย: ช่องพิมพ์โชว์ฟอนต์จริง
+}
+function curFont(){const s=document.getElementById('fontSel');return s?s.value:'Prompt';}
+function curHint(){const f=curFont();const m=FONT_EN.find(x=>x[0]===f);return m?m[1]:'';}
 function onNameInput(){
   const inp=document.getElementById('shopName'); if(!inp)return;
   const v=inp.value||''; const cnt=document.getElementById('nameCount'); if(cnt)cnt.textContent=v.length+'/28';
-  document.querySelectorAll('#fontPills .font-pill').forEach(b=>{ b.textContent = v.trim() ? v.trim() : 'ตัวอย่าง'; });
+  const mode=isThaiText(v)?'th':(v.trim()?'en':(FONT_MODE||'th'));
+  if(mode!==FONT_MODE) buildFontOptions(mode);
 }
+try{ buildFontOptions('th'); }catch(e){}
 
 function buildMaterials(){
   state.group=document.getElementById('matGroup').value;
