@@ -896,17 +896,29 @@ async function mockGen(){
     const d=await r.json();
     if(d.url){
       let finalUrl=d.url;
-      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; finalUrl=await overlayThaiText(d.url, shopName, textColor, font, sizePct); }
+      if(d.needsOverlay){ box.innerHTML='<div>🖋️ '+t('กำลังวางฟอนต์ไทย...','Placing Thai font...')+'</div>'; const glow=/neon|backlit|glow/i.test(lighting); finalUrl=await overlayThaiText(d.url, shopName, textColor, font, sizePct, glow); }
       window.SM_MOCKUP=finalUrl;
       box.innerHTML='<img src="'+finalUrl+'" alt="mockup" style="max-width:100%;border-radius:10px">'
         +(d.remaining!=null?'<div class="muted" style="font-size:.8rem;margin-top:6px">'+t('ภาพฟรีเหลือวันนี้ ','Free samples left today: ')+d.remaining+'</div>':'');
+      // 💾 เก็บภาพไม่ให้หาย → Storage + lead (ลูกค้าออกแบบแล้ว ทีมงานตามปิดการขายได้)
+      try{
+        const sr=await fetch('https://signmaster-agents.neos-css01.workers.dev/save-mockup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:finalUrl,ref:'design-'+Date.now()})});
+        const sd=await sr.json().catch(()=>({}));
+        if(sd.path){
+          window.SM_MOCKUP_PATH=sd.path;
+          if(window.SB){
+            const desc=(isThai?('ไทย · ฟอนต์ '+font):('อังกฤษ · สไตล์ '+(styleHint||'AI')))+' · '+style+' · '+lighting+' · '+environment+' · '+aspect+' · ขนาด '+sizePct+'%';
+            SB.from('sm_leads').insert({name:null,phone:phone,job_type:'ออกแบบป้าย AI (mockup)',detail:'"'+shopName+'"\n'+desc+'\n@IMG='+sd.path,source:'mockup',status:'new'}).then(()=>{},()=>{});
+          }
+        }
+      }catch(e){}
     }
     else if(d.message){box.innerHTML='<div style="padding:6px">🤖<br><b>'+esc(d.message)+'</b></div>';}
     else{box.innerHTML='<div>⚠️ '+t('สร้างภาพไม่สำเร็จ ลองใหม่นะคะ','Failed, please try again')+'</div>';}
   }catch(e){box.innerHTML='<div>⚠️ '+t('เชื่อมต่อไม่ได้ ลองใหม่นะคะ','Connection error, try again')+'</div>';}
 }
 // วางฟอนต์ไทยทับป้ายเปล่า (ฝั่ง browser · ภาพ base64 ไม่ติด CORS) · ฟอนต์เลือกได้ + หลายบรรทัด + fit ในกรอบ
-async function overlayThaiText(imgSrc, text, color, fontName, sizePct){
+async function overlayThaiText(imgSrc, text, color, fontName, sizePct, glow){
   const frac = Math.max(0.4, Math.min(0.92, (Number(sizePct)||70)/100));
   const fam = fontName || 'Prompt';
   const wt  = fam==='Chonburi' ? '400' : '700';
@@ -937,14 +949,23 @@ async function overlayThaiText(imgSrc, text, color, fontName, sizePct){
       // เส้นขอบสีตรงข้ามความสว่างตัวอักษร → อ่านชัดทุกสีป้าย
       const hx=(color||'#ffffff').replace('#',''); const rr=parseInt(hx.substr(0,2),16)||255, gg=parseInt(hx.substr(2,2),16)||255, bb=parseInt(hx.substr(4,2),16)||255;
       const stroke=(0.299*rr+0.587*gg+0.114*bb)>140 ? 'rgba(18,18,18,.9)' : 'rgba(255,255,255,.92)';
-      ctx.lineJoin='round'; ctx.miterLimit=2;
+      ctx.lineJoin='round'; ctx.miterLimit=2; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
       const total=lines.length, y0=cy-((total-1)*fs*lh)/2;
       for(let i=0;i<total;i++){
-        const ly=y0+i*fs*lh;
-        ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=Math.round(fs*0.1); ctx.shadowOffsetY=2;
-        ctx.lineWidth=Math.max(2,Math.round(fs*0.15)); ctx.strokeStyle=stroke; ctx.strokeText(lines[i],cx,ly);
-        ctx.shadowColor='transparent';
-        ctx.fillStyle=color||'#ffffff'; ctx.fillText(lines[i],cx,ly);
+        const ly=y0+i*fs*lh, L=lines[i];
+        if(glow){
+          // โหมดนีออน: เรืองแสงหลายชั้น + ไส้สว่างกลาง (เหมือนป้ายไฟ LED)
+          ctx.shadowOffsetY=0; ctx.fillStyle=color||'#ffffff'; ctx.shadowColor=color||'#ffffff';
+          for(let g=0;g<3;g++){ ctx.shadowBlur=Math.round(fs*(0.6-g*0.17)); ctx.fillText(L,cx,ly); }
+          ctx.shadowBlur=Math.round(fs*0.12); ctx.fillStyle='#ffffff'; ctx.fillText(L,cx,ly);   // ไส้หลอดสว่าง
+          ctx.shadowColor='transparent';
+        } else {
+          // โหมดปกติ: ขอบเข้ม+เงา อ่านชัดทุกสีป้าย
+          ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=Math.round(fs*0.1); ctx.shadowOffsetY=2;
+          ctx.lineWidth=Math.max(2,Math.round(fs*0.15)); ctx.strokeStyle=stroke; ctx.strokeText(L,cx,ly);
+          ctx.shadowColor='transparent'; ctx.shadowOffsetY=0;
+          ctx.fillStyle=color||'#ffffff'; ctx.fillText(L,cx,ly);
+        }
       }
       resolve(c.toDataURL('image/jpeg',0.92));
     };
