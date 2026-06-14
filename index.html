@@ -894,8 +894,8 @@ async function overlayThaiText(imgSrc, text, color){
     img.onload=function(){
       const c=document.createElement('canvas'); c.width=img.naturalWidth||1024; c.height=img.naturalHeight||1024;
       const ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
-      const W=c.width,H=c.height, boxW=W*0.66, cx=W/2, cy=H*0.5;
-      let fs=Math.round(H*0.12); ctx.textAlign='center'; ctx.textBaseline='middle';
+      const W=c.width,H=c.height, boxW=W*0.84, cx=W/2, cy=H*0.5;
+      let fs=Math.round(H*0.2); ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.font='700 '+fs+'px '+FONT;
       while(ctx.measureText(text).width>boxW && fs>12){ fs-=2; ctx.font='700 '+fs+'px '+FONT; }
       // เส้นขอบให้อ่านชัดทุกสีป้าย → ขอบสีตรงข้ามความสว่างของตัวอักษร (สว่าง→ขอบเข้ม · เข้ม→ขอบขาว)
