@@ -907,7 +907,7 @@ async function askMarketing(analyze){
   if(analyze){context=topJobsContext();if(!context){toast('ยังไม่มีออเดอร์ให้วิเคราะห์ค่ะ');return;}if(!topic)topic='โปรโมตงานที่ขายดีที่สุดของร้าน';}
   card.style.display='';out.textContent='✍️ AI กำลังร่างให้...';src.textContent='';if(go)go.disabled=true;
   try{
-    const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:MKT_KIND,topic,context})});
+    const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify({kind:MKT_KIND,topic,context})});
     const d=await r.json();
     out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
     src.textContent=d.source==='dify'?'⚡ ร่างโดย AI (Dify)':'📋 เทมเพลตเริ่มต้น (ยังไม่เชื่อม Dify — ร่างสดได้เมื่อเชื่อมแล้ว)';
@@ -933,7 +933,7 @@ function clipClearSel(){CLIP_SEL=[];renderClipThumbs();}
 async function aiCaptionForClip(){
   const lbl={booth:'บูธ/อีเวนต์',inkjet:'งานอิงค์เจท ไวนิล/สติกเกอร์',sign:'ป้ายทุกชนิด',lightbox:'ตู้ไฟ'}[CLIP_CAT]||'งานป้าย';
   const inp=document.getElementById('clipHeadline'),old=inp.placeholder;inp.placeholder='✍️ AI กำลังคิดหัวคลิป...';
-  try{const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'caption',topic:'หัวคลิปสั้นๆ โปรโมท'+lbl+' (1 ประโยคสั้น เร้าใจ ไม่เกิน 8 คำ)'})});
+  try{const r=await fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify({kind:'caption',topic:'หัวคลิปสั้นๆ โปรโมท'+lbl+' (1 ประโยคสั้น เร้าใจ ไม่เกิน 8 คำ)'})});
     const d=await r.json();const line=((d.answer||'').split('\n').map(s=>s.replace(/^[#•\-\d\.\s]+/,'').trim()).filter(Boolean)[0]||'').replace(/["“”]/g,'');
     if(line)inp.value=line.slice(0,60);else toast('AI ไม่ตอบ ลองใหม่ค่ะ');
   }catch(e){toast('เชื่อม AI ไม่ได้ ลองใหม่ค่ะ');}
@@ -1005,9 +1005,9 @@ async function makeClip(){
   toast('🎬 คลิปเสร็จแล้วค่ะ! กดเล่นดู / ดาวน์โหลดไปโพสต์ได้เลย');
 }
 /* ===== AI วิดีโอ (เชื่อมบริการภายนอก · scaffold พร้อม เหลือใส่ key ใน worker /video-gen) ===== */
-function aivBuildPrompt(){
+async function aivBuildPrompt(){
   const inp=document.getElementById('aivPrompt');const old=inp.placeholder;inp.placeholder='✨ AI กำลังเขียน prompt...';
-  fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'campaign',topic:'เขียน video prompt ภาษาอังกฤษ 1-2 ประโยค (cinematic) สำหรับคลิปโฆษณางานป้าย/ตู้ไฟ/บูธ — ตอบเฉพาะ prompt'})})
+  fetch(AGENTS_WORKER+'/marketing',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify({kind:'campaign',topic:'เขียน video prompt ภาษาอังกฤษ 1-2 ประโยค (cinematic) สำหรับคลิปโฆษณางานป้าย/ตู้ไฟ/บูธ — ตอบเฉพาะ prompt'})})
     .then(r=>r.json()).then(d=>{const t=((d.answer||'').split('\n').map(s=>s.replace(/^[#•\-\d\.\s"]+/,'').trim()).filter(Boolean)[0]||'').replace(/["“”]/g,'');if(t)inp.value=t.slice(0,300);else toast('AI ไม่ตอบ ลองใหม่');inp.placeholder=old;})
     .catch(()=>{toast('เชื่อม AI ไม่ได้');inp.placeholder=old;});
 }
@@ -1147,7 +1147,7 @@ async function askManager(q){
   const topic=(typeof q==='string'?q:(document.getElementById('mgrAsk').value||'').trim());
   card.style.display='';out.textContent='👩‍💼 ลายลินกำลังดูข้อมูลร้าน...';src.textContent='';if(go)go.disabled=true;
   try{
-    const r=await fetch(AGENTS_WORKER+'/manager',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,context:managerContext()})});
+    const r=await fetch(AGENTS_WORKER+'/manager',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify({topic,context:managerContext()})});
     const d=await r.json();
     out.textContent=d.answer||'(ไม่มีผลลัพธ์)';
     src.textContent=d.source==='dify'?'⚡ ตอบโดยลายลิน (Dify)':'📋 สรุปเทมเพลต (เชื่อม Dify แล้วลายลินจะตอบคำถามอิสระได้)';
