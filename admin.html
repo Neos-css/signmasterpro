@@ -588,7 +588,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
       <div class="card">
         <h3>🤖 พลังคงเหลือต่อ Agent</h3>
-        <div class="csub" style="margin-bottom:18px">แต่ละ Agent มีถังงบแยก · หักตามต้นทุนจริง (tokens × ราคาโมเดล × เรตวันนี้ + ค่าแปลง) · กด <b>+ เติม</b> รายถังได้</div>
+        <div class="csub" style="margin-bottom:18px">แต่ละ Agent มีถังงบแยก · หักตามต้นทุนจริง (tokens × ราคาโมเดล × เรตวันนี้ รวม VAT 7% จากต้นทาง) · กด <b>+ เติม</b> รายถังได้</div>
         <div id="pwrBars" style="display:flex;flex-direction:column;gap:18px">
           <div class="empty">กำลังโหลด...</div>
         </div>
@@ -1519,10 +1519,10 @@ async function renderPower(){
   if(!barsEl)return;
   barsEl.innerHTML='<div class="empty">กำลังโหลด...</div>';
   let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ if(rateEl)rateEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; barsEl.innerHTML='<div class="empty">⚠️ เชื่อมต่อ worker ไม่ได้</div>'; return; }
-  const fx=Number(w.fx)||0, fee=Math.round((Number(w.fee_pct)||0)*100);
-  PWR_FX=fx;   // เก็บไว้ให้หน้าเติมบาทคำนวณพรีวิว/พรอมต์เพย์
+  const fx=Number(w.fx)||0, vat=Math.round((Number(w.vat_pct)||0)*100)||7;
+  PWR_FX=fx; PWR_VAT=vat;   // เก็บไว้ให้หน้าเติมบาทคำนวณพรีวิว/พรอมต์เพย์
   const td=new Date(); const dstr=td.getDate()+'/'+(td.getMonth()+1);
-  if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · อัปเดต '+dstr+' · รวมค่าแปลง '+fee+'% แล้ว';
+  if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · อัปเดต '+dstr+' · รวม VAT '+vat+'% (vendor LLM เก็บจากต้นทาง) แล้ว';
   const buckets=Array.isArray(w.buckets)?w.buckets:[];
   // alert จากถัง enabled ที่เหลือ % ต่ำสุด
   let worst=null;
@@ -1558,7 +1558,7 @@ async function renderPower(){
   }).join('') || '<div class="empty">ยังไม่มีถังพลัง</div>';
 }
 /* ===== เติมพลัง AI เป็นบาท (PromptPay + SlipOK) · R1 ===== */
-let PWR_FX=0;
+let PWR_FX=0, PWR_VAT=7;
 // 🔑 เลขพร้อมเพย์ที่ผูกบัญชี x-x-x3883-x (กฤษดา สุทีวรรน์ · branch SlipOK 67907) — ใส่เบอร์มือถือ 10 หลัก หรือเลขบัตร ปชช 13 หลัก
 const PROMPTPAY_ID='0626964155';                // เบอร์พร้อมเพย์ผูกบัญชี x3883 (กฤษดา · branch SlipOK 67907)
 const PROMPTPAY_NAME='นาย กฤษดา สุทีวรรน์';
@@ -1611,7 +1611,7 @@ function tuPick(v){
 function tuCustomIn(){ TU_AMT=parseInt(document.getElementById('tuCustom').value,10)||0; tuRender(); }
 function tuRender(){
   const amt=TU_AMT||0, fx=PWR_FX||0, rateEl=document.getElementById('tuRate');
-  if(amt>=200 && fx>0) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · เติม ฿'+amt.toLocaleString()+' → ได้เครดิต ~$'+(amt/fx).toFixed(2);
+  if(amt>=200 && fx>0) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ <span style="font-weight:400;color:var(--muted)">(รวม VAT '+PWR_VAT+'% ที่ vendor LLM เก็บจากต้นทาง)</span> · เติม ฿'+amt.toLocaleString()+' → ได้เครดิต ~$'+(amt/fx).toFixed(2);
   else rateEl.textContent = (amt>0&&amt<200)?'ขั้นต่ำ ฿200 ค่ะ':'';
   const qrWrap=document.getElementById('tuQrWrap'), slipWrap=document.getElementById('tuSlipWrap');
   if(amt>=200){
