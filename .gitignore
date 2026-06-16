@@ -25,6 +25,16 @@ _sign-stamp.*
 _sign*.png*
 _sign*.jpg*
 
+# ===== dev tools ภายใน (ไม่ publish) =====
+_preview_server.js
+_BACKUP_*
+.claude/
+
+# ===== source ภายใน (docs.html ฝัง base64 แล้ว · ไม่ต้องขึ้นเว็บ) =====
+_manual_img/
+_richmenu.png
+*.pdf
+
 # ===== OS / junk =====
 Thumbs.db
 desktop.ini

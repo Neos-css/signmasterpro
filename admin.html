@@ -308,6 +308,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="prices" class="admin-only"><span class="em">💰</span> ตั้งราคา</a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
+      <a data-v="docs"><span class="em">📖</span> คู่มือ &amp; บทความ</a>
     </nav>
     <div class="foot" id="sideFoot">🤖 ระบบโดย Comtech Solution<br>neos-css.com ✅</div>
   </aside>
@@ -320,7 +321,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
       <div class="acts">
         <button class="btn btn-ghost" onclick="reloadData()">🔄 รีเฟรช</button>
-        <button class="btn btn-line" onclick="toast('📤 ลายลินส่งสรุปเข้า LINE แล้ว (เดโม)')">📤 ส่งสรุป LINE</button>
+        <button class="btn btn-line" onclick="sendLineSummary(this)">📤 ส่งสรุป LINE</button>
         <button class="btn btn-ghost" onclick="logout()">🚪 ออกจากระบบ</button>
       </div>
     </div>
@@ -614,6 +615,17 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
+    <!-- ===== คู่มือ & บทความ ===== -->
+    <section class="view" id="view-docs">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line)">
+          <div class="csub" style="margin:0">📖 คู่มือใช้งานระบบ + บทความแนะนำทีม AI — สลับแท็บด้านบนในกรอบได้ · กดปุ่มเพื่อเปิดเต็มจอ/ปริ้นท์</div>
+          <button class="btn btn-line" onclick="window.open('docs.html','_blank')">↗ เปิดเต็มจอ / ปริ้นท์</button>
+        </div>
+        <iframe id="docsFrame" src="docs.html" title="คู่มือ & บทความ" style="width:100%;height:78vh;border:0;display:block"></iframe>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -862,7 +874,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้']};
+const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้'],docs:['📖 คู่มือ & บทความ','คู่มือใช้งานระบบ + บทความแนะนำทีม AI · อ่าน/ปริ้นท์ได้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -892,6 +904,49 @@ function renderAIRoom(){
 const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
 // token สิทธิ์ = session ของ admin ที่ login (รหัสเดียวกับ login · ไม่ต้องมีรหัสจัดการแยก)
 async function adminToken(){ try{ const {data}=await SB.auth.getSession(); return (data&&data.session)?data.session.access_token:''; }catch(e){ return ''; } }
+
+/* ===== ส่งสรุป Dashboard เข้ากลุ่ม LINE (ฟรี · ไม่เรียก AI · ตัวเลขจากระบบ) ===== */
+const MAIL_WORKER='https://signmaster-mail.neos-css01.workers.dev';
+function buildLineSummary(){
+  const {from,to}=bounds();
+  const vis=VISITS.filter(v=>v.date>=from&&v.date<=to), totalVisit=vis.reduce((a,v)=>a+v.n,0);
+  const agg={fb:0,google:0,direct:0,line:0,tiktok:0,ig:0}; vis.forEach(v=>{for(const k in agg)agg[k]+=v.sources[k];});
+  const leads=LEADS.filter(l=>l.date>=from&&l.date<=to);
+  const ordRange=ORDERS.filter(o=>o.created&&o.created>=from&&o.created<=to);
+  const revRange=ordRange.reduce((a,o)=>a+o.amount,0);
+  const prodCount=ORDERS.filter(o=>o.status==='prod').length;
+  const top=Object.entries(agg).sort((a,b)=>b[1]-a[1])[0];
+  const st=Object.values(agg).reduce((a,b)=>a+b,0);
+  const q=ORDERS.filter(o=>o.status==='new'||o.status==='prod'||o.status==='wait').slice(0,3);
+  const L=[];
+  L.push('📊 สรุปร้าน Signmaster Pro');
+  L.push('📅 '+fmt(from)+(RANGE==='today'?'':' – '+fmt(to)));
+  L.push('');
+  L.push('💵 ยอดขาย: ฿'+revRange.toLocaleString()+' ('+ordRange.length+' ออเดอร์)');
+  L.push('🙋 Lead ใหม่: '+leads.length+' ราย');
+  L.push('🏭 งานกำลังผลิต: '+prodCount+' งาน');
+  L.push('👁️ คนเข้าเว็บ: '+totalVisit.toLocaleString()+' คน');
+  if(top && top[1]>0 && st>0) L.push('📲 ช่องทางมาแรง: '+SRC_META[top[0]][1]+' '+Math.round(top[1]/st*100)+'%');
+  if(q.length){ L.push(''); L.push('🔝 คิวงานล่าสุด'); q.forEach(o=>L.push('• '+o.c+' · '+o.job+' — '+o.st)); }
+  L.push('');
+  L.push('— ลายลิน 💛');
+  return L.join('\n');
+}
+async function sendLineSummary(btn){
+  const text=buildLineSummary();
+  if(!confirm('ส่งสรุปนี้เข้ากลุ่ม LINE ทีมงาน?\n\n'+text)) return;
+  const old=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='⏳ กำลังส่ง...'; }
+  try{
+    const tok=await adminToken();
+    if(!tok){ toast('❌ ยังไม่ได้เข้าสู่ระบบ'); return; }
+    const r=await fetch(MAIL_WORKER+'/push-summary',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({text})});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok && d.ok) toast('📤 ส่งสรุปเข้ากลุ่ม LINE แล้ว ✅');
+    else toast('❌ ส่งไม่สำเร็จ: '+(d.error||('HTTP '+r.status)));
+  }catch(e){ toast('❌ ส่งไม่สำเร็จ: '+e); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent=old; } }
+}
 let MKT_KIND='promo';
 function renderMarketing(){try{renderClipThumbs();}catch(e){}/* แผงพร้อมใช้ + โหลด thumbnail รูปคลิป */}
 function mktKind(btn){MKT_KIND=btn.dataset.k;document.querySelectorAll('#mktKinds .imgtab').forEach(b=>b.classList.toggle('on',b===btn));}
