@@ -777,9 +777,11 @@ async function loadChats(){
   if(error){console.warn('chats',error);return;}
   const map={};
   (data||[]).forEach(r=>{const k=r.customer_key||r.customer_name||'guest';const d=r.created_at?new Date(r.created_at):new Date();
-    if(!map[k])map[k]={nm:r.customer_name||k,msgs:[],last:d,key:k};
+    if(!map[k])map[k]={nm:r.customer_name||k,msgs:[],last:d,key:k,ch:r.channel||'web'};
+    if(r.channel)map[k].ch=r.channel;
+    if(r.customer_name)map[k].nm=r.customer_name;
     map[k].msgs.push({r:r.role==='bot'?'bot':'user',m:r.message||'',t:hhmm(d)});map[k].last=d;});
-  CHATS=Object.values(map).sort((a,b)=>b.last-a.last).map(c=>({nm:c.nm,when:relTime(c.last),msgs:c.msgs,key:c.key,ip:CHAT_IP[c.key]||''}));
+  CHATS=Object.values(map).sort((a,b)=>b.last-a.last).map(c=>({nm:c.nm,when:relTime(c.last),msgs:c.msgs,key:c.key,ch:c.ch,ip:CHAT_IP[c.key]||''}));
 }
 async function loadChatIps(){
   if(!window.SB)return;
@@ -1322,12 +1324,13 @@ function renderOrders(){
   }).join(''):'<tr><td colspan="8"><div class="empty">ไม่พบออเดอร์</div></td></tr>';
   document.getElementById('ordSum').textContent=`${list.length} ออเดอร์`;
 }
+function chIcon(ch){return ch==='line'?'💚':ch==='facebook'?'📘':'🌐';}
 function renderChat(){
   const q=(document.getElementById('chatSearch').value||'').toLowerCase();
   const list=CHATS.filter(c=>c.nm.toLowerCase().includes(q));
-  document.getElementById('chatList').innerHTML=list.length?list.map((c,i)=>{const last=c.msgs[c.msgs.length-1];return `<div class="ci" onclick="openChat(${CHATS.indexOf(c)})"><div class="av">${esc(c.nm[0])}</div><div style="min-width:0"><div class="nm">${esc(c.nm)}</div><div class="pv">${esc(last.m)}</div></div><div class="meta">${c.when}<br><span class="cnt">${c.msgs.length} ข้อความ</span></div></div>`;}).join(''):'<div class="empty">ไม่พบบทสนทนา</div>';
+  document.getElementById('chatList').innerHTML=list.length?list.map((c,i)=>{const last=c.msgs[c.msgs.length-1];return `<div class="ci" onclick="openChat(${CHATS.indexOf(c)})"><div class="av">${esc(c.nm[0])}</div><div style="min-width:0"><div class="nm">${chIcon(c.ch)} ${esc(c.nm)}</div><div class="pv">${esc(last.m)}</div></div><div class="meta">${c.when}<br><span class="cnt">${c.msgs.length} ข้อความ</span></div></div>`;}).join(''):'<div class="empty">ไม่พบบทสนทนา</div>';
 }
-function openChat(i){const c=CHATS[i];document.getElementById('cmName').textContent=c.nm;
+function openChat(i){const c=CHATS[i];document.getElementById('cmName').textContent=chIcon(c.ch)+' '+c.nm;
   const ip=CHAT_IP[c.key]||c.ip||'',bar=document.getElementById('cmIp');
   if(bar){
     if(ip){const blocked=BLOCKED.has(ip);
