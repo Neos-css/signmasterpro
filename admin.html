@@ -636,9 +636,42 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
   <div class="modal-body" id="cmBody"></div>
 </div></div>
 
+<!-- ===== เติมพลัง AI เป็นบาท (PromptPay + SlipOK) · R1 ===== -->
+<div class="modal" id="topupModal"><div class="modal-card">
+  <div class="modal-head"><span style="font-size:1.3rem">⚡</span><div><b>เติมพลัง AI</b><div style="font-size:.76rem;opacity:.9" id="tuAgentLbl">—</div></div><span class="x" onclick="closeTopup()">×</span></div>
+  <div class="modal-body" id="tuBody">
+    <div style="font-weight:700;font-size:.86rem">1) เลือกยอดเติม <span style="color:var(--muted);font-weight:400">(ขั้นต่ำ ฿500)</span></div>
+    <div id="tuAmts" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn btn-ghost tu-amt" data-amt="500" onclick="tuPick(500)">฿500</button>
+      <button type="button" class="btn btn-ghost tu-amt" data-amt="1000" onclick="tuPick(1000)">฿1,000</button>
+      <button type="button" class="btn btn-ghost tu-amt" data-amt="2000" onclick="tuPick(2000)">฿2,000</button>
+      <button type="button" class="btn btn-ghost tu-amt" data-amt="custom" onclick="tuPick('custom')">กำหนดเอง</button>
+    </div>
+    <input type="number" id="tuCustom" min="500" step="100" placeholder="พิมพ์ยอด (≥500)" oninput="tuCustomIn()" style="display:none;padding:9px 11px;border:1px solid #d9dee6;border-radius:10px;font-size:.95rem">
+    <div id="tuRate" style="font-size:.82rem;color:var(--accent-deep);font-weight:700"></div>
+
+    <div id="tuQrWrap" style="display:none;background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:14px;text-align:center">
+      <div style="font-weight:700;font-size:.86rem;margin-bottom:8px">2) สแกนจ่ายด้วยแอปธนาคาร 📲</div>
+      <div id="tuQr" style="display:flex;justify-content:center"></div>
+      <div id="tuQrInfo" style="font-size:.8rem;color:var(--muted);margin-top:8px;line-height:1.5"></div>
+    </div>
+
+    <div id="tuSlipWrap" style="display:none">
+      <div style="font-weight:700;font-size:.86rem;margin-bottom:6px">3) โอนแล้วแนบสลิป 🧾</div>
+      <input type="file" id="tuSlip" accept="image/*" onchange="tuSlipPick()" style="width:100%;padding:9px;border:1px dashed #c3cad6;border-radius:10px;font-size:.85rem;background:#fff">
+      <div id="tuSlipName" style="font-size:.78rem;color:var(--muted);margin-top:4px"></div>
+    </div>
+
+    <div id="tuMsg" style="font-size:.84rem;display:none;padding:9px 11px;border-radius:10px"></div>
+    <button type="button" class="btn" id="tuSubmit" onclick="tuSubmit()" disabled style="width:100%;margin-top:4px">ตรวจสลิป + เติมพลัง</button>
+    <div style="font-size:.72rem;color:var(--muted);text-align:center">ระบบตรวจสลิปอัตโนมัติ (SlipOK) · ยอด+บัญชีปลายทางต้องตรง · กันสลิปซ้ำ</div>
+  </div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <input type="file" id="imgFile" accept="image/*" style="display:none">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script>/* session แอดมินแยกจากเว็บลูกค้า (storageKey ของตัวเอง) → login เป็นลูกค้าที่หน้าเว็บไม่ทับ session admin · จำ login ได้นาน */
@@ -1487,6 +1520,7 @@ async function renderPower(){
   barsEl.innerHTML='<div class="empty">กำลังโหลด...</div>';
   let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ if(rateEl)rateEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; barsEl.innerHTML='<div class="empty">⚠️ เชื่อมต่อ worker ไม่ได้</div>'; return; }
   const fx=Number(w.fx)||0, fee=Math.round((Number(w.fee_pct)||0)*100);
+  PWR_FX=fx;   // เก็บไว้ให้หน้าเติมบาทคำนวณพรีวิว/พรอมต์เพย์
   const td=new Date(); const dstr=td.getDate()+'/'+(td.getMonth()+1);
   if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · อัปเดต '+dstr+' · รวมค่าแปลง '+fee+'% แล้ว';
   const buckets=Array.isArray(w.buckets)?w.buckets:[];
@@ -1517,26 +1551,117 @@ async function renderPower(){
         <div style="background:${color};width:${off?0:pct}%;height:100%;border-radius:99px;transition:width .7s ease;min-width:${(!off&&pct>0)?'4px':'0'}"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--muted);margin-top:4px">
-        <span>เหลือ <b>$${rem.toFixed(2)}</b> / $${full.toFixed(0)}${off?'':' · ≈ ฿'+Math.round(remThb).toLocaleString()}</span>
+        <span>เหลือ <b>฿${Math.round(remThb).toLocaleString()}</b>${off?'':' / ฿'+Math.round(full*fx).toLocaleString()} <span style="color:#aab">· $${rem.toFixed(2)}</span></span>
         ${off?'<span>—</span>':`<button class="btn btn-ghost editor-only" style="padding:2px 10px;font-size:.7rem" onclick="topupAgent('${b.agent}','${esc(b.label||b.agent).replace(/'/g,'')}')">+ เติม</button>`}
       </div>
     </div>`;
   }).join('') || '<div class="empty">ยังไม่มีถังพลัง</div>';
 }
-function topupAgent(agent,label){
-  const usd=parseFloat(prompt('เติมพลังเข้าถัง "'+label+'" กี่ดอลลาร์? (ขั้นต่ำ $5)','10'));
-  if(!usd||isNaN(usd))return;
-  if(usd<5){toast('ขั้นต่ำ $5 ค่ะ');return;}
-  doTopup(agent,usd);
+/* ===== เติมพลัง AI เป็นบาท (PromptPay + SlipOK) · R1 ===== */
+let PWR_FX=0;
+// 🔑 เลขพร้อมเพย์ที่ผูกบัญชี x-x-x3883-x (กฤษดา สุทีวรรน์ · branch SlipOK 67907) — ใส่เบอร์มือถือ 10 หลัก หรือเลขบัตร ปชช 13 หลัก
+const PROMPTPAY_ID='0626964155';                // เบอร์พร้อมเพย์ผูกบัญชี x3883 (กฤษดา · branch SlipOK 67907)
+const PROMPTPAY_NAME='นาย กฤษดา สุทีวรรน์';
+let TU_AGENT='',TU_LABEL='',TU_AMT=0,TU_SLIPFILE=null;
+
+// ---- PromptPay QR payload (EMVCo + CRC16) ----
+function _ppF(id,val){ return id+String(val.length).padStart(2,'0')+val; }
+function _crc16(s){ let c=0xFFFF; for(let i=0;i<s.length;i++){ c^=s.charCodeAt(i)<<8; for(let j=0;j<8;j++){ c=(c&0x8000)?((c<<1)^0x1021):(c<<1); c&=0xFFFF; } } return c.toString(16).toUpperCase().padStart(4,'0'); }
+function promptPayPayload(target,amount){
+  const id=(target||'').replace(/[^0-9]/g,''); let acc;
+  if(id.length>=15) acc=_ppF('03',id);                       // e-wallet
+  else if(id.length===13) acc=_ppF('02',id);                 // บัตร ปชช/ภาษี
+  else { let p=id.replace(/^0/,'66'); p=('0000000000000'+p).slice(-13); acc=_ppF('01',p); } // เบอร์มือถือ
+  const merchant=_ppF('29', _ppF('00','A000000677010111')+acc);
+  let pl=_ppF('00','01')+_ppF('01', amount?'12':'11')+merchant+_ppF('53','764');
+  if(amount) pl+=_ppF('54', Number(amount).toFixed(2));
+  pl+=_ppF('58','TH')+'6304';
+  return pl+_crc16(pl);
 }
-async function doTopup(agent,usd){
-  const tok=await adminToken(); if(!tok){toast('กรุณาล็อกอินใหม่ค่ะ 🔒');return;}
-  fetch(AGENTS_WORKER+'/topup',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({agent:agent,usd:usd,note:'เติมจาก admin'})})
-    .then(r=>r.json().then(d=>({s:r.status,d}))).then(({s,d})=>{
-      if(s===401){toast('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒');return;}
-      if(d&&d.ok){toast('⚡ เติมพลัง $'+usd+' แล้ว! พลังเต็มใหม่ $'+Number(d.full_usd).toFixed(2));renderPower();}
-      else toast('เติมไม่สำเร็จค่ะ');
-    }).catch(()=>toast('เชื่อมต่อไม่ได้'));
+function renderQR(el,text){
+  el.innerHTML='';
+  try{ const qr=qrcode(0,'M'); qr.addData(text); qr.make(); el.innerHTML=qr.createSvgTag({cellSize:5,margin:2,scalable:true}); const svg=el.querySelector('svg'); if(svg){svg.setAttribute('width','190');svg.setAttribute('height','190');} }
+  catch(e){ el.innerHTML='<div style="color:#dc2626;font-size:.8rem">สร้าง QR ไม่ได้ (ลองรีเฟรช)</div>'; }
+}
+
+function topupAgent(agent,label){
+  TU_AGENT=agent; TU_LABEL=label; TU_AMT=0; TU_SLIPFILE=null;
+  document.getElementById('tuAgentLbl').textContent='ถัง: '+label;
+  const ci=document.getElementById('tuCustom'); ci.value=''; ci.style.display='none';
+  document.getElementById('tuSlip').value=''; document.getElementById('tuSlipName').textContent='';
+  document.querySelectorAll('.tu-amt').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});
+  document.getElementById('tuQrWrap').style.display='none';
+  document.getElementById('tuSlipWrap').style.display='none';
+  document.getElementById('tuRate').textContent='';
+  tuMsg('','none');
+  const btn=document.getElementById('tuSubmit'); btn.disabled=true; btn.textContent='ตรวจสลิป + เติมพลัง';
+  document.getElementById('topupModal').classList.add('open');
+  if(!PWR_FX) renderPower();   // ให้แน่ใจว่ามีเรตวันนี้
+}
+function closeTopup(){ document.getElementById('topupModal').classList.remove('open'); }
+function tuPick(v){
+  document.querySelectorAll('.tu-amt').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});
+  const sel=document.querySelector('.tu-amt[data-amt="'+v+'"]');
+  if(sel){ sel.style.background='var(--accent-deep)'; sel.style.color='#fff'; sel.style.borderColor='transparent'; }
+  const ci=document.getElementById('tuCustom');
+  if(v==='custom'){ ci.style.display='block'; ci.focus(); TU_AMT=parseInt(ci.value,10)||0; }
+  else { ci.style.display='none'; TU_AMT=parseInt(v,10)||0; }
+  tuRender();
+}
+function tuCustomIn(){ TU_AMT=parseInt(document.getElementById('tuCustom').value,10)||0; tuRender(); }
+function tuRender(){
+  const amt=TU_AMT||0, fx=PWR_FX||0, rateEl=document.getElementById('tuRate');
+  if(amt>=500 && fx>0) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · เติม ฿'+amt.toLocaleString()+' → ได้เครดิต ~$'+(amt/fx).toFixed(2);
+  else rateEl.textContent = (amt>0&&amt<500)?'ขั้นต่ำ ฿500 ค่ะ':'';
+  const qrWrap=document.getElementById('tuQrWrap'), slipWrap=document.getElementById('tuSlipWrap');
+  if(amt>=500){
+    qrWrap.style.display='block'; slipWrap.style.display='block';
+    const info=document.getElementById('tuQrInfo');
+    if(PROMPTPAY_ID){
+      renderQR(document.getElementById('tuQr'), promptPayPayload(PROMPTPAY_ID, amt));
+      info.innerHTML='พร้อมเพย์ · <b>'+esc(PROMPTPAY_NAME)+'</b><br>ยอด <b>฿'+amt.toLocaleString()+'</b> (ฝังในคิวอาร์แล้ว)';
+    } else {
+      document.getElementById('tuQr').innerHTML='<div style="font-size:.82rem;color:#b45309;line-height:1.6;padding:6px">⚠️ ยังไม่ได้ตั้งเลขพร้อมเพย์<br>โอนเข้าบัญชี <b>x-x-x3883-x</b><br>'+esc(PROMPTPAY_NAME)+'</div>';
+      info.innerHTML='ยอดที่ต้องโอน <b>฿'+amt.toLocaleString()+'</b>';
+    }
+  } else { qrWrap.style.display='none'; slipWrap.style.display='none'; }
+  tuUpdateSubmit();
+}
+function tuSlipPick(){
+  const f=document.getElementById('tuSlip').files[0];
+  TU_SLIPFILE=f||null;
+  document.getElementById('tuSlipName').textContent=f?('📎 '+f.name):'';
+  tuUpdateSubmit();
+}
+function tuUpdateSubmit(){ document.getElementById('tuSubmit').disabled=!(TU_AMT>=500 && !!TU_SLIPFILE); }
+function tuMsg(html,kind){
+  const el=document.getElementById('tuMsg');
+  if(kind==='none'||!html){ el.style.display='none'; return; }
+  el.style.display='block'; el.innerHTML=html;
+  if(kind==='ok'){ el.style.background='#dcfce7'; el.style.color='#15803d'; }
+  else { el.style.background='#fee2e2'; el.style.color='#b91c1c'; }
+}
+async function tuSubmit(){
+  if(!(TU_AMT>=500)){ toast('เลือกยอด ≥ ฿500 ก่อนค่ะ'); return; }
+  if(!TU_SLIPFILE){ toast('แนบสลิปก่อนนะคะ 🧾'); return; }
+  const tok=await adminToken(); if(!tok){ toast('กรุณาล็อกอินใหม่ค่ะ 🔒'); return; }
+  const btn=document.getElementById('tuSubmit'); btn.disabled=true; const old=btn.textContent; btn.textContent='กำลังตรวจสลิป… ⏳';
+  tuMsg('','none');
+  const fd=new FormData(); fd.append('agent',TU_AGENT); fd.append('amount_thb',String(TU_AMT)); fd.append('slip',TU_SLIPFILE);
+  try{
+    const r=await fetch(AGENTS_WORKER+'/topup-baht',{method:'POST',headers:{'Authorization':'Bearer '+tok},body:fd});
+    const d=await r.json().catch(()=>({}));
+    if(r.status===401){ tuMsg('หมดสิทธิ์ — ล็อกอินใหม่ค่ะ 🔒','err'); btn.disabled=false; btn.textContent=old; return; }
+    if(d&&d.ok){
+      const warn = d.mother_synced===false ? '<br><span style="color:#b45309">⚠️ ขึ้นถังร้านแล้ว แต่ sync ศูนย์กลางไม่ผ่าน (แจ้งทราย)</span>' : '';
+      tuMsg('✅ เติมสำเร็จ! ฿'+Number(d.amount_thb).toLocaleString()+' → +$'+Number(d.amount_usd).toFixed(2)+' เข้าถังแล้วค่ะ'+warn,'ok');
+      toast('⚡ เติมพลังสำเร็จ ฿'+Number(d.amount_thb).toLocaleString());
+      setTimeout(()=>{ closeTopup(); renderPower(); }, 1700);
+    } else {
+      tuMsg((d&&d.message)||'ตรวจสลิปไม่ผ่านค่ะ ลองใหม่นะคะ','err');
+      btn.disabled=false; btn.textContent=old;
+    }
+  }catch(e){ tuMsg('เชื่อมต่อไม่ได้ค่ะ ลองใหม่นะคะ','err'); btn.disabled=false; btn.textContent=old; }
 }
 function _fmtDT(s){if(!s)return '<span style="color:#aab">—</span>';const d=new Date(s);if(isNaN(d))return '<span style="color:#aab">—</span>';const same=d.toDateString()===new Date().toDateString();const t=d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});return same?('วันนี้ '+t):(d.getDate()+'/'+(d.getMonth()+1)+' '+t);}
 function _isOnline(ls){return ls&&(Date.now()-new Date(ls).getTime())<3*60000;}
