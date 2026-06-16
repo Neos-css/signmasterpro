@@ -640,14 +640,14 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 <div class="modal" id="topupModal"><div class="modal-card">
   <div class="modal-head"><span style="font-size:1.3rem">⚡</span><div><b>เติมพลัง AI</b><div style="font-size:.76rem;opacity:.9" id="tuAgentLbl">—</div></div><span class="x" onclick="closeTopup()">×</span></div>
   <div class="modal-body" id="tuBody">
-    <div style="font-weight:700;font-size:.86rem">1) เลือกยอดเติม <span style="color:var(--muted);font-weight:400">(ขั้นต่ำ ฿500)</span></div>
+    <div style="font-weight:700;font-size:.86rem">1) เลือกยอดเติม <span style="color:var(--muted);font-weight:400">(ขั้นต่ำ ฿200)</span></div>
     <div id="tuAmts" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn btn-ghost tu-amt" data-amt="200" onclick="tuPick(200)">฿200</button>
       <button type="button" class="btn btn-ghost tu-amt" data-amt="500" onclick="tuPick(500)">฿500</button>
       <button type="button" class="btn btn-ghost tu-amt" data-amt="1000" onclick="tuPick(1000)">฿1,000</button>
-      <button type="button" class="btn btn-ghost tu-amt" data-amt="2000" onclick="tuPick(2000)">฿2,000</button>
       <button type="button" class="btn btn-ghost tu-amt" data-amt="custom" onclick="tuPick('custom')">กำหนดเอง</button>
     </div>
-    <input type="number" id="tuCustom" min="500" step="100" placeholder="พิมพ์ยอด (≥500)" oninput="tuCustomIn()" style="display:none;padding:9px 11px;border:1px solid #d9dee6;border-radius:10px;font-size:.95rem">
+    <input type="number" id="tuCustom" min="200" step="100" placeholder="พิมพ์ยอด (≥200)" oninput="tuCustomIn()" style="display:none;padding:9px 11px;border:1px solid #d9dee6;border-radius:10px;font-size:.95rem">
     <div id="tuRate" style="font-size:.82rem;color:var(--accent-deep);font-weight:700"></div>
 
     <div id="tuQrWrap" style="display:none;background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:14px;text-align:center">
@@ -1611,10 +1611,10 @@ function tuPick(v){
 function tuCustomIn(){ TU_AMT=parseInt(document.getElementById('tuCustom').value,10)||0; tuRender(); }
 function tuRender(){
   const amt=TU_AMT||0, fx=PWR_FX||0, rateEl=document.getElementById('tuRate');
-  if(amt>=500 && fx>0) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · เติม ฿'+amt.toLocaleString()+' → ได้เครดิต ~$'+(amt/fx).toFixed(2);
-  else rateEl.textContent = (amt>0&&amt<500)?'ขั้นต่ำ ฿500 ค่ะ':'';
+  if(amt>=200 && fx>0) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · เติม ฿'+amt.toLocaleString()+' → ได้เครดิต ~$'+(amt/fx).toFixed(2);
+  else rateEl.textContent = (amt>0&&amt<200)?'ขั้นต่ำ ฿200 ค่ะ':'';
   const qrWrap=document.getElementById('tuQrWrap'), slipWrap=document.getElementById('tuSlipWrap');
-  if(amt>=500){
+  if(amt>=200){
     qrWrap.style.display='block'; slipWrap.style.display='block';
     const info=document.getElementById('tuQrInfo');
     if(PROMPTPAY_ID){
@@ -1633,7 +1633,7 @@ function tuSlipPick(){
   document.getElementById('tuSlipName').textContent=f?('📎 '+f.name):'';
   tuUpdateSubmit();
 }
-function tuUpdateSubmit(){ document.getElementById('tuSubmit').disabled=!(TU_AMT>=500 && !!TU_SLIPFILE); }
+function tuUpdateSubmit(){ document.getElementById('tuSubmit').disabled=!(TU_AMT>=200 && !!TU_SLIPFILE); }
 function tuMsg(html,kind){
   const el=document.getElementById('tuMsg');
   if(kind==='none'||!html){ el.style.display='none'; return; }
@@ -1642,7 +1642,7 @@ function tuMsg(html,kind){
   else { el.style.background='#fee2e2'; el.style.color='#b91c1c'; }
 }
 async function tuSubmit(){
-  if(!(TU_AMT>=500)){ toast('เลือกยอด ≥ ฿500 ก่อนค่ะ'); return; }
+  if(!(TU_AMT>=200)){ toast('เลือกยอด ≥ ฿200 ก่อนค่ะ'); return; }
   if(!TU_SLIPFILE){ toast('แนบสลิปก่อนนะคะ 🧾'); return; }
   const tok=await adminToken(); if(!tok){ toast('กรุณาล็อกอินใหม่ค่ะ 🔒'); return; }
   const btn=document.getElementById('tuSubmit'); btn.disabled=true; const old=btn.textContent; btn.textContent='กำลังตรวจสลิป… ⏳';
