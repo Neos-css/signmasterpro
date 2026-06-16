@@ -1521,9 +1521,11 @@ async function renderPower(){
   let w; try{ w=await (await fetch(AGENTS_WORKER+'/wallet')).json(); }catch(e){ if(rateEl)rateEl.textContent='⚠️ เชื่อมต่อ worker ไม่ได้'; barsEl.innerHTML='<div class="empty">⚠️ เชื่อมต่อ worker ไม่ได้</div>'; return; }
   const fx=Number(w.fx)||0, vat=Math.round((Number(w.vat_pct)||0)*100)||7;
   PWR_FX=fx; PWR_VAT=vat;   // เก็บไว้ให้หน้าเติมบาทคำนวณพรีวิว/พรอมต์เพย์
-  const td=new Date(); const dstr=td.getDate()+'/'+(td.getMonth()+1);
-  if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · อัปเดต '+dstr+' · รวม VAT '+vat+'% (vendor LLM เก็บจากต้นทาง) แล้ว';
-  const buckets=Array.isArray(w.buckets)?w.buckets:[];
+  if(rateEl) rateEl.innerHTML='💱 เรตวันนี้ <b>'+fx.toFixed(2)+'</b> บาท/$ · รวม VAT '+vat+'% (vendor LLM เก็บจากต้นทาง) แล้ว';
+  let buckets=Array.isArray(w.buckets)?w.buckets.slice():[];
+  // Graphic (image) ยังไม่ได้ใช้ → โชว์เทา/ปิด/ไม่มีปุ่มเติม + ดันลงล่างสุด
+  buckets.forEach(b=>{ if(b.agent==='image') b.enabled=false; });
+  buckets=buckets.filter(b=>b.agent!=='image').concat(buckets.filter(b=>b.agent==='image'));
   // alert จากถัง enabled ที่เหลือ % ต่ำสุด
   let worst=null;
   buckets.filter(b=>b.enabled).forEach(b=>{const full=Number(b.full_usd)||0,rem=full-(Number(b.used_usd)||0);const pct=full>0?rem/full*100:0;if(worst===null||pct<worst.pct)worst={pct,b};});
