@@ -1528,7 +1528,7 @@ async function renderPower(){
   buckets=buckets.filter(b=>b.agent!=='image').concat(buckets.filter(b=>b.agent==='image'));
   // alert จากถัง enabled ที่เหลือ % ต่ำสุด
   let worst=null;
-  buckets.filter(b=>b.enabled).forEach(b=>{const full=Number(b.full_usd)||0,rem=full-(Number(b.used_usd)||0);const pct=full>0?rem/full*100:0;if(worst===null||pct<worst.pct)worst={pct,b};});
+  buckets.filter(b=>b.enabled).forEach(b=>{const full=Number(b.full_usd)||0,rem=full-(Number(b.used_usd)||0),cap=Number(b.cap_usd)||full;const pct=cap>0?rem/cap*100:0;if(worst===null||pct<worst.pct)worst={pct,b};});
   if(worst){
     const m=PWR_AGENT_META[worst.b.agent]||{emoji:''};
     const A = worst.pct<=0 ? ['lv-crit','🚨','ถังพลัง '+m.emoji+' '+worst.b.label+' หมดแล้วค่ะ 💔 รีบเติมนะคะ ไม่งั้น Agent ตัวนี้หยุดทำงาน 🙏']
@@ -1541,7 +1541,8 @@ async function renderPower(){
   barsEl.innerHTML = buckets.map(b=>{
     const meta=PWR_AGENT_META[b.agent]||{emoji:'🔋',sub:''};
     const full=Number(b.full_usd)||0, usedU=Number(b.used_usd)||0, rem=Math.max(0,full-usedU);
-    const pct=full>0?Math.round(rem/full*100):0;
+    const cap=Number(b.cap_usd)||full;                 // โมเดล 3 ค่า: %=คงเหลือ÷ความจุ
+    const pct=cap>0?Math.round(rem/cap*100):0;
     const off=!b.enabled, color=off?'#94a3b8':_pwrColor(pct);
     const remThb=rem*fx;
     return `<div style="opacity:${off?0.55:1}">
@@ -1553,7 +1554,7 @@ async function renderPower(){
         <div style="background:${color};width:${off?0:pct}%;height:100%;border-radius:99px;transition:width .7s ease;min-width:${(!off&&pct>0)?'4px':'0'}"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--muted);margin-top:4px">
-        <span>เหลือ <b>฿${Math.round(remThb).toLocaleString()}</b>${off?'':' / ฿'+Math.round(full*fx).toLocaleString()} <span style="color:#aab">· $${rem.toFixed(2)}</span></span>
+        <span>เหลือ <b>฿${Math.round(remThb).toLocaleString()}</b>${off?'':' / ฿'+Math.round(cap*fx).toLocaleString()} <span style="color:#aab">· $${rem.toFixed(2)}</span></span>
         ${off?'<span>—</span>':`<button class="btn btn-ghost editor-only" style="padding:2px 10px;font-size:.7rem" onclick="topupAgent('${b.agent}','${esc(b.label||b.agent).replace(/'/g,'')}')">+ เติม</button>`}
       </div>
     </div>`;
