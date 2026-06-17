@@ -165,8 +165,8 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);bac
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .wz-step h3{font-size:1.4rem;font-weight:700;margin-bottom:4px}
 .wz-step .hint{color:var(--muted);margin-bottom:22px}
-.choice{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.choice .opt{border:2px solid var(--line);border-radius:16px;padding:28px 22px;text-align:center;cursor:pointer;transition:.2s}
+.choice{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.choice .opt{border:2px solid var(--line);border-radius:16px;padding:28px 22px;text-align:center;cursor:pointer;transition:.2s;flex:0 1 260px}
 .choice .opt:hover{border-color:var(--accent);background:#fff7f3}
 .choice .opt.sel{border-color:var(--accent);background:#fff2eb;box-shadow:0 0 0 4px rgba(255,90,31,.12)}
 .choice .opt .em{font-size:2.6rem}
