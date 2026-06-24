@@ -1460,23 +1460,27 @@ function renderChat(){
   const list=CHATS.filter(c=>c.nm.toLowerCase().includes(q));
   document.getElementById('chatList').innerHTML=list.length?list.map((c,i)=>{const last=c.msgs[c.msgs.length-1];return `<div class="ci" onclick="openChat(${CHATS.indexOf(c)})"><div class="av">${esc(c.nm[0])}</div><div style="min-width:0"><div class="nm">${chIcon(c.ch)} ${esc(c.nm)}</div><div class="pv">${esc(last.m)}</div></div><div class="meta">${c.when}<br><span class="cnt">${c.msgs.length} ข้อความ</span></div></div>`;}).join(''):'<div class="empty">ไม่พบบทสนทนา</div>';
 }
+// คีย์สำหรับบล็อกแชต: เว็บ=IP · FB/LINE=channel key (FB ไม่มี IP → บล็อกด้วย psid/userId แทน · เก็บใน sm_blocked.ip เหมือนกัน)
+function chatBlockKey(c){return (c.ch==='line'||c.ch==='facebook')?(c.key||''):(CHAT_IP[c.key]||c.ip||'');}
 function openChat(i){const c=CHATS[i];document.getElementById('cmName').textContent=chIcon(c.ch)+' '+c.nm;
-  const ip=CHAT_IP[c.key]||c.ip||'',bar=document.getElementById('cmIp');
+  const isCh=(c.ch==='line'||c.ch==='facebook'),key=chatBlockKey(c),bar=document.getElementById('cmIp');
   if(bar){
-    if(ip){const blocked=BLOCKED.has(ip);
-      bar.innerHTML=`<span style="font-family:monospace;color:${blocked?'#fca5a5':'#cbd5e1'}">IP: ${esc(ip)}</span>`+(blocked
+    if(key){const blocked=BLOCKED.has(key);
+      const lbl=isCh?(c.ch==='facebook'?'📘 ผู้ใช้ Facebook':'💚 ผู้ใช้ LINE'):('IP: '+esc(key));
+      const btnTxt=isCh?(c.ch==='facebook'?'🚫 บล็อกผู้ใช้ FB นี้':'🚫 บล็อกผู้ใช้ LINE นี้'):'🚫 บล็อก IP นี้';
+      bar.innerHTML=`<span style="font-family:monospace;color:${blocked?'#fca5a5':'#cbd5e1'}">${lbl}</span>`+(blocked
         ? `<span class="tag" style="background:#7f1d1d;color:#fecaca">🚫 ถูกบล็อก</span><button class="btn btn-ghost" style="padding:3px 9px;font-size:.74rem" onclick="unblockChat(${i})">✅ ปลดบล็อก</button>`
-        : `<button class="btn btn-ghost" style="padding:3px 9px;font-size:.74rem;color:#fca5a5" onclick="blockChat(${i})">🚫 บล็อก IP นี้</button>`);
-    } else { bar.innerHTML='<span style="color:#64748b">ไม่มี IP บันทึก (แชตก่อนเปิดระบบเก็บ IP)</span>'; }
+        : `<button class="btn btn-ghost" style="padding:3px 9px;font-size:.74rem;color:#fca5a5" onclick="blockChat(${i})">${btnTxt}</button>`);
+    } else { bar.innerHTML='<span style="color:#64748b">ไม่มีข้อมูลให้บล็อก (เว็บ: แชตก่อนเปิดระบบเก็บ IP)</span>'; }
   }
   document.getElementById('cmBody').innerHTML=c.msgs.map(m=>`<div class="msg ${m.r}">${esc(m.m)}<span class="t">${m.t}</span></div>`).join('');document.getElementById('chatModal').classList.add('open');}
-async function blockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(!ip){toast('แชตนี้ไม่มี IP บันทึก');return;}
-  if(!confirm('บล็อก IP '+ip+' ('+c.nm+') ?\nคนนี้จะแชต/gen ภาพ/login ไม่ได้'))return;
+async function blockChat(i){const c=CHATS[i],key=chatBlockKey(c);if(!key){toast('แชตนี้ไม่มีข้อมูลให้บล็อก');return;}
+  if(!confirm('บล็อก '+c.nm+' ?\nคนนี้จะคุยกับน้องอิงค์ไม่ได้อีก'))return;
   const by='admin:'+((CURRENT_USER&&CURRENT_USER.email)||'');
-  const {error}=await SB.from('sm_blocked').upsert({ip,member_name:c.nm,reason:'chat',blocked_by:by},{onConflict:'ip'});
+  const {error}=await SB.from('sm_blocked').upsert({ip:key,member_name:c.nm,reason:'chat:'+(c.ch||'web'),blocked_by:by},{onConflict:'ip'});
   if(error){toast('บล็อกไม่สำเร็จ: '+(error.message||''));return;}
-  BLOCKED.add(ip);openChat(i);toast('🚫 บล็อก '+ip+' แล้วค่ะ');}
-async function unblockChat(i){const c=CHATS[i],ip=CHAT_IP[c.key]||c.ip||'';if(ip)await unblockIP(ip);openChat(i);}
+  BLOCKED.add(key);openChat(i);toast('🚫 บล็อก '+c.nm+' แล้วค่ะ');}
+async function unblockChat(i){const c=CHATS[i],key=chatBlockKey(c);if(key)await unblockIP(key);openChat(i);}
 /* ===== ตั้งราคา (อ่าน/เขียน KV ผ่าน worker /price) ===== */
 async function renderPrices(){
   const box=document.getElementById('priceBody'); if(!box)return;
