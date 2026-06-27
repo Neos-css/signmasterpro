@@ -317,7 +317,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
     <div class="top">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="burger" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
-        <div><h2 id="vTitle">สวัสดีค่ะ คุณนัท 👋</h2><div class="sub" id="vSub"></div></div>
+        <div><h2 id="vTitle">สวัสดีค่ะ เจ้านาย 👋</h2><div class="sub" id="vSub"></div></div>
       </div>
       <div class="acts">
         <button class="btn btn-ghost" onclick="reloadData()">🔄 รีเฟรช</button>
@@ -762,7 +762,7 @@ async function enterApp(){
   document.getElementById('app').style.display='grid';
   applyRole(CURRENT_USER.role);
   document.getElementById('sideFoot').innerHTML='🤖 neos-css.com · Comtech Solution<br>👤 '+esc(CURRENT_USER.email);
-  TITLES.dash[0]='สวัสดีค่ะ '+esc(CURRENT_USER.name)+' 👋';
+  TITLES.dash[0]='สวัสดีค่ะ เจ้านาย 👋';
   document.getElementById('vTitle').textContent=TITLES.dash[0];
   await loadAll();
   init();
@@ -949,7 +949,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ คุณนัท 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้'],docs:['📖 คู่มือ & บทความ','คู่มือใช้งานระบบ + บทความแนะนำทีม AI · อ่าน/ปริ้นท์ได้']};
+const TITLES={dash:['สวัสดีค่ะ เจ้านาย 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้'],docs:['📖 คู่มือ & บทความ','คู่มือใช้งานระบบ + บทความแนะนำทีม AI · อ่าน/ปริ้นท์ได้']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
