@@ -692,6 +692,20 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
         </div>
         <div id="kbMsg" class="csub" style="margin-bottom:10px"></div>
         <div id="kbSrcList"><div class="csub">กำลังโหลด…</div></div>
+
+        <h3 style="margin-top:22px;font-size:1rem">✍️ วางข้อมูลเอง <span style="font-weight:400;color:var(--muted);font-size:.8rem">— พิมพ์/วางข้อมูลที่ไม่ได้อยู่บนเว็บ (จุดขาย/วัสดุ/ราคา/FAQ) · ระบบหั่นชิ้น + ให้ลายลินค้นเองอัตโนมัติ</span></h3>
+        <textarea id="kbText" placeholder="พิมพ์หรือวางข้อมูลที่นี่..." style="width:100%;min-height:90px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">
+          <input id="kbTextTitle" placeholder="ชื่อหัวข้อ (เช่น ราคาป้ายไวนิล)" style="flex:1;min-width:200px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
+          <select id="kbTextType" style="padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
+            <option value="product">จุดขาย/บริการ</option>
+            <option value="faq">FAQ/คู่มือ</option>
+            <option value="competitor">คู่แข่ง</option>
+            <option value="news">ข่าว/เทรนด์</option>
+          </select>
+          <button class="btn btn-pri" onclick="kbAddText()">+ เก็บเข้าถัง</button>
+        </div>
+
         <h3 style="margin-top:22px;font-size:1rem">📚 ② ความรู้ในถัง <span style="font-weight:400;color:var(--muted);font-size:.8rem">— เนื้อหาที่ดึงจากแหล่งข้างบนมาแล้ว ตัดเป็นชิ้นให้ลายลินค้น · ระบบทำให้เอง ดูเฉยๆ (1 แหล่ง = หลายชิ้น)</span></h3>
         <div id="kbItemList"><div class="csub">กำลังโหลด…</div></div>
       </div>
@@ -1037,6 +1051,10 @@ async function adminToken(){ try{ const {data}=await SB.auth.getSession(); retur
 
 /* ===== 🧠 คลังความรู้ลายลิน (RAG) — เรียก signmaster-agents /kb/* ด้วย session token ===== */
 const KB_TMAP={product:'จุดขาย',faq:'FAQ',competitor:'คู่แข่ง',news:'ข่าว'};
+function kbDomain(u){ try{ return u==='manual' ? 'ใส่เอง' : new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u||''; } }
+function kbBaseTitle(t){ return String(t||'').replace(/\s*\(\d+\/\d+\)\s*$/,'').trim(); }
+function kbCleanTitle(t,u){ t=kbBaseTitle(t); return (!t || t.indexOf('???')>=0) ? kbDomain(u) : t; }
+var kbGroupsCache=[];
 async function kbApi(path,body){ try{ const r=await fetch(AGENTS_WORKER+path,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify(body||{})}); return await r.json().catch(()=>({})); }catch(e){ return {error:String(e)}; } }
 function kbMsg(m){const e=document.getElementById('kbMsg');if(e)e.textContent=m||'';}
 function kbDate(s){try{return s?new Date(s).toLocaleDateString('th-TH'):'';}catch(e){return'';}}
@@ -1047,18 +1065,29 @@ async function renderKB(){
     if(s.last_synced&&(!last||s.last_synced>last))last=s.last_synced;
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)">'
       +'<span style="font-size:.72rem;padding:2px 8px;border-radius:6px;background:#f0f2f5">'+(KB_TMAP[s.type]||s.type)+'</span>'
-      +'<div style="flex:1;min-width:0"><div style="font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(s.title||s.url)+'</div><div class="csub" style="font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.url+' · sync: '+(s.last_synced?kbDate(s.last_synced):'ยังไม่ sync')+'</div></div>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+kbCleanTitle(s.title,s.url)+'</div><div class="csub" style="font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.url+' · sync: '+(s.last_synced?kbDate(s.last_synced):'ยังไม่ sync')+'</div></div>'
       +'<button class="btn btn-ghost" style="padding:4px 10px;font-size:.78rem" onclick="kbDelSrc(\''+s.id+'\')">ลบ</button></div>';
   }).join(''):'<div class="csub">ยังไม่มีแหล่งข้อมูล — เพิ่ม URL ด้านบนแล้วกด sync</div>';
   document.getElementById('kbLastSync').textContent=last?kbDate(last):'—';
   const kd=await kbApi('/kb/list',{});const items=(kd&&kd.items)||[];
   document.getElementById('kbTotal').textContent=items.length;
-  document.getElementById('kbItemList').innerHTML=items.length?items.slice(0,40).map(function(it){
-    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem">'
-      +'<span style="font-size:.72rem;padding:2px 8px;border-radius:6px;background:#f0f2f5">'+(KB_TMAP[it.source_type]||it.source_type)+'</span>'
-      +'<div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(it.title||'(ไม่มีชื่อ)')+'</div>'
-      +'<span class="csub" style="font-size:.72rem">'+kbDate(it.fetched_at)+'</span></div>';
-  }).join(''):'<div class="csub">ยังไม่มีความรู้ — เพิ่มแหล่งแล้วกด sync</div>';
+  // รวมชิ้นเป็นกลุ่มตามแหล่ง (ดูง่าย ไม่รก · 1 แหล่ง = หลายชิ้น)
+  var groups={};
+  items.forEach(function(it){
+    var isWeb=it.source_url&&it.source_url!=='manual';
+    var key=isWeb?it.source_url:('manual:'+kbBaseTitle(it.title));
+    if(!groups[key])groups[key]={key:key,type:it.source_type,name:isWeb?kbDomain(it.source_url):(kbCleanTitle(it.title,it.source_url)||'บันทึกใส่เอง'),manual:!isWeb,n:0,date:it.fetched_at};
+    groups[key].n++;
+    if(it.fetched_at>groups[key].date)groups[key].date=it.fetched_at;
+  });
+  kbGroupsCache=Object.keys(groups).map(function(k){return groups[k];}).sort(function(a,b){return a.date<b.date?1:-1;});
+  document.getElementById('kbItemList').innerHTML=kbGroupsCache.length?kbGroupsCache.map(function(g,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.88rem">'
+      +'<span style="font-size:.72rem;padding:2px 8px;border-radius:6px;background:#f0f2f5">'+(KB_TMAP[g.type]||g.type)+'</span>'
+      +'<div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(g.manual?'📝 ':'🌐 ')+g.name+'</div>'
+      +'<span class="csub" style="font-size:.72rem;white-space:nowrap">'+g.n+' ชิ้น · '+kbDate(g.date)+'</span>'
+      +'<button class="btn btn-ghost" style="padding:3px 9px;font-size:.78rem" onclick="kbDelGroup('+i+')">ลบ</button></div>';
+  }).join(''):'<div class="csub">ยังไม่มีความรู้ — เพิ่มแหล่งแล้วกด sync หรือวางข้อมูลเอง</div>';
 }
 async function kbAddSrc(){
   const url=document.getElementById('kbUrl').value.trim();if(!url){kbMsg('⚠️ ใส่ URL ก่อน');return;}
@@ -1068,6 +1097,23 @@ async function kbAddSrc(){
   else kbMsg('❌ เพิ่มไม่สำเร็จ'+(r&&r.error?' ('+r.error+')':''));
 }
 async function kbDelSrc(id){ if(!confirm('ลบแหล่งนี้? (ความรู้ที่ sync มาแล้วยังอยู่)'))return; const r=await kbApi('/kb/sources',{action:'del',id:id}); if(r&&r.ok)renderKB();else kbMsg('❌ ลบไม่สำเร็จ'); }
+async function kbAddText(){
+  const content=document.getElementById('kbText').value.trim();
+  if(!content){kbMsg('⚠️ วางเนื้อหาก่อน');return;}
+  const title=document.getElementById('kbTextTitle').value.trim();
+  const type=document.getElementById('kbTextType').value;
+  kbMsg('กำลังบันทึกเข้าถัง…');
+  const r=await kbApi('/kb/addtext',{title:title,content:content,source_type:type});
+  if(r&&r.ok){document.getElementById('kbText').value='';document.getElementById('kbTextTitle').value='';kbMsg('✅ บันทึกแล้ว — หั่นเป็น '+r.chunks+' ชิ้น ให้ลายลินค้นได้ทันที');renderKB();}
+  else kbMsg('❌ บันทึกไม่สำเร็จ'+(r&&r.error?' ('+r.error+')':''));
+}
+async function kbDelGroup(i){
+  var g=kbGroupsCache[i]; if(!g)return;
+  if(!confirm('ลบความรู้กลุ่มนี้ "'+g.name+'" ('+g.n+' ชิ้น)?'))return;
+  kbMsg('กำลังลบ…');
+  var r=await kbApi('/kb/delitem', g.manual?{key_prefix:g.key}:{source_url:g.key});
+  if(r&&r.ok){kbMsg('✅ ลบแล้ว');renderKB();}else kbMsg('❌ ลบไม่สำเร็จ'+(r&&r.error?' ('+r.error+')':''));
+}
 async function kbSyncNow(){
   const b=document.getElementById('kbSyncBtn');const o=b.textContent;b.disabled=true;b.textContent='⏳ sync…';
   kbMsg('กำลัง sync จากทุกแหล่ง สักครู่…');const r=await kbApi('/kb/sync',{});
