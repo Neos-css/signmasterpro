@@ -402,11 +402,16 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
 
     <!-- ===== AI MARKETING ===== -->
     <section class="view" id="view-airoom">
-      <div class="imgtabs" id="aiTabs" style="margin-bottom:6px">
-        <button class="imgtab on" onclick="aiTab('marketing',this)">📣 การตลาด</button>
-        <button class="imgtab" onclick="aiTab('inventory',this)">📦 สต็อก</button>
-        <button class="imgtab" onclick="aiTab('finance',this)">💰 การเงิน</button>
-        <button class="imgtab" onclick="aiTab('manager',this)">👩‍💼 ลายลิน</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <div class="imgtabs" id="aiTabs">
+          <button class="imgtab on" onclick="aiTab('marketing',this)">📣 การตลาด</button>
+          <button class="imgtab" id="invTabBtn" onclick="aiTab('inventory',this)">📦 สต็อก</button>
+          <button class="imgtab" onclick="aiTab('finance',this)">💰 การเงิน</button>
+          <button class="imgtab" onclick="aiTab('manager',this)">👩‍💼 ลายลิน</button>
+        </div>
+        <label title="เปิด/ปิดระบบสต็อกวัสดุทั้งระบบ — ปิดแล้วจะซ่อนแท็บสต็อก และลายลินจะไม่พูดถึงสต็อก" style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap">
+          <input type="checkbox" id="invFeatToggle" onchange="toggleInvFeature(this.checked)"> 📦 ระบบสต็อก
+        </label>
       </div>
       <div class="ai-panel" id="ai-marketing">
       <div class="lailin"><div class="ava">📣</div><div class="tx"><b>AI Marketing</b><span class="role">ผู้ช่วยการตลาด · ร่างคอนเทนต์/แคปชั่น/แคมเปญ</span><p>เลือกชนิดงาน ใส่หัวข้อหรือโปรที่อยากดัน แล้วกดให้ AI ร่างให้ได้เลยค่ะ — หรือกดวิเคราะห์งานขายดีเพื่อให้แนะนำว่าควรโปรโมตอะไร</p></div></div>
@@ -970,9 +975,24 @@ function aiTab(key,btn){
   (AI_RENDER[key]||function(){})();
 }
 function renderAIRoom(){
+  applyInvFeature();
   const btns=document.querySelectorAll('#aiTabs .imgtab');let btn=btns[0];
   btns.forEach(b=>{const oc=b.getAttribute('onclick')||'';if(oc.indexOf("'"+AI_TAB+"'")>=0)btn=b;});
   aiTab(AI_TAB,btn);
+}
+/* ===== ปุ่มเปิด/ปิดระบบสต็อก (Inventory) — default ปิด · เก็บใน localStorage ===== */
+function invEnabled(){return localStorage.getItem('sm_feat_inventory')==='1';}
+function applyInvFeature(){
+  const on=invEnabled();
+  const btn=document.getElementById('invTabBtn'); if(btn) btn.style.display=on?'':'none';
+  const tg=document.getElementById('invFeatToggle'); if(tg) tg.checked=on;
+  if(!on && AI_TAB==='inventory'){const mk=document.querySelector('#aiTabs .imgtab'); if(mk) aiTab('marketing',mk);}
+}
+function toggleInvFeature(on){
+  localStorage.setItem('sm_feat_inventory', on?'1':'0');
+  applyInvFeature();
+  if(typeof renderManager==='function' && document.getElementById('mgrChips')) renderManager();
+  toast(on?'เปิดระบบสต็อกแล้วค่ะ ✅':'ปิดระบบสต็อกแล้วค่ะ — ซ่อนแท็บ + ลายลินจะไม่พูดถึงสต็อก 👌');
 }
 
 /* ===== AI Marketing ===== */
@@ -1261,9 +1281,9 @@ function renderManager(){
     ['🏭','กำลังทำ',s.c.prod,'#7c3aed'],
     ['⏳','รอเก็บเงิน',fmtB(s.fin.waiting),'#d97706'],
     ['💰','รายได้งานเสร็จ',fmtB(s.fin.realized),'#16a34a'],
-    ['📦','ของใกล้หมด',s.low.length+' รายการ',s.low.length?'#dc2626':'#16a34a'],
     ['🤝','Lead ใหม่',s.leads,'#0891b2'],
   ];
+  if(invEnabled()) chips.splice(4,0,['📦','ของใกล้หมด',s.low.length+' รายการ',s.low.length?'#dc2626':'#16a34a']);
   box.innerHTML=chips.map(c=>`<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:#fff"><div style="font-size:.8rem;color:var(--muted)">${c[0]} ${c[1]}</div><div style="font-size:1.15rem;font-weight:800;color:${c[3]};margin-top:3px">${c[2]}</div></div>`).join('');
 }
 function managerContext(){
@@ -1271,7 +1291,7 @@ function managerContext(){
   return `ภาพรวมร้าน ณ ตอนนี้:\n`
     +`- ออเดอร์: ทั้งหมด ${s.total} (ใหม่ ${s.c.new} · กำลังทำ ${s.c.prod} · รอชำระ ${s.c.wait} · เสร็จ ${s.c.done})\n`
     +`- การเงิน: รายได้งานเสร็จ ${fmtB(s.fin.realized)} · รอเก็บเงิน ${fmtB(s.fin.waiting)} · งานกำลังทำ ${fmtB(s.fin.pipeline)}\n`
-    +`- สต็อก: ของใกล้หมด ${s.low.length} รายการ (${lowNames})\n`
+    +(invEnabled()?`- สต็อก: ของใกล้หมด ${s.low.length} รายการ (${lowNames})\n`:'')
     +`- Lead ใหม่: ${s.leads} รายการ`;
 }
 async function askManager(q){
