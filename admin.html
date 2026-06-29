@@ -305,6 +305,7 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       <a data-v="chat"><span class="em">💬</span> ประวัติแชต</a>
       <a data-v="images" class="editor-only"><span class="em">🖼️</span> จัดการภาพ</a>
       <a data-v="airoom"><span class="em">🤖</span> ห้องทำงาน AI</a>
+      <a data-v="kb"><span class="em">🧠</span> คลังความรู้</a>
       <a data-v="power"><span class="em">🔋</span> พลัง AI <span class="badge" id="pwrBadge" style="display:none">!</span></a>
       <a data-v="prices" class="admin-only"><span class="em">💰</span> ตั้งราคา</a>
       <a data-v="users" class="admin-only"><span class="em">👤</span> ผู้ใช้งาน</a>
@@ -662,6 +663,39 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
       </div>
     </section>
 
+    <!-- ===== คลังความรู้ลายลิน (RAG) ===== -->
+    <section class="view" id="view-kb">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="csub" style="margin:0">🧠 แหล่งข้อมูลที่ลายลินใช้วิเคราะห์ — sync อัตโนมัติทุก 3 วัน · ลายลินค้นด้วย AI ตอนตอบคำถาม</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="renderKB()">🔄 รีเฟรช</button>
+            <button class="btn btn-line" id="kbSyncBtn" onclick="kbSyncNow()">⚡ sync เดี๋ยวนี้</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin:14px 0">
+          <div class="csub">📚 ความรู้ในถัง: <b id="kbTotal">0</b></div>
+          <div class="csub">🌐 แหล่งข้อมูล: <b id="kbSrcCount">0</b></div>
+          <div class="csub">⏰ sync ล่าสุด: <b id="kbLastSync">—</b></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <input id="kbUrl" placeholder="https://... URL แหล่งข้อมูล" style="flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
+          <select id="kbType" style="padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
+            <option value="product">จุดขาย/บริการ</option>
+            <option value="faq">FAQ/คู่มือ</option>
+            <option value="competitor">คู่แข่ง</option>
+            <option value="news">ข่าว/เทรนด์</option>
+          </select>
+          <input id="kbTitle" placeholder="ชื่อย่อ (ไม่บังคับ)" style="width:150px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
+          <button class="btn btn-pri" onclick="kbAddSrc()">+ เพิ่มแหล่ง</button>
+        </div>
+        <div id="kbMsg" class="csub" style="margin-bottom:10px"></div>
+        <div id="kbSrcList"><div class="csub">กำลังโหลด…</div></div>
+        <h3 style="margin-top:18px;font-size:1rem">📚 ความรู้ในถัง (ล่าสุด)</h3>
+        <div id="kbItemList"><div class="csub">กำลังโหลด…</div></div>
+      </div>
+    </section>
+
     <!-- ===== คู่มือ & บทความ ===== -->
     <section class="view" id="view-docs">
       <div class="card" style="padding:0;overflow:hidden">
@@ -954,7 +988,7 @@ function setRange(r,btn){RANGE=r;document.querySelectorAll('#seg button').forEac
 function applyCustom(){const f=document.getElementById('cFrom').value,t=document.getElementById('cTo').value;if(!f||!t){toast('เลือกวันเริ่ม–สิ้นสุดก่อนค่ะ');return;}if(new Date(f)>new Date(t)){toast('วันเริ่มต้องไม่เกินวันสิ้นสุดค่ะ');return;}cFrom=f;cTo=t;renderDash();}
 
 /* ===== nav ===== */
-const TITLES={dash:['สวัสดีค่ะ เจ้านาย 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้'],docs:['📖 คู่มือ & บทความ','คู่มือใช้งานระบบ + บทความแนะนำทีม AI · อ่าน/ปริ้นท์ได้']};
+const TITLES={dash:['สวัสดีค่ะ เจ้านาย 👋',''],customers:['👥 ลูกค้า','รายชื่อลูกค้าทั้งหมด + สมาชิก/VIP'],loyalty:['🎁 สิทธิพิเศษสมาชิก','ตั้งสิทธิพิเศษ 3 ระดับ — Silver / Gold / Platinum'],orders:['🧾 ออเดอร์','คำสั่งซื้อทั้งหมด'],chat:['💬 ประวัติแชต','บทสนทนาน้องอิงค์ ↔ ลูกค้า'],airoom:['🤖 ห้องทำงาน AI','ทีม AI หลังบ้าน — การตลาด · สต็อก · การเงิน · ลายลิน'],images:['🖼️ จัดการภาพ','เปลี่ยนรูปหน้าเว็บได้เอง — บริการ 4 + เกี่ยวกับเรา 1'],power:['🔋 พลัง AI','หมึก AI — เชื้อเพลิงของน้องอิงค์ & ลายลิน'],prices:['💰 ตั้งราคา','แก้ราคาวัสดุ/ค่าบริการเอง — เว็บอัปเดตทันที'],users:['👤 ผู้ใช้งาน','จัดการบัญชี + สิทธิ์เข้าใช้'],docs:['📖 คู่มือ & บทความ','คู่มือใช้งานระบบ + บทความแนะนำทีม AI · อ่าน/ปริ้นท์ได้'],kb:['🧠 คลังความรู้ลายลิน','แหล่งข้อมูลที่ลายลินใช้วิเคราะห์ — เพิ่ม/ลบแหล่ง + sync + ค้นด้วย AI']};
 function switchView(v){
   if(v==='users'&&document.body.classList.contains('role-viewer')){toast('👁️ โหมดดูอย่างเดียว เข้าหน้าผู้ใช้งานไม่ได้ค่ะ');return;}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
@@ -962,7 +996,7 @@ function switchView(v){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.v===v));
   document.getElementById('vTitle').textContent=TITLES[v][0];
   document.getElementById('vSub').textContent=TITLES[v][1];
-  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='prices')renderPrices();else if(v==='users')renderUsers();
+  if(v==='customers')renderCustomers();else if(v==='loyalty')renderLoyalty();else if(v==='orders')renderOrders();else if(v==='chat')renderChat();else if(v==='airoom')renderAIRoom();else if(v==='images')renderImages();else if(v==='power')renderPower();else if(v==='prices')renderPrices();else if(v==='users')renderUsers();else if(v==='kb')renderKB();
 }
 
 /* ===== ห้องทำงาน AI (รวม 4 แผนกเป็นแท็บในวิวเดียว) ===== */
@@ -999,6 +1033,46 @@ function toggleInvFeature(on){
 const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
 // token สิทธิ์ = session ของ admin ที่ login (รหัสเดียวกับ login · ไม่ต้องมีรหัสจัดการแยก)
 async function adminToken(){ try{ const {data}=await SB.auth.getSession(); return (data&&data.session)?data.session.access_token:''; }catch(e){ return ''; } }
+
+/* ===== 🧠 คลังความรู้ลายลิน (RAG) — เรียก signmaster-agents /kb/* ด้วย session token ===== */
+const KB_TMAP={product:'จุดขาย',faq:'FAQ',competitor:'คู่แข่ง',news:'ข่าว'};
+async function kbApi(path,body){ try{ const r=await fetch(AGENTS_WORKER+path,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await adminToken())},body:JSON.stringify(body||{})}); return await r.json().catch(()=>({})); }catch(e){ return {error:String(e)}; } }
+function kbMsg(m){const e=document.getElementById('kbMsg');if(e)e.textContent=m||'';}
+function kbDate(s){try{return s?new Date(s).toLocaleDateString('th-TH'):'';}catch(e){return'';}}
+async function renderKB(){
+  const sd=await kbApi('/kb/sources',{action:'list'});const sources=(sd&&sd.sources)||[];
+  document.getElementById('kbSrcCount').textContent=sources.length;let last=null;
+  document.getElementById('kbSrcList').innerHTML=sources.length?sources.map(function(s){
+    if(s.last_synced&&(!last||s.last_synced>last))last=s.last_synced;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)">'
+      +'<span style="font-size:.72rem;padding:2px 8px;border-radius:6px;background:#f0f2f5">'+(KB_TMAP[s.type]||s.type)+'</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(s.title||s.url)+'</div><div class="csub" style="font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.url+' · sync: '+(s.last_synced?kbDate(s.last_synced):'ยังไม่ sync')+'</div></div>'
+      +'<button class="btn btn-ghost" style="padding:4px 10px;font-size:.78rem" onclick="kbDelSrc(\''+s.id+'\')">ลบ</button></div>';
+  }).join(''):'<div class="csub">ยังไม่มีแหล่งข้อมูล — เพิ่ม URL ด้านบนแล้วกด sync</div>';
+  document.getElementById('kbLastSync').textContent=last?kbDate(last):'—';
+  const kd=await kbApi('/kb/list',{});const items=(kd&&kd.items)||[];
+  document.getElementById('kbTotal').textContent=items.length;
+  document.getElementById('kbItemList').innerHTML=items.length?items.slice(0,40).map(function(it){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem">'
+      +'<span style="font-size:.72rem;padding:2px 8px;border-radius:6px;background:#f0f2f5">'+(KB_TMAP[it.source_type]||it.source_type)+'</span>'
+      +'<div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(it.title||'(ไม่มีชื่อ)')+'</div>'
+      +'<span class="csub" style="font-size:.72rem">'+kbDate(it.fetched_at)+'</span></div>';
+  }).join(''):'<div class="csub">ยังไม่มีความรู้ — เพิ่มแหล่งแล้วกด sync</div>';
+}
+async function kbAddSrc(){
+  const url=document.getElementById('kbUrl').value.trim();if(!url){kbMsg('⚠️ ใส่ URL ก่อน');return;}
+  const type=document.getElementById('kbType').value;const title=document.getElementById('kbTitle').value.trim();
+  kbMsg('กำลังเพิ่ม…');const r=await kbApi('/kb/sources',{action:'add',url:url,type:type,title:title});
+  if(r&&r.ok){document.getElementById('kbUrl').value='';document.getElementById('kbTitle').value='';kbMsg('✅ เพิ่มแล้ว — กด "sync เดี๋ยวนี้" เพื่อดึงเข้าถัง');renderKB();}
+  else kbMsg('❌ เพิ่มไม่สำเร็จ'+(r&&r.error?' ('+r.error+')':''));
+}
+async function kbDelSrc(id){ if(!confirm('ลบแหล่งนี้? (ความรู้ที่ sync มาแล้วยังอยู่)'))return; const r=await kbApi('/kb/sources',{action:'del',id:id}); if(r&&r.ok)renderKB();else kbMsg('❌ ลบไม่สำเร็จ'); }
+async function kbSyncNow(){
+  const b=document.getElementById('kbSyncBtn');const o=b.textContent;b.disabled=true;b.textContent='⏳ sync…';
+  kbMsg('กำลัง sync จากทุกแหล่ง สักครู่…');const r=await kbApi('/kb/sync',{});
+  b.disabled=false;b.textContent=o;
+  kbMsg(r&&r.ok?('✅ sync เสร็จ: '+r.sources+' แหล่ง · เพิ่ม/อัปเดต '+r.chunks+' ชิ้น'):'❌ sync ไม่สำเร็จ');renderKB();
+}
 
 /* ===== ส่งสรุป Dashboard เข้ากลุ่ม LINE (ฟรี · ไม่เรียก AI · ตัวเลขจากระบบ) ===== */
 const MAIL_WORKER='https://signmaster-mail.neos-css01.workers.dev';
