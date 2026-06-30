@@ -700,8 +700,11 @@ td{padding:11px 10px;border-bottom:1px solid #f1f3f6;font-size:.91rem}tr:last-ch
           <select id="kbTextType" style="padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:.92rem">
             <option value="product">จุดขาย/บริการ</option>
             <option value="faq">FAQ/คู่มือ</option>
-            <option value="competitor">คู่แข่ง</option>
-            <option value="news">ข่าว/เทรนด์</option>
+            <optgroup label="ความรู้ผู้จัดการ (ลายลินใช้ตัดสินใจ)">
+              <option value="marketing">📊 การตลาด/กลยุทธ์</option>
+              <option value="competitor">คู่แข่ง</option>
+              <option value="news">เทรนด์/ข่าว</option>
+            </optgroup>
           </select>
           <button class="btn btn-pri" onclick="kbAddText()">+ เก็บเข้าถัง</button>
         </div>
@@ -1050,7 +1053,7 @@ const AGENTS_WORKER='https://signmaster-agents.neos-css01.workers.dev';
 async function adminToken(){ try{ const {data}=await SB.auth.getSession(); return (data&&data.session)?data.session.access_token:''; }catch(e){ return ''; } }
 
 /* ===== 🧠 คลังความรู้ลายลิน (RAG) — เรียก signmaster-agents /kb/* ด้วย session token ===== */
-const KB_TMAP={product:'จุดขาย',faq:'FAQ',competitor:'คู่แข่ง',news:'ข่าว'};
+const KB_TMAP={product:'จุดขาย',faq:'FAQ',competitor:'คู่แข่ง',news:'ข่าว/เทรนด์',marketing:'การตลาด'};
 function kbDomain(u){ try{ return u==='manual' ? 'ใส่เอง' : new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u||''; } }
 function kbBaseTitle(t){ return String(t||'').replace(/\s*\(\d+\/\d+\)\s*$/,'').trim(); }
 function kbCleanTitle(t,u){ t=kbBaseTitle(t); return (!t || t.indexOf('???')>=0) ? kbDomain(u) : t; }
